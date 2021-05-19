@@ -5,9 +5,11 @@ VisualStudioVersion = 16.0.31229.75
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloWorld", "HelloWorld\HelloWorld.csproj", "{A3BBCD01-CEBA-4636-A752-DA4DEA6E9529}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComponectDirectorySelect", "ComponectDirectorySelect\ComponectDirectorySelect.csproj", "{3EBBE587-1C25-4CD2-847A-850DC2FF3022}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ComponectDirectorySelect", "ComponectDirectorySelect\ComponectDirectorySelect.csproj", "{3EBBE587-1C25-4CD2-847A-850DC2FF3022}"
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "TTransferSetup", "TTransferSetup\TTransferSetup.vdproj", "{D5E6019F-31B0-48A0-AF1A-CE5187763BAF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{7E316CA1-61DA-4AF4-8811-0903895AF332}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,6 +27,10 @@ Global
 		{3EBBE587-1C25-4CD2-847A-850DC2FF3022}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D5E6019F-31B0-48A0-AF1A-CE5187763BAF}.Debug|Any CPU.ActiveCfg = Debug
 		{D5E6019F-31B0-48A0-AF1A-CE5187763BAF}.Release|Any CPU.ActiveCfg = Release
+		{7E316CA1-61DA-4AF4-8811-0903895AF332}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E316CA1-61DA-4AF4-8811-0903895AF332}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E316CA1-61DA-4AF4-8811-0903895AF332}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E316CA1-61DA-4AF4-8811-0903895AF332}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
