@@ -13,6 +13,7 @@ namespace ConsoleApp1
 {
     class Program
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         static void Main(string[] args)
         {
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
@@ -80,6 +81,24 @@ namespace ConsoleApp1
             //        File.WriteAllText(export_path, JsonConvert.SerializeObject(exportRecord));
             //    }
             //}
+
+
+            //Testing Logger
+            //var logger = new TOALogger();
+            //logger.Initialize();
+
+            try
+            {
+                Logger.Info("Hello world");
+                Logger.Warn("Test Warn");
+                System.Console.ReadKey();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "Goodbye cruel world");
+            }
+
+            NLog.LogManager.Shutdown();
         }
 
         private static string[] RemoveDuplicates(List<string> dateList)
