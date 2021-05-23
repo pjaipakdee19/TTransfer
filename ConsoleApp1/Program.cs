@@ -41,6 +41,10 @@ namespace ConsoleApp1
             string path = configObj.getConfig(configinit, "json_dispense_log_path");
 
             Console.WriteLine(path);
+
+            dynamic configOOO = new XMLConfig();
+            string xmlResult = configOOO.getConfig("Key0");
+            Console.WriteLine(xmlResult);
             //var dateList = new List<string>();
 
             //Extract the csv to json following DISPENSED_DATE

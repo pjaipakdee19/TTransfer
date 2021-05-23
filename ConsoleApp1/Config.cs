@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Configuration;
+using System.Collections.Specialized;
 
 namespace ConsoleApp1
 {
@@ -27,11 +29,20 @@ namespace ConsoleApp1
 
         public string getConfig(string jsonString,string name)
         {
-            dynamic config_str = JsonConvert.DeserializeObject<ConfigHelper>(jsonString);
-            Console.WriteLine(config_str.json_dispense_log_path);
+            dynamic config_str = JsonConvert.DeserializeObject<dynamic>(jsonString);
             string result = config_str[name];
             return result;
            
+        }
+    }
+
+    public class XMLConfig
+    {
+        public string getConfig(string key)
+        {
+
+            return ConfigurationManager.AppSettings.Get(key);
+            //return "";
         }
     }
 }
