@@ -30,7 +30,7 @@ namespace TAService
 
         protected override void OnStart(string[] args)
         {
-            //Init configuration
+            //Init configuration variable
             string csv_history_path = ConfigurationManager.AppSettings.Get("csv_history_path");
             string jsonDispenseLogPath = ConfigurationManager.AppSettings.Get("json_dispense_log_path"); 
             string csv_history_achive_path = ConfigurationManager.AppSettings.Get("csv_history_achive_path");
@@ -48,10 +48,10 @@ namespace TAService
             //if Diff time between current time > servertime more than 1 min 
 
             //else time < 1 min
-            //find the csv in history files
 
+
+            //find the csv in history files
             DirectoryInfo csvHistoryPathInfo = new DirectoryInfo(csv_history_path);
-            //does csv file exist?
             foreach (var csvFile in csvHistoryPathInfo.GetFiles("*.csv"))
             {
                 var reader = new StreamReader(csvFile.FullName);
@@ -59,9 +59,8 @@ namespace TAService
                 var records = csv.GetRecords<DispenseHistory>().ToList();
 
                 var dateList = new List<string>();
-
+                //does csv file exist?
                 //Extract the csv to json following DISPENSED_DATE
-
                 //Get all date in csv
                 for (int i = 0; i < records.Count(); i++)
                 {
