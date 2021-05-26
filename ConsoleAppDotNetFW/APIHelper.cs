@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using RestSharp;
-using RestSharp.Authenticators;
 using Newtonsoft.Json;
 using System.Threading;
+using System.IO;
+using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 
 namespace ConsoleAppDotNetFW
 {
@@ -27,19 +25,29 @@ namespace ConsoleAppDotNetFW
             request.AddHeader("Accept", "application/json");
             request.Parameters.Clear();
             IRestResponse result = await client.ExecuteTaskAsync(request, cancellationTokenSource.Token);
+            Console.WriteLine(result.Content);
             return JsonConvert.SerializeObject(result.Content);
         }
 
         [Obsolete]
         public static async Task<string> UploadFile(RestClient client, string url,string file_path)
         {
-            var request = new RestRequest(url, Method.POST);
-            request.AddFile("file", file_path);
-            var cancellationTokenSource = new CancellationTokenSource();
-            request.AddHeader("Accept", "application/json");
-            request.Parameters.Clear();
-            IRestResponse result = await client.ExecuteTaskAsync(request, cancellationTokenSource.Token);
-            return JsonConvert.SerializeObject(result.Content);
+            try
+            {
+                var request = new RestRequest(url, Method.POST);
+                var cancellationTokenSource = new CancellationTokenSource();
+                request.AddHeader("Accept", "application/json");
+                request.AddHeader("Content-Type", "application/json");
+                string streamFile = File.ReadAllText(file_path);
+                request.AddParameter("data", streamFile, ParameterType.RequestBody);
+                IRestResponse result = await client.ExecuteTaskAsync(request, cancellationTokenSource.Token);
+                
+                return JsonConvert.SerializeObject(new { statusCode = result.StatusCode, message = result.Content });
+            }catch(Exception ex)
+            {
+                Console.WriteLine("Call logger about exception "+ex);
+                return "Error";
+            }
         }
     }
 }
