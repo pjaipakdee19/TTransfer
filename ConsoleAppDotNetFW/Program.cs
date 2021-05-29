@@ -34,7 +34,8 @@ namespace ConsoleAppDotNetFW
             set.CopyTo(result);
             return result;
         }
-        static public async Task Main(string[] args)
+        //static public async Task Main(string[] args)
+        static public void Main(string[] args)
         {
             string csv_history_path = ConfigurationManager.AppSettings.Get("csv_history_path");
             string jsonDispenseLogPath = ConfigurationManager.AppSettings.Get("json_dispense_log_path");
@@ -46,14 +47,40 @@ namespace ConsoleAppDotNetFW
             //Console.WriteLine("Done!!!");
             //System.Console.ReadKey();
 
-            var sendfileResult = await APIHelper.UploadFile(client, "http://49.229.21.8/poc/dispense_history/", "E:\\Tutorial\\json_dispense_log\\full_dispense_log_1_2_2016.json");
-            //var streamFile = File.ReadAllText("E:\\Tutorial\\json_dispense_log\\full_dispense_log_1_2_2016.json");
-            //Console.WriteLine(streamFile);
-            Console.WriteLine(sendfileResult);
-            Console.WriteLine("Done!!!");
+            //var sendfileResult = await APIHelper.UploadFile(client, "http://49.229.21.8/poc/dispense_history/", "E:\\Tutorial\\json_dispense_log\\full_dispense_log_1_2_2016.json");
+            ////var streamFile = File.ReadAllText("E:\\Tutorial\\json_dispense_log\\full_dispense_log_1_2_2016.json");
+            ////Console.WriteLine(streamFile);
+            //Console.WriteLine(sendfileResult);
+            //Console.WriteLine("Done!!!");
+            //System.Console.ReadKey();
+
+            DateTime time_nist_gov = NTPClient.GetTime().TransmitTimestamp; // uses NTPClient.DefaultTimeServer = "time.nist.gov"
+            DateTime time_windows_com = NTPClient.GetTime("time.windows.com").TransmitTimestamp;
+            DateTime pool_ntp_org = NTPClient.GetTime("pool.ntp.org").TransmitTimestamp;
+
+            Console.WriteLine(time_windows_com);
+
+            var ictZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime tester = new DateTime();
+            if(tester == (new DateTime()))
+            {
+                Console.WriteLine("Tester equal init value");
+            }
+            Console.WriteLine(tester);
+
+            Random r = new Random();
+            double genRand = r.Next(0, 25);
+            time_windows_com = time_windows_com.AddMinutes(genRand);
+            Console.WriteLine(time_windows_com);
+            var startDatetime = new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 07, 30, 00);
+
+            if(startDatetime >= time_windows_com)
+            {
+                Console.WriteLine("Start working!!!");
+            }
+
             System.Console.ReadKey();
-
-
 
             ///////Test convert file csv
             //find the csv in history files

@@ -118,7 +118,7 @@ namespace ConsoleAppDotNetFW
 
             return networkDateTime.ToLocalTime(); // without ToLocalTime() = faster
         }
-        static void Main(string[] args)
+        static void Timer(string[] args)
         {
             Console.WriteLine("DateTime.now is local computer time " + DateTime.Now);
 

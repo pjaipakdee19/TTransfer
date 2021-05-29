@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ConsoleAppDotNetFW
+namespace TAService
 {
     public class ListDispenseHistory
     {
@@ -256,7 +256,6 @@ namespace ConsoleAppDotNetFW
         public string lines_wanted_amount5 { get; set; }
         [Name("LINES_DISPENSED_AMOUNT5")]
         public string lines_dispensed_amount5 { get; set; }
-
         [Name("COMPONENT_NAME6")]
         public string component_name6 { get; set; }
         [Name("DURATION_MILLISECONDS6")]
@@ -265,41 +264,5 @@ namespace ConsoleAppDotNetFW
         public string lines_wanted_amount6 { get; set; }
         [Name("LINES_DISPENSED_AMOUNT6")]
         public string lines_dispensed_amount6 { get; set; }
-
-        [Name("COMPONENT_NAME7")]
-        public string component_name7 { get; set; }
-        [Name("DURATION_MILLISECONDS7")]
-        public string duration_milliseconds7 { get; set; }
-        [Name("LINES_WANTED_AMOUNT7")]
-        public string lines_wanted_amount7 { get; set; }
-        [Name("LINES_DISPENSED_AMOUNT7")]
-        public string lines_dispensed_amount7 { get; set; }
-
-        [Name("COMPONENT_NAME8")]
-        public string component_name8 { get; set; }
-        [Name("DURATION_MILLISECONDS8")]
-        public string duration_milliseconds8 { get; set; }
-        [Name("LINES_WANTED_AMOUNT8")]
-        public string lines_wanted_amount8 { get; set; }
-        [Name("LINES_DISPENSED_AMOUNT8")]
-        public string lines_dispensed_amount8 { get; set; }
-
-        [Name("COMPONENT_NAME9")]
-        public string component_name9 { get; set; }
-        [Name("DURATION_MILLISECONDS9")]
-        public string duration_milliseconds9 { get; set; }
-        [Name("LINES_WANTED_AMOUNT9")]
-        public string lines_wanted_amount9 { get; set; }
-        [Name("LINES_DISPENSED_AMOUNT9")]
-        public string lines_dispensed_amount9 { get; set; }
-
-        [Name("COMPONENT_NAME10")]
-        public string component_name10 { get; set; }
-        [Name("DURATION_MILLISECONDS10")]
-        public string duration_milliseconds10 { get; set; }
-        [Name("LINES_WANTED_AMOUNT10")]
-        public string lines_wanted_amount10 { get; set; }
-        [Name("LINES_DISPENSED_AMOUNT10")]
-        public string lines_dispensed_amount10 { get; set; }
     }
 }

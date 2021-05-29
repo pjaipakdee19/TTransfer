@@ -1,6 +1,7 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
 using Newtonsoft.Json;
+using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -25,6 +26,7 @@ namespace TAService
         };
 
         public DateTime randomStartTime = new DateTime();
+        public static RestClient APIclient = APIHelper.init();
         public Service1()
         {
             InitializeComponent();
@@ -113,6 +115,7 @@ namespace TAService
             string csv_history_path = ConfigurationManager.AppSettings.Get("csv_history_path");
             string jsonDispenseLogPath = ConfigurationManager.AppSettings.Get("json_dispense_log_path");
             string csv_history_achive_path = ConfigurationManager.AppSettings.Get("csv_history_achive_path");
+            string auto_tint_id = ConfigurationManager.AppSettings.Get("auto_tint_id");
             //find the csv in history files
             DirectoryInfo csvHistoryPathInfo = new DirectoryInfo(csv_history_path);
             foreach (var csvFile in csvHistoryPathInfo.GetFiles("*.csv"))
@@ -127,7 +130,7 @@ namespace TAService
                 //Get all date in csv
                 for (int i = 0; i < records.Count(); i++)
                 {
-                    string[] date = records[i].DISPENSED_DATE.Split(' ');
+                    string[] date = records[i].dispensed_date.Split(' ');
                     dateList.Add(date[0]);
 
                 }
@@ -139,20 +142,24 @@ namespace TAService
                 for (int i = 0; i < cleanDate.Count(); i++)
                 {
                     var exportRecord = new List<DispenseHistory>();
+                    var exportRecordBI = new List<DispenseHistoryBI>();
                     for (int j = 0; j < records.Count(); j++)
                     {
 
-                        if (records[j].DISPENSED_DATE.Contains(cleanDate[i]))
+                        if (records[j].dispensed_date.Contains(cleanDate[i]))
                         {
                             exportRecord.Add(records[j]);
+                            exportRecordBI.Add(convertToBIData(cleanDate[i],auto_tint_id,records[j]));
                         }
 
                     }
                     if (exportRecord.Count > 0)
                     {
                         var export_path = jsonDispenseLogPath + "\\" + "full_dispense_log_" + cleanDate[i].Replace("/", "_") + ".json";
+                        var export_path_bi = jsonDispenseLogPath + "\\" + "full_dispense_log_" + cleanDate[i].Replace("/", "_") + "_BI.json";
                         Logger.Info("Export " + export_path);
                         File.WriteAllText(export_path, JsonConvert.SerializeObject(exportRecord));
+                        File.WriteAllText(export_path_bi, JsonConvert.SerializeObject(exportRecordBI));
                     }
                 }
 
@@ -196,6 +203,14 @@ namespace TAService
                 }
 
             }
+        }
+
+        private DispenseHistoryBI convertToBIData(string clean_date,string auto_tint_id,DispenseHistory dispenseHistory)
+        {
+            DispenseHistoryBI data = new DispenseHistoryBI();
+            string recordKeyDate = clean_date.Split('_')[2] + clean_date.Split('_')[1] + ((clean_date.Split('_')[0].Length < 2) ? "0" : "") + clean_date.Split('_')[0];
+            data.record_key = "ID"+ recordKeyDate + auto_tint_id;
+            return data;
         }
 
         private static string[] RemoveDuplicates(List<string> dateList)
