@@ -84,7 +84,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DispenseHistory.cs" />
+    <Compile Include="APIHelper.cs" />
+    <Compile Include="Model\APIModel\ProsmaProLatestVersion.cs" />
+    <Compile Include="Model\APIModel\AutoTintWithId.cs" />
+    <Compile Include="Model\CSVModel\DispenseHistoryBI.cs" />
+    <Compile Include="Model\CSVModel\DispenseHistory.cs" />
     <Compile Include="Service1.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -104,5 +108,6 @@
     </None>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
