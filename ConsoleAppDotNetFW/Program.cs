@@ -61,7 +61,8 @@ namespace ConsoleAppDotNetFW
             Console.WriteLine(time_windows_com);
 
             var ictZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-
+            var utcTime = DateTime.UtcNow;
+            var actualTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, ictZone);
             DateTime tester = new DateTime();
             if(tester == (new DateTime()))
             {
@@ -79,6 +80,28 @@ namespace ConsoleAppDotNetFW
             {
                 Console.WriteLine("Start working!!!");
             }
+            //logAppdata("" + startDatetime);
+
+
+            Console.WriteLine(actualTime.ToString("yyyy-MM-dd"));
+            bool isTodayDone = false;
+            string programdata_path = ConfigurationManager.AppSettings.Get("programdata_log_path");
+            DirectoryInfo programdata_info = new DirectoryInfo(programdata_path);
+            foreach (var txtFile in programdata_info.GetFiles("*.txt"))
+            {
+                if (txtFile.Name.Contains(actualTime.ToString("yyyy-MM-dd")))
+                {
+                    isTodayDone = true;
+                    Console.WriteLine("today is done!!");
+                }
+
+            }
+
+
+
+
+
+
 
             System.Console.ReadKey();
 
@@ -133,6 +156,12 @@ namespace ConsoleAppDotNetFW
             //}
 
 
+        }
+
+        private static void logAppdata(string text)
+        {
+            Console.WriteLine("Call logger !!");
+            Logger.Trace("Done for today "+text);
         }
     }
 }

@@ -39,17 +39,7 @@ namespace TAService
             System.Timers.Timer timScheduledTask = new System.Timers.Timer();
             timScheduledTask.Enabled = true;
             timScheduledTask.Interval = 60 * 1000;
-            timScheduledTask.Elapsed += new System.Timers.ElapsedEventHandler(timScheduledTask_Elapsed);
-            //try
-            //{
-            //    Logger.Info("Hello world");
-            //    Logger.Warn("Test Warn");
-            //    System.Console.ReadKey();
-            //}
-            //catch (Exception ex)
-            //{
-            //    Logger.Error(ex, "Goodbye cruel world");
-            //}
+            timScheduledTask.Elapsed += new System.Timers.ElapsedEventHandler(timeScheduledTask_Elapsed);
 
         }
 
@@ -58,44 +48,62 @@ namespace TAService
             NLog.LogManager.Shutdown();
         }
 
-        void timScheduledTask_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        void timeScheduledTask_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             var utcTime = DateTime.UtcNow;
             var ictZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
             var actualTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, ictZone);
-            // Execute some task
-            bool isBetweenStartTime = check_service_starttime(actualTime);
-            if(isBetweenStartTime && (randomStartTime == (new DateTime())))
+            bool isTodayDone = false;
+            string programdata_path = ConfigurationManager.AppSettings.Get("programdata_log_path");
+            DirectoryInfo programdata_info = new DirectoryInfo(programdata_path);
+            foreach (var txtFile in programdata_info.GetFiles("*.txt"))
             {
-                //Random time
-                Random r = new Random();
-                int genRand = r.Next(0, 25);
-                randomStartTime = randomStartTime.AddMinutes(genRand);
-                Logger.Info("Start Time will be : " + randomStartTime);
-            }
-            if ((actualTime >= randomStartTime) && (randomStartTime != (new DateTime())))
-            {
-                //Go working extract log and send process
-                try
+                if (txtFile.Name.Contains(actualTime.ToString("yyyy-MM-dd")))
                 {
-                    startOperation();
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex, "Exception on "+ex.ToString());
+                    isTodayDone = true;
+                    Logger.Info("Today is done do nothing");
                 }
 
-
-                randomStartTime = new DateTime(); //Reset
             }
+            if (!isTodayDone)
+            {
+                
+                // Execute some task
+                bool isBetweenStartTime = check_service_starttime(actualTime);
+                if (isBetweenStartTime && (randomStartTime == (new DateTime())))
+                {
+                    //Random time
+                    Random r = new Random();
+                    int genRand = r.Next(0, 5);
+                    randomStartTime = actualTime.AddMinutes(genRand);
+                    Logger.Info("Start Time will be : " + randomStartTime);
+                }
+                if ((actualTime >= randomStartTime) && (randomStartTime != (new DateTime())))
+                {
+                    //Go working extract log and send process
+                    try
+                    {
+                        startOperation();
+                        logMaskAsDoneDate("" + actualTime);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error(ex, "Exception on " + ex.ToString());
+                    }
+
+                    //Logger.Info("Operation Done for : " + randomStartTime);
+                    randomStartTime = new DateTime(); //Reset
+                }
+            }
+            
         }
 
         bool check_service_starttime(DateTime actualTime)
         {
             // Here is the code we need to execute periodically
             //random when 07:30
-            var startDatetime = new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 07, 30, 00); //!!! MOVE HARD CODE TO CONFIGURATION FILE
-            var tillDateTime = new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 08, 00, 00); //!!! MOVE HARD CODE TO CONFIGURATION FILE
+            var startDatetime = new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 01, 30, 00); //!!! MOVE HARD CODE TO CONFIGURATION FILE
+            var tillDateTime = new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 01, 59, 00); //!!! MOVE HARD CODE TO CONFIGURATION FILE
 
             //if local timm diff between server time ? > 1 
             //ExecuteCmd exe = new ExecuteCmd();
@@ -149,17 +157,20 @@ namespace TAService
                         if (records[j].dispensed_date.Contains(cleanDate[i]))
                         {
                             exportRecord.Add(records[j]);
-                            exportRecordBI.Add(convertToBIData(cleanDate[i],auto_tint_id,records[j]));
+                            //exportRecordBI.Add(convertToBIData(cleanDate[i],auto_tint_id,records[j]));
                         }
 
                     }
                     if (exportRecord.Count > 0)
                     {
                         var export_path = jsonDispenseLogPath + "\\" + "full_dispense_log_" + cleanDate[i].Replace("/", "_") + ".json";
-                        var export_path_bi = jsonDispenseLogPath + "\\" + "full_dispense_log_" + cleanDate[i].Replace("/", "_") + "_BI.json";
-                        Logger.Info("Export " + export_path);
+                        
+                        Logger.Info("Export log path : " + export_path);
                         File.WriteAllText(export_path, JsonConvert.SerializeObject(exportRecord));
-                        File.WriteAllText(export_path_bi, JsonConvert.SerializeObject(exportRecordBI));
+
+                        //var export_path_bi = jsonDispenseLogPath + "\\" + "full_dispense_log_" + cleanDate[i].Replace("/", "_") + "_BI.json";
+                        //Logger.Info("Export bi log" + export_path_bi);
+                        //File.WriteAllText(export_path_bi, JsonConvert.SerializeObject(exportRecordBI));
                     }
                 }
 
@@ -189,7 +200,9 @@ namespace TAService
                             //string[] mvFile = Directory.GetFiles(jsonFile.FullName);
                             int extensionIndex = jsonFile.Name.IndexOf(".json");
 
-                            File.Move(jsonFile.FullName, jsonDispenseLogPath + "\\" + jsonFile.Name.Substring(0, extensionIndex - 1) + "_p2.json");
+                            File.Move(jsonFile.FullName, jsonDispenseLogPath + "\\" + jsonFile.Name.Substring(0, extensionIndex) + "_p2.json");
+                            Logger.Info("Transfer to server complete move json files to : " + jsonDispenseLogPath + "\\" + jsonFile.Name.Substring(0, extensionIndex) + "_p2.json");
+                            retry = 4;
                         }
                         if (retry >3)
                         {
@@ -199,7 +212,7 @@ namespace TAService
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error(ex, "Exception on create json _p2");
+                    Logger.Error(ex, "Exception on create json _p2 : "+ ex.ToString());
                 }
 
             }
@@ -219,6 +232,12 @@ namespace TAService
             string[] result = new string[set.Count];
             set.CopyTo(result);
             return result;
+        }
+
+        private static void logMaskAsDoneDate(string text)
+        {
+            Console.WriteLine("Call logger !!");
+            Logger.Trace("Done for today " + text);
         }
     }
 }
