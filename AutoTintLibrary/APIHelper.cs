@@ -7,9 +7,9 @@ using System.IO;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
-namespace HelloWorld
+namespace AutoTintLibrary
 {
-    class APIHelper
+    public class APIHelper
     {
         public static string baseURL = "http://49.229.21.8/poc";
         public static RestClient init()
@@ -31,7 +31,7 @@ namespace HelloWorld
         }
 
         [Obsolete]
-        public static async Task<string> UploadFile(RestClient client, string url,string file_path)
+        public static async Task<string> UploadFile(RestClient client, string url, string file_path)
         {
             try
             {
@@ -42,19 +42,20 @@ namespace HelloWorld
                 string streamFile = File.ReadAllText(file_path);
                 request.AddParameter("data", streamFile, ParameterType.RequestBody);
                 IRestResponse result = await client.ExecuteTaskAsync(request, cancellationTokenSource.Token);
-                
+
                 return JsonConvert.SerializeObject(new { statusCode = result.StatusCode, message = result.Content });
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine("Call logger about exception "+ex);
+                Console.WriteLine("Call logger about exception " + ex);
                 return "Error";
             }
         }
 
         [Obsolete]
-        public static async Task<AutoTintWithId> GetAutoTintVersion(RestClient client,string auto_tint_id)
+        public static async Task<AutoTintWithId> GetAutoTintVersion(RestClient client, string auto_tint_id)
         {
-            var request = new RestRequest(baseURL+ "/auto_tint/" + auto_tint_id, Method.GET);
+            var request = new RestRequest(baseURL + "/auto_tint/" + auto_tint_id, Method.GET);
             var cancellationTokenSource = new CancellationTokenSource();
             request.AddHeader("Accept", "application/json");
             request.Parameters.Clear();

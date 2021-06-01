@@ -1,7 +1,7 @@
 ﻿
 namespace HelloWorld
 {
-    partial class Form1
+    partial class SettingForm
     {
         /// <summary>
         /// Required designer variable.

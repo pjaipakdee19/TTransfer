@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HelloWorld
+namespace AutoTintLibrary
 {
     // AutoTintWithId myDeserializedClass = JsonConvert.DeserializeObject<AutoTintWithId>(myJsonResponse); 
     public class Company

@@ -12,9 +12,11 @@ using System.Windows;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 
+using AutoTintLibrary;
+
 namespace HelloWorld
 {
-    public partial class Form1 : Form
+    public partial class SettingForm : Form
     {
         private dynamic client = APIHelper.init();
         //On screen attribute
@@ -27,7 +29,7 @@ namespace HelloWorld
         private string csv_history_achive_path = ConfigurationManager.AppSettings.Get("csv_history_achive_path");
         private string folderName;
 
-        public Form1()
+        public SettingForm()
         {
 
             InitializeComponent();

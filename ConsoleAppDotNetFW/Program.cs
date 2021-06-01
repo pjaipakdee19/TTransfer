@@ -17,6 +17,8 @@ using RestSharp.Authenticators;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
+using AutoTintLibrary;
+
 namespace ConsoleAppDotNetFW
 {
     class Program
@@ -98,8 +100,8 @@ namespace ConsoleAppDotNetFW
             }
 
 
-
-
+            var instance = new HelloWorld();
+            instance.WriteHelloworld();
 
 
 
