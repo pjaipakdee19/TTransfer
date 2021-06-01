@@ -1,124 +1,25 @@
-﻿using CsvHelper;
-using CsvHelper.Configuration;
-using Newtonsoft.Json;
-using RestSharp;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Configuration;
-using System.Data;
-using System.Diagnostics;
-using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.ServiceProcess;
 using System.Text;
 using System.Threading.Tasks;
+using System.Configuration;
+using System.IO;
+using CsvHelper;
+using NLog;
+using Newtonsoft.Json;
+using CsvHelper.Configuration;
+using System.Globalization;
 
-using AutoTintLibrary;
-
-namespace TAService
+namespace AutoTintLibrary
 {
-    public partial class Service1 : ServiceBase
+    public class FileOperationLibrary
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private static readonly CsvConfiguration csvConfig = new CsvConfiguration(CultureInfo.InvariantCulture)
         {
             MissingFieldFound = null,
         };
-
-        public DateTime randomStartTime = new DateTime();
-        public static RestClient APIclient = APIHelper.init();
-        public Service1()
-        {
-            InitializeComponent();
-        }
-
-        protected override void OnStart(string[] args)
-        {
-            
-            
-            System.Timers.Timer timScheduledTask = new System.Timers.Timer();
-            timScheduledTask.Enabled = true;
-            timScheduledTask.Interval = 60 * 1000;
-            timScheduledTask.Elapsed += new System.Timers.ElapsedEventHandler(timeScheduledTask_Elapsed);
-
-        }
-
-        protected override void OnStop()
-        {
-            NLog.LogManager.Shutdown();
-        }
-
-        void timeScheduledTask_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            var utcTime = DateTime.UtcNow;
-            var ictZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            var actualTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, ictZone);
-            bool isTodayDone = false;
-            string programdata_path = ConfigurationManager.AppSettings.Get("programdata_log_path");
-            DirectoryInfo programdata_info = new DirectoryInfo(programdata_path);
-            foreach (var txtFile in programdata_info.GetFiles("*.txt"))
-            {
-                if (txtFile.Name.Contains(actualTime.ToString("yyyy-MM-dd")))
-                {
-                    isTodayDone = true;
-                    Logger.Info("Today is done do nothing");
-                }
-
-            }
-            if (!isTodayDone)
-            {
-                
-                // Execute some task
-                bool isBetweenStartTime = check_service_starttime(actualTime);
-                if (isBetweenStartTime && (randomStartTime == (new DateTime())))
-                {
-                    //Random time
-                    Random r = new Random();
-                    int genRand = r.Next(0, 5);
-                    randomStartTime = actualTime.AddMinutes(genRand);
-                    Logger.Info("Start Time will be : " + randomStartTime);
-                }
-                if ((actualTime >= randomStartTime) && (randomStartTime != (new DateTime())))
-                {
-                    //Go working extract log and send process
-                    try
-                    {
-                        startOperation();
-                        logMaskAsDoneDate("" + actualTime);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Error(ex, "Exception on " + ex.ToString());
-                    }
-
-                    //Logger.Info("Operation Done for : " + randomStartTime);
-                    randomStartTime = new DateTime(); //Reset
-                }
-            }
-            
-        }
-
-        bool check_service_starttime(DateTime actualTime)
-        {
-            // Here is the code we need to execute periodically
-            //random when 07:30
-            var startDatetime = new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 01, 30, 00); //!!! MOVE HARD CODE TO CONFIGURATION FILE
-            var tillDateTime = new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 01, 59, 00); //!!! MOVE HARD CODE TO CONFIGURATION FILE
-
-            //if local timm diff between server time ? > 1 
-            //ExecuteCmd exe = new ExecuteCmd();
-            //exe.ExecuteCommandSync("net stop w32time");
-            //exe.ExecuteCommandSync("net stop w32time");
-            //exe.ExecuteCommandSync("net stop w32time");
-            //exe.ExecuteCommandSync("net stop w32time");
-            //exe.ExecuteCommandSync("net stop w32time");
-            //Reboot the PC after execute command !!!???!!!
-
-            return (actualTime > startDatetime && actualTime < tillDateTime);
-        }
-
         void startOperation()
         {
             //Init configuration variable
@@ -166,7 +67,7 @@ namespace TAService
                     if (exportRecord.Count > 0)
                     {
                         var export_path = jsonDispenseLogPath + "\\" + "full_dispense_log_" + cleanDate[i].Replace("/", "_") + ".json";
-                        
+
                         Logger.Info("Export log path : " + export_path);
                         File.WriteAllText(export_path, JsonConvert.SerializeObject(exportRecord));
 
@@ -192,12 +93,12 @@ namespace TAService
                     //Y Did the files name ended with _p2 ? (Does it have file name not end with p2 ?)
                     if (!jsonFile.Name.Contains("_p2"))
                     {
-                        
+
                         int retry = 1;
                         while (retry <= 3)
                         {
                             //send to api
-                            
+
                             //success mv change filename end with _p2
                             //string[] mvFile = Directory.GetFiles(jsonFile.FullName);
                             int extensionIndex = jsonFile.Name.IndexOf(".json");
@@ -206,7 +107,7 @@ namespace TAService
                             Logger.Info("Transfer to server complete move json files to : " + jsonDispenseLogPath + "\\" + jsonFile.Name.Substring(0, extensionIndex) + "_p2.json");
                             retry = 4;
                         }
-                        if (retry >3)
+                        if (retry > 3)
                         {
                             Logger.Error("Exception on send to api");
                         }
@@ -214,17 +115,17 @@ namespace TAService
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error(ex, "Exception on create json _p2 : "+ ex.ToString());
+                    Logger.Error(ex, "Exception on create json _p2 : " + ex.ToString());
                 }
 
             }
         }
 
-        private DispenseHistoryBI convertToBIData(string clean_date,string auto_tint_id,DispenseHistory dispenseHistory)
+        private DispenseHistoryBI convertToBIData(string clean_date, string auto_tint_id, DispenseHistory dispenseHistory)
         {
             DispenseHistoryBI data = new DispenseHistoryBI();
             string recordKeyDate = clean_date.Split('_')[2] + clean_date.Split('_')[1] + ((clean_date.Split('_')[0].Length < 2) ? "0" : "") + clean_date.Split('_')[0];
-            data.record_key = "ID"+ recordKeyDate + auto_tint_id;
+            data.record_key = "ID" + recordKeyDate + auto_tint_id;
             return data;
         }
 
@@ -234,12 +135,6 @@ namespace TAService
             string[] result = new string[set.Count];
             set.CopyTo(result);
             return result;
-        }
-
-        private static void logMaskAsDoneDate(string text)
-        {
-            Console.WriteLine("Call logger !!");
-            Logger.Trace("Done for today " + text);
         }
     }
 }

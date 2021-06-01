@@ -86,11 +86,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="APIHelper.cs" />
-    <Compile Include="Model\APIModel\ProsmaProLatestVersion.cs" />
-    <Compile Include="Model\APIModel\AutoTintWithId.cs" />
-    <Compile Include="Model\CSVModel\DispenseHistoryBI.cs" />
-    <Compile Include="Model\CSVModel\DispenseHistory.cs" />
     <Compile Include="ProjectInstaller.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -120,6 +115,12 @@
     <EmbeddedResource Include="ProjectInstaller.resx">
       <DependentUpon>ProjectInstaller.cs</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AutoTintLibrary\AutoTintLibrary.csproj">
+      <Project>{a26b2c26-b7c8-4c61-ad41-a34c0dd46f86}</Project>
+      <Name>AutoTintLibrary</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
