@@ -20,7 +20,7 @@ namespace AutoTintLibrary
         {
             MissingFieldFound = null,
         };
-        void startOperation()
+        public void StartOperation()
         {
             //Init configuration variable
             string csv_history_path = ConfigurationManager.AppSettings.Get("csv_history_path");
