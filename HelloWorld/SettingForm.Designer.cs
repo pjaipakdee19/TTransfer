@@ -71,7 +71,6 @@ namespace IOTClient
             this.lblHelloWorld.Name = "lblHelloWorld";
             this.lblHelloWorld.Size = new System.Drawing.Size(0, 13);
             this.lblHelloWorld.TabIndex = 1;
-            this.lblHelloWorld.Click += new System.EventHandler(this.label1_Click);
             // 
             // btnDatabaseSelect
             // 

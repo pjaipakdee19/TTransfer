@@ -27,7 +27,6 @@ namespace IOTClient
         //For export and move file
         private string jsonDispenseLogPath = ConfigurationManager.AppSettings.Get("json_dispense_log_path");
         private string csv_history_achive_path = ConfigurationManager.AppSettings.Get("csv_history_achive_path");
-        private string folderName;
 
         public SettingForm()
         {
@@ -35,6 +34,7 @@ namespace IOTClient
             InitializeComponent();
             
             this.Load += SettingForm_Load;
+
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -42,24 +42,20 @@ namespace IOTClient
             lblHelloWorld.Text = "Hello World!";
         }
 
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void SettingForm_Load(object sender, EventArgs e)
         {
-        //Load configuration from json file or xml
+            //Load configuration from json file or xml
 
-        //MessageBoxResult confirmResult = System.Windows.MessageBox.Show("Are you sure to delete this item ??", "Confirm Delete!!", MessageBoxButton.YesNo);
-        //if (confirmResult == MessageBoxResult.Yes)
-        //{
-        //    // If 'Yes', do something here.
-        //}
-        //else
-        //{
-        //    // If 'No', do something here.
-        //}
+            //MessageBoxResult confirmResult = System.Windows.MessageBox.Show("Are you sure to delete this item ??", "Confirm Delete!!", MessageBoxButton.YesNo);
+            //if (confirmResult == MessageBoxResult.Yes)
+            //{
+            //    // If 'Yes', do something here.
+            //}
+            //else
+            //{
+            //    // If 'No', do something here.
+            //}
+           
         }
 
         private async void button1_Click_1(object sender, EventArgs e)

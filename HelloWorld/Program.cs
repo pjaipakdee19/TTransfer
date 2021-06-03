@@ -16,8 +16,15 @@ namespace IOTClient
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new SettingForm());
+            //Application.Run(new SettingForm());
+            // Show the system tray icon.
+            using (ProcessIcon pi = new ProcessIcon())
+            {
+                pi.Display();
 
+                // Make sure the application runs!
+                Application.Run();
+            }
             //lblHelloWorld.Text = "Hello World!";
         }
     }
