@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace HelloWorld
+namespace IOTClient
 {
     static class Program
     {
@@ -16,7 +16,9 @@ namespace HelloWorld
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            Application.Run(new SettingForm());
+
+            //lblHelloWorld.Text = "Hello World!";
         }
     }
 }
