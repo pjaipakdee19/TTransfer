@@ -20,9 +20,12 @@ namespace IOTClient
     {
         private dynamic client = APIHelper.init();
         //On screen attribute
-        private string auto_tint_id = ConfigurationManager.AppSettings.Get("auto_tint_id");
-        private string csv_history_path = ConfigurationManager.AppSettings.Get("csv_history_path");
-        private string database_path = ConfigurationManager.AppSettings.Get("database_path");
+        //private string auto_tint_id = ConfigurationManager.AppSettings.Get("auto_tint_id");
+        //private string csv_history_path = ConfigurationManager.AppSettings.Get("csv_history_path");
+        //private string database_path = ConfigurationManager.AppSettings.Get("database_path");
+        private string auto_tint_id = ManageConfig.ReadConfig("auto_tint_id");
+        private string csv_history_path = ManageConfig.ReadConfig("csv_history_path");
+        public static string database_path = ManageConfig.ReadConfig("database_path");
 
         //For export and move file
         private string jsonDispenseLogPath = ConfigurationManager.AppSettings.Get("json_dispense_log_path");
@@ -35,11 +38,6 @@ namespace IOTClient
             
             this.Load += SettingForm_Load;
 
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            lblHelloWorld.Text = "Hello World!";
         }
 
         private void SettingForm_Load(object sender, EventArgs e)
@@ -55,7 +53,11 @@ namespace IOTClient
             //{
             //    // If 'No', do something here.
             //}
-           
+            databaseLocationTextbox.Text = database_path;
+            posHistoryLocationTextBox.Text = csv_history_path;
+            Console.WriteLine("TEST!!!");
+            Console.WriteLine(database_path);
+
         }
 
         private async void button1_Click_1(object sender, EventArgs e)
@@ -91,10 +93,11 @@ namespace IOTClient
             if (databaseLocationTextbox.Text != "" || posHistoryLocationTextBox.Text != "")
             {
                 //database_path = databaseLocationTextbox.Text;
-                AddOrUpdateAppSettings("database_path", databaseLocationTextbox.Text);
-                AddOrUpdateAppSettings("csv_history_path", posHistoryLocationTextBox.Text);
+                ManageConfig.AddOrUpdateAppSettings("database_path", databaseLocationTextbox.Text);
+                ManageConfig.AddOrUpdateAppSettings("csv_history_path", posHistoryLocationTextBox.Text);  
             }
-            string test = ConfigurationManager.AppSettings.Get("database_path");
+            //string test = ConfigurationManager.AppSettings.Get("database_path");
+            string test = ManageConfig.ReadConfig("database_path");
             MessageBoxResult confirmResult = System.Windows.MessageBox.Show(test,"Dialog Title", MessageBoxButton.OK);
         }
 
@@ -122,33 +125,22 @@ namespace IOTClient
             }
         }
 
-        public static void AddOrUpdateAppSettings(string key, string value)
-        {
-            try
-            {
-                var configFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-                var settings = configFile.AppSettings.Settings;
-                if (settings[key] == null)
-                {
-                    settings.Add(key, value);
-                }
-                else
-                {
-                    settings[key].Value = value;
-                }
-                configFile.Save(ConfigurationSaveMode.Modified);
-                ConfigurationManager.RefreshSection(configFile.AppSettings.SectionInformation.Name);
-            }
-            catch (ConfigurationErrorsException)
-            {
-                Console.WriteLine("Error writing app settings");
-            }
-        }
-
         private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             Show();
             WindowState = FormWindowState.Normal;
+        }
+
+        private void btnExport1_Click(object sender, EventArgs e)
+        {
+            var instance = new FileOperationLibrary();
+            instance.StartOperation();
+            //StartOperation();
+        }
+
+        private void btnCheckShopID_Click(object sender, EventArgs e)
+        {
+            ManageConfig.ReadGlobalConfig("global_config_path");
         }
 
         //private void Form1_Resize(object sender, System.EventArgs e)

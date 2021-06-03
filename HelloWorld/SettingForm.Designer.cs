@@ -30,7 +30,7 @@ namespace IOTClient
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.btnClickThis = new System.Windows.Forms.Button();
+            this.btnExport1 = new System.Windows.Forms.Button();
             this.lblHelloWorld = new System.Windows.Forms.Label();
             this.databaseFolderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.btnDatabaseSelect = new System.Windows.Forms.Button();
@@ -54,15 +54,15 @@ namespace IOTClient
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.SuspendLayout();
             // 
-            // btnClickThis
+            // btnExport1
             // 
-            this.btnClickThis.Location = new System.Drawing.Point(409, 381);
-            this.btnClickThis.Name = "btnClickThis";
-            this.btnClickThis.Size = new System.Drawing.Size(145, 23);
-            this.btnClickThis.TabIndex = 0;
-            this.btnClickThis.Text = "ส่งออกประวัติ POS";
-            this.btnClickThis.UseVisualStyleBackColor = true;
-            this.btnClickThis.Click += new System.EventHandler(this.button1_Click);
+            this.btnExport1.Location = new System.Drawing.Point(409, 381);
+            this.btnExport1.Name = "btnExport1";
+            this.btnExport1.Size = new System.Drawing.Size(145, 23);
+            this.btnExport1.TabIndex = 0;
+            this.btnExport1.Text = "ส่งออกประวัติ POS";
+            this.btnExport1.UseVisualStyleBackColor = true;
+            this.btnExport1.Click += new System.EventHandler(this.btnExport1_Click);
             // 
             // lblHelloWorld
             // 
@@ -194,7 +194,7 @@ namespace IOTClient
             this.btnCheckShopID.TabIndex = 16;
             this.btnCheckShopID.Text = "ตรวจสอบ";
             this.btnCheckShopID.UseVisualStyleBackColor = true;
-            this.btnCheckShopID.Visible = false;
+            this.btnCheckShopID.Click += new System.EventHandler(this.btnCheckShopID_Click);
             // 
             // label3
             // 
@@ -253,7 +253,7 @@ namespace IOTClient
             this.Controls.Add(this.btnSeletectHistoryCVS);
             this.Controls.Add(this.btnDatabaseSelect);
             this.Controls.Add(this.lblHelloWorld);
-            this.Controls.Add(this.btnClickThis);
+            this.Controls.Add(this.btnExport1);
             this.Name = "SettingForm";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.SettingForm_Load);
@@ -264,7 +264,7 @@ namespace IOTClient
 
         #endregion
 
-        private System.Windows.Forms.Button btnClickThis;
+        private System.Windows.Forms.Button btnExport1;
         private System.Windows.Forms.Label lblHelloWorld;
         private System.Windows.Forms.FolderBrowserDialog databaseFolderBrowserDialog;
         private System.Windows.Forms.Button btnDatabaseSelect;

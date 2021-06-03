@@ -14,7 +14,7 @@ namespace IOTClient
 		/// <summary>
 		/// Is the About box displayed?
 		/// </summary>
-		bool isAboutLoaded = false;
+		bool isFormOpened = false;
 
 		/// <summary>
 		/// Creates this instance.
@@ -28,16 +28,16 @@ namespace IOTClient
 			ToolStripSeparator sep;
 
 			// Windows Explorer.
-			item = new ToolStripMenuItem();
-			item.Text = "Explorer";
-			item.Click += new EventHandler(Explorer_Click);
+			//item = new ToolStripMenuItem();
+			//item.Text = "Explorer";
+			//item.Click += new EventHandler(Explorer_Click);
 			//item.Image = Resources.Explorer;
-			menu.Items.Add(item);
+			//menu.Items.Add(item);
 
 			// About.
 			item = new ToolStripMenuItem();
-			item.Text = "About";
-			item.Click += new EventHandler(About_Click);
+			item.Text = "Open";
+			item.Click += new EventHandler(Open_Click);
 			//item.Image = Resources.About;
 			menu.Items.Add(item);
 
@@ -70,13 +70,13 @@ namespace IOTClient
 		/// </summary>
 		/// <param name="sender">The source of the event.</param>
 		/// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-		void About_Click(object sender, EventArgs e)
+		void Open_Click(object sender, EventArgs e)
 		{
-			if (!isAboutLoaded)
+			if (!isFormOpened)
 			{
-				isAboutLoaded = true;
+				isFormOpened = true;
 				new SettingForm().ShowDialog();
-				isAboutLoaded = false;
+				isFormOpened = false;
 			}
 		}
 

@@ -15,6 +15,7 @@ namespace IOTClient
 		/// The NotifyIcon object.
 		/// </summary>
 		NotifyIcon ni;
+		public Boolean isFormOpened = false;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ProcessIcon"/> class.
@@ -33,7 +34,7 @@ namespace IOTClient
 			// Put the icon in the system tray and allow it react to mouse clicks.			
 			ni.MouseClick += new MouseEventHandler(ni_MouseClick);
 			ni.Icon = Resources.SystemTrayApp;
-			ni.Text = "System Tray Utility Application Demonstration Program";
+			ni.Text = "TOA IOS Setting App";
 			ni.Visible = true;
 
 			// Attach a context menu.
@@ -60,7 +61,13 @@ namespace IOTClient
 			if (e.Button == MouseButtons.Left)
 			{
 				// Start Windows Explorer.
-				Process.Start("explorer", null);
+				if (!isFormOpened)
+				{
+					isFormOpened = true;
+					new SettingForm().ShowDialog();
+					//new SettingForm().max
+					isFormOpened = false;
+				}
 			}
 		}
 	}
