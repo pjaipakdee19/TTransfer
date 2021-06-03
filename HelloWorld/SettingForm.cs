@@ -13,12 +13,14 @@ using System.Windows.Forms;
 using Newtonsoft.Json;
 
 using AutoTintLibrary;
+using Newtonsoft.Json.Linq;
 
 namespace IOTClient
 {
     public partial class SettingForm : Form
     {
         private dynamic client = APIHelper.init();
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         //On screen attribute
         //private string auto_tint_id = ConfigurationManager.AppSettings.Get("auto_tint_id");
         //private string csv_history_path = ConfigurationManager.AppSettings.Get("csv_history_path");
@@ -62,21 +64,35 @@ namespace IOTClient
 
         private async void button1_Click_1(object sender, EventArgs e)
         {
-            string auto_tint_id = "12345678AT01";
-            AutoTintWithId result = await APIHelper.GetAutoTintVersion(client,auto_tint_id);
-            //Debug.WriteLine(result);
-            //AutoTintWithId myDeserializedClass = JsonConvert.DeserializeObject<AutoTintWithId>(result);
-            lblDatabaseVersionText.Text = ""+ result.pos_setting_version.id;
-            DateTime startTimeFormate = DateTime.UtcNow;
-            TimeZoneInfo systemTimeZone = TimeZoneInfo.Local;
-            DateTime localDateTime = TimeZoneInfo.ConvertTimeFromUtc(startTimeFormate, systemTimeZone);
-            lblDatabaseCheckVal.Text = ""+localDateTime;
-            //Check the server for newer version.
-            PrismaProLatestVersion checkVersion = await APIHelper.GetDBLatestVersion(client, result.pos_setting_version.id);
-            if(result.pos_setting_version.id < checkVersion.id)
+            string str_response = await APIHelper.GetAutoTintVersion(client,auto_tint_id);
+
+            APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(str_response);
+
+            if(response.statusCode == 200)
             {
-                //Goto download
+                AutoTintWithId result = JsonConvert.DeserializeObject<AutoTintWithId>(response.message);
+
+                //Debug.WriteLine(result);
+                //AutoTintWithId myDeserializedClass = JsonConvert.DeserializeObject<AutoTintWithId>(result);
+                lblDatabaseVersionText.Text = "" + result.pos_setting_version.id;
+                DateTime startTimeFormate = DateTime.UtcNow;
+                TimeZoneInfo systemTimeZone = TimeZoneInfo.Local;
+                DateTime localDateTime = TimeZoneInfo.ConvertTimeFromUtc(startTimeFormate, systemTimeZone);
+                lblDatabaseCheckVal.Text = "" + localDateTime;
+                //Check the server for newer version.
+                PrismaProLatestVersion checkVersion = await APIHelper.GetDBLatestVersion(client, result.pos_setting_version.id);
+                Logger.Info($"Successful on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
+                if (result.pos_setting_version.id < checkVersion.id)
+                {
+                    //Goto download
+                }
             }
+            else
+            {
+                MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Status Code : {response.statusCode} \nMessage : {response.message}", "Error", MessageBoxButton.OK);
+                Logger.Error($"Exception on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
+            }
+            
         }
 
         private void SaveInputData_Click(object sender, EventArgs e)
@@ -123,12 +139,6 @@ namespace IOTClient
                 Console.WriteLine(fsd.FileName);
                 posHistoryLocationTextBox.Text = fsd.FileName;
             }
-        }
-
-        private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
-        {
-            Show();
-            WindowState = FormWindowState.Normal;
         }
 
         private void btnExport1_Click(object sender, EventArgs e)

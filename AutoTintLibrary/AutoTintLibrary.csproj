@@ -102,6 +102,7 @@
     <Compile Include="APIHelper.cs" />
     <Compile Include="FileOperationLibrary.cs" />
     <Compile Include="ManageConfig.cs" />
+    <Compile Include="Model\APIModel\APIHelperResponse.cs" />
     <Compile Include="Model\APIModel\AutoTintWithId.cs" />
     <Compile Include="Model\APIModel\ProsmaProLatestVersion.cs" />
     <Compile Include="Model\Config\GlobalConfig.cs" />

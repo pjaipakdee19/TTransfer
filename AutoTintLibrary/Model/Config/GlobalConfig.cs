@@ -9,5 +9,6 @@ namespace AutoTintLibrary.Model.Config
     class GlobalConfig
     {
         public string global_config_path { get; set; }
+        public string auto_tint_id { get; set; }
     }
 }
