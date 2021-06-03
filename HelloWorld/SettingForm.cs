@@ -14,7 +14,7 @@ using Newtonsoft.Json;
 
 using AutoTintLibrary;
 
-namespace HelloWorld
+namespace IOTClient
 {
     public partial class SettingForm : Form
     {
@@ -34,7 +34,7 @@ namespace HelloWorld
 
             InitializeComponent();
             
-            this.Load += Form1_Load;
+            this.Load += SettingForm_Load;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -47,32 +47,9 @@ namespace HelloWorld
 
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void SettingForm_Load(object sender, EventArgs e)
         {
-        //// Creating and setting the label
-        //Label mylab = new Label();
-        //mylab.Text = "GeeksforGeeks";
-        //mylab.Location = new Point(0, 90);
-        //mylab.AutoSize = true;
-        //mylab.Font = new Font("Calibri", 18);
-        //mylab.BorderStyle = BorderStyle.Fixed3D;
-        //mylab.ForeColor = Color.Green;
-        //mylab.Padding = new Padding(6);
-  
-        //// Adding this control to the form
-        //this.Controls.Add(mylab);
-  
-        //// Creating and setting the label
-        //Label mylab1 = new Label();
-        //mylab1.Text = "Welcome To GeeksforGeeks";
-        //mylab1.Location = new Point(0, 0);
-        //mylab1.AutoSize = true;
-        //mylab1.BorderStyle = BorderStyle.Fixed3D;
-        //mylab1.Font = new Font("Calibri", 18);
-        //mylab1.Padding = new Padding(6);
-  
-        //// Adding this control to the form
-        //this.Controls.Add(mylab1);
+        //Load configuration from json file or xml
 
         //MessageBoxResult confirmResult = System.Windows.MessageBox.Show("Are you sure to delete this item ??", "Confirm Delete!!", MessageBoxButton.YesNo);
         //if (confirmResult == MessageBoxResult.Yes)
@@ -106,13 +83,23 @@ namespace HelloWorld
 
         private void SaveInputData_Click(object sender, EventArgs e)
         {
-            if(databaseLocationTextbox.Text != "" || posHistoryLocationTextBox.Text != "")
+            //MessageBoxResult confirmResult = System.Windows.MessageBox.Show("Are you sure to delete this item ??", "Confirm Delete!!", MessageBoxButton.YesNo);
+            //if (confirmResult == MessageBoxResult.Yes)
+            //{
+            //    // If 'Yes', do something here.
+            //}
+            //else
+            //{
+            //    // If 'No', do something here.
+            //}
+            if (databaseLocationTextbox.Text != "" || posHistoryLocationTextBox.Text != "")
             {
                 //database_path = databaseLocationTextbox.Text;
                 AddOrUpdateAppSettings("database_path", databaseLocationTextbox.Text);
                 AddOrUpdateAppSettings("csv_history_path", posHistoryLocationTextBox.Text);
             }
             string test = ConfigurationManager.AppSettings.Get("database_path");
+            MessageBoxResult confirmResult = System.Windows.MessageBox.Show(test,"Dialog Title", MessageBoxButton.OK);
         }
 
         private void btnDatabaseSelect_Click(object sender, EventArgs e)
@@ -161,5 +148,22 @@ namespace HelloWorld
                 Console.WriteLine("Error writing app settings");
             }
         }
+
+        private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            Show();
+            WindowState = FormWindowState.Normal;
+        }
+
+        //private void Form1_Resize(object sender, System.EventArgs e)
+        //{
+        //    if (FormWindowState.Minimized == WindowState)
+        //        Hide();
+        //}
+
+        //private void SettingForm_Load(object sender, EventArgs e)
+        //{
+
+        //}
     }
 }

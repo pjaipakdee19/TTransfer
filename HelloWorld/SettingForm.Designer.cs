@@ -1,5 +1,5 @@
 ﻿
-namespace HelloWorld
+namespace IOTClient
 {
     partial class SettingForm
     {
@@ -29,6 +29,7 @@ namespace HelloWorld
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.btnClickThis = new System.Windows.Forms.Button();
             this.lblHelloWorld = new System.Windows.Forms.Label();
             this.databaseFolderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
@@ -50,6 +51,7 @@ namespace HelloWorld
             this.label4 = new System.Windows.Forms.Label();
             this.SaveInputData = new System.Windows.Forms.Button();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+            this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.SuspendLayout();
             // 
             // btnClickThis
@@ -223,7 +225,13 @@ namespace HelloWorld
             this.SaveInputData.UseVisualStyleBackColor = true;
             this.SaveInputData.Click += new System.EventHandler(this.SaveInputData_Click);
             // 
-            // Form1
+            // notifyIcon1
+            // 
+            this.notifyIcon1.Text = "IOTClient";
+            this.notifyIcon1.Visible = true;
+            this.notifyIcon1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon1_MouseDoubleClick);
+            // 
+            // SettingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -247,8 +255,9 @@ namespace HelloWorld
             this.Controls.Add(this.btnDatabaseSelect);
             this.Controls.Add(this.lblHelloWorld);
             this.Controls.Add(this.btnClickThis);
-            this.Name = "Form1";
+            this.Name = "SettingForm";
             this.Text = "Form1";
+            this.Load += new System.EventHandler(this.SettingForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -277,6 +286,7 @@ namespace HelloWorld
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Button SaveInputData;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
+        private System.Windows.Forms.NotifyIcon notifyIcon1;
     }
 }
 
