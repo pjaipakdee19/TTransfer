@@ -59,7 +59,6 @@ namespace AutoTintLibrary
             }
             else
             {
-                //JObject o1 = JObject.Parse(File.ReadAllText(GlobalConfigPath));
                 GlobalConfig OldConfig = JsonConvert.DeserializeObject<GlobalConfig>(File.ReadAllText(GlobalConfigPath));
                 //Load old value to item
 

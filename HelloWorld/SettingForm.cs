@@ -57,8 +57,7 @@ namespace IOTClient
             //}
             databaseLocationTextbox.Text = database_path;
             posHistoryLocationTextBox.Text = csv_history_path;
-            Console.WriteLine("TEST!!!");
-            Console.WriteLine(database_path);
+
             LoadGlobalConfig();
             await UpdateAutotintVersion();
 
@@ -66,7 +65,6 @@ namespace IOTClient
 
         private void LoadGlobalConfig()
         {
-            Console.WriteLine("LOAD");
             tbxShopDispenVal.Text = ManageConfig.ReadGlobalConfig("auto_tint_id");
             posHistoryLocationTextBox.Text = ManageConfig.ReadGlobalConfig("csv_history_path");
             databaseLocationTextbox.Text = ManageConfig.ReadGlobalConfig("database_path");
@@ -88,9 +86,6 @@ namespace IOTClient
             if (response.statusCode == 200)
             {
                 AutoTintWithId result = JsonConvert.DeserializeObject<AutoTintWithId>(response.message);
-
-                //Debug.WriteLine(result);
-                //AutoTintWithId myDeserializedClass = JsonConvert.DeserializeObject<AutoTintWithId>(result);
                 lblDatabaseVersionText.Text = "" + result.pos_setting_version.id;
                 DateTime startTimeFormate = DateTime.UtcNow;
                 TimeZoneInfo systemTimeZone = TimeZoneInfo.Local;
@@ -113,40 +108,24 @@ namespace IOTClient
 
         private void SaveInputData_Click(object sender, EventArgs e)
         {
-            //MessageBoxResult confirmResult = System.Windows.MessageBox.Show("Are you sure to delete this item ??", "Confirm Delete!!", MessageBoxButton.YesNo);
-            //if (confirmResult == MessageBoxResult.Yes)
-            //{
-            //    // If 'Yes', do something here.
-            //}
-            //else
-            //{
-            //    // If 'No', do something here.
-            //}
-            
             if (databaseLocationTextbox.Text != "" || posHistoryLocationTextBox.Text != "")
             {
-                //database_path = databaseLocationTextbox.Text;
-                //ManageConfig.AddOrUpdateAppSettings("database_path", databaseLocationTextbox.Text);
-                //ManageConfig.AddOrUpdateAppSettings("csv_history_path", posHistoryLocationTextBox.Text);
-
                 ManageConfig.WriteGlobalConfig("auto_tint_id", tbxShopDispenVal.Text);
                 ManageConfig.WriteGlobalConfig("database_path", databaseLocationTextbox.Text);
                 ManageConfig.WriteGlobalConfig("csv_history_path", posHistoryLocationTextBox.Text);
-                MessageBoxResult confirmResult = System.Windows.MessageBox.Show("บันทึกค่าเสร็จสิ้น", "", MessageBoxButton.OK);
+                MessageBoxResult confirmResult = System.Windows.MessageBox.Show("บันทึกค่าเสร็จสิ้น", "สำเร็จ", MessageBoxButton.OK);
             }
             else
             {
                 MessageBoxResult confirmResult = System.Windows.MessageBox.Show("กรุณาเติมแบบฟอร์มทุกช่องก่อนกดบันทึก", "ผิดพลาด", MessageBoxButton.OK);
             }
-            //string test = ConfigurationManager.AppSettings.Get("database_path");
-            //string test = ManageConfig.ReadConfig("database_path");
-            
+
         }
 
         private void btnDatabaseSelect_Click(object sender, EventArgs e)
         {
             var fsd = new FolderSelectDialog();
-            fsd.Title = "What to select";
+            fsd.Title = "กรุณาเลือกที่ตั้งฐานข้อมูล";
             fsd.InitialDirectory = @"c:\";
             if (fsd.ShowDialog(IntPtr.Zero))
             {
@@ -158,7 +137,7 @@ namespace IOTClient
         private void btnSeletectHistoryCVS_Click(object sender, EventArgs e)
         {
             var fsd = new FolderSelectDialog();
-            fsd.Title = "What to select";
+            fsd.Title = "กรุณาเลือกที่ตั้งประวัติ";
             fsd.InitialDirectory = @"c:\";
             if (fsd.ShowDialog(IntPtr.Zero))
             {
