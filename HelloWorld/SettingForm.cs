@@ -42,7 +42,7 @@ namespace IOTClient
 
         }
 
-        private void SettingForm_Load(object sender, EventArgs e)
+        private async void SettingForm_Load(object sender, EventArgs e)
         {
             //Load configuration from json file or xml
 
@@ -59,16 +59,33 @@ namespace IOTClient
             posHistoryLocationTextBox.Text = csv_history_path;
             Console.WriteLine("TEST!!!");
             Console.WriteLine(database_path);
+            LoadGlobalConfig();
+            await UpdateAutotintVersion();
 
+        }
+
+        private void LoadGlobalConfig()
+        {
+            Console.WriteLine("LOAD");
+            tbxShopDispenVal.Text = ManageConfig.ReadGlobalConfig("auto_tint_id");
+            posHistoryLocationTextBox.Text = ManageConfig.ReadGlobalConfig("csv_history_path");
+            databaseLocationTextbox.Text = ManageConfig.ReadGlobalConfig("database_path");
         }
 
         private async void button1_Click_1(object sender, EventArgs e)
         {
-            string str_response = await APIHelper.GetAutoTintVersion(client,auto_tint_id);
+
+            await UpdateAutotintVersion();
+            
+        }
+
+        private async Task UpdateAutotintVersion()
+        {
+            string str_response = await APIHelper.GetAutoTintVersion(client, auto_tint_id);
 
             APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(str_response);
 
-            if(response.statusCode == 200)
+            if (response.statusCode == 200)
             {
                 AutoTintWithId result = JsonConvert.DeserializeObject<AutoTintWithId>(response.message);
 
@@ -92,7 +109,6 @@ namespace IOTClient
                 MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Status Code : {response.statusCode} \nMessage : {response.message}", "Error", MessageBoxButton.OK);
                 Logger.Error($"Exception on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
             }
-            
         }
 
         private void SaveInputData_Click(object sender, EventArgs e)
@@ -106,15 +122,25 @@ namespace IOTClient
             //{
             //    // If 'No', do something here.
             //}
+            
             if (databaseLocationTextbox.Text != "" || posHistoryLocationTextBox.Text != "")
             {
                 //database_path = databaseLocationTextbox.Text;
-                ManageConfig.AddOrUpdateAppSettings("database_path", databaseLocationTextbox.Text);
-                ManageConfig.AddOrUpdateAppSettings("csv_history_path", posHistoryLocationTextBox.Text);  
+                //ManageConfig.AddOrUpdateAppSettings("database_path", databaseLocationTextbox.Text);
+                //ManageConfig.AddOrUpdateAppSettings("csv_history_path", posHistoryLocationTextBox.Text);
+
+                ManageConfig.WriteGlobalConfig("auto_tint_id", tbxShopDispenVal.Text);
+                ManageConfig.WriteGlobalConfig("database_path", databaseLocationTextbox.Text);
+                ManageConfig.WriteGlobalConfig("csv_history_path", posHistoryLocationTextBox.Text);
+                MessageBoxResult confirmResult = System.Windows.MessageBox.Show("บันทึกค่าเสร็จสิ้น", "", MessageBoxButton.OK);
+            }
+            else
+            {
+                MessageBoxResult confirmResult = System.Windows.MessageBox.Show("กรุณาเติมแบบฟอร์มทุกช่องก่อนกดบันทึก", "ผิดพลาด", MessageBoxButton.OK);
             }
             //string test = ConfigurationManager.AppSettings.Get("database_path");
-            string test = ManageConfig.ReadConfig("database_path");
-            MessageBoxResult confirmResult = System.Windows.MessageBox.Show(test,"Dialog Title", MessageBoxButton.OK);
+            //string test = ManageConfig.ReadConfig("database_path");
+            
         }
 
         private void btnDatabaseSelect_Click(object sender, EventArgs e)

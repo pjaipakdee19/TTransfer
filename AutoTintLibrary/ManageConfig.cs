@@ -1,10 +1,12 @@
 ﻿using AutoTintLibrary.Model.Config;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -34,6 +36,53 @@ namespace AutoTintLibrary
             }
 
             System.Reflection.PropertyInfo pi = item.GetType().GetProperty(key);
+            String returnValue = (String)(pi.GetValue(item, null));
+
+
+            return returnValue;
+        }
+
+        public static string WriteGlobalConfig(string key,string value)
+        {
+            GlobalConfig item = new GlobalConfig();
+            if (!File.Exists(GlobalConfigPath))
+            {
+                GlobalConfig conf = new GlobalConfig();
+                conf.global_config_path = GlobalConfigPath;
+                conf.auto_tint_id = "";
+                string JSONresult = JsonConvert.SerializeObject(conf);
+                using (var tw = new StreamWriter(GlobalConfigPath, true))
+                {
+                    tw.WriteLine(JSONresult.ToString());
+                    tw.Close();
+                }
+            }
+            else
+            {
+                //JObject o1 = JObject.Parse(File.ReadAllText(GlobalConfigPath));
+                GlobalConfig OldConfig = JsonConvert.DeserializeObject<GlobalConfig>(File.ReadAllText(GlobalConfigPath));
+                //Load old value to item
+
+                item.global_config_path = OldConfig.global_config_path;
+                item.auto_tint_id = OldConfig.auto_tint_id;
+                item.csv_history_path = OldConfig.csv_history_path;
+                item.database_path = OldConfig.database_path;
+
+            }
+
+            Type configType = item.GetType();
+            PropertyInfo pinfo = configType.GetProperty(key);
+            pinfo.SetValue(item, value, null);
+
+
+            string NewConfJSONresult = JsonConvert.SerializeObject(item);
+            using (var tw = new StreamWriter(GlobalConfigPath, false))
+            {
+                tw.WriteLine(NewConfJSONresult.ToString());
+                tw.Close();
+            }
+
+            PropertyInfo pi = item.GetType().GetProperty(key);
             String returnValue = (String)(pi.GetValue(item, null));
 
 

@@ -10,5 +10,11 @@ namespace AutoTintLibrary.Model.Config
     {
         public string global_config_path { get; set; }
         public string auto_tint_id { get; set; }
+        public string csv_history_path { get; set; }
+        public string csv_history_path_backup { get; set; }
+        public string csv_history_achive_path { get; set; }
+        public string json_dispense_log_path { get; set; }
+        public string database_path { get; set; }
+        public string programdata_log_path { get; set; }
     }
 }
