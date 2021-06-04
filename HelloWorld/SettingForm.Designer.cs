@@ -47,7 +47,7 @@ namespace IOTClient
             this.lblDatabaseTime = new System.Windows.Forms.Label();
             this.lblDatabaseCheckVal = new System.Windows.Forms.Label();
             this.btnCheckShopID = new System.Windows.Forms.Button();
-            this.label3 = new System.Windows.Forms.Label();
+            this.HistoryExportDateTime = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.SaveInputData = new System.Windows.Forms.Button();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
@@ -153,7 +153,7 @@ namespace IOTClient
             // lblDatabaseVersion
             // 
             this.lblDatabaseVersion.AutoSize = true;
-            this.lblDatabaseVersion.Location = new System.Drawing.Point(71, 323);
+            this.lblDatabaseVersion.Location = new System.Drawing.Point(74, 324);
             this.lblDatabaseVersion.Name = "lblDatabaseVersion";
             this.lblDatabaseVersion.Size = new System.Drawing.Size(71, 13);
             this.lblDatabaseVersion.TabIndex = 12;
@@ -162,7 +162,7 @@ namespace IOTClient
             // lblDatabaseVersionText
             // 
             this.lblDatabaseVersionText.AutoSize = true;
-            this.lblDatabaseVersionText.Location = new System.Drawing.Point(149, 323);
+            this.lblDatabaseVersionText.Location = new System.Drawing.Point(152, 324);
             this.lblDatabaseVersionText.Name = "lblDatabaseVersionText";
             this.lblDatabaseVersionText.Size = new System.Drawing.Size(31, 13);
             this.lblDatabaseVersionText.TabIndex = 13;
@@ -196,14 +196,14 @@ namespace IOTClient
             this.btnCheckShopID.UseVisualStyleBackColor = true;
             this.btnCheckShopID.Click += new System.EventHandler(this.btnCheckShopID_Click);
             // 
-            // label3
+            // HistoryExportDateTime
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(493, 349);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(169, 13);
-            this.label3.TabIndex = 18;
-            this.label3.Text = "07:20 , อาทิตย์ 15 พฤษภาคม 2564";
+            this.HistoryExportDateTime.AutoSize = true;
+            this.HistoryExportDateTime.Location = new System.Drawing.Point(493, 349);
+            this.HistoryExportDateTime.Name = "HistoryExportDateTime";
+            this.HistoryExportDateTime.Size = new System.Drawing.Size(169, 13);
+            this.HistoryExportDateTime.TabIndex = 18;
+            this.HistoryExportDateTime.Text = "07:20 , อาทิตย์ 15 พฤษภาคม 2564";
             // 
             // label4
             // 
@@ -235,7 +235,7 @@ namespace IOTClient
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.SaveInputData);
-            this.Controls.Add(this.label3);
+            this.Controls.Add(this.HistoryExportDateTime);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.btnCheckShopID);
             this.Controls.Add(this.lblDatabaseCheckVal);
@@ -280,7 +280,7 @@ namespace IOTClient
         private System.Windows.Forms.Label lblDatabaseTime;
         private System.Windows.Forms.Label lblDatabaseCheckVal;
         private System.Windows.Forms.Button btnCheckShopID;
-        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label HistoryExportDateTime;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Button SaveInputData;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;

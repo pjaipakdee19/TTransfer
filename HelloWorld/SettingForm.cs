@@ -14,6 +14,7 @@ using Newtonsoft.Json;
 
 using AutoTintLibrary;
 using Newtonsoft.Json.Linq;
+using System.IO;
 
 namespace IOTClient
 {
@@ -38,7 +39,7 @@ namespace IOTClient
 
             InitializeComponent();
             
-            this.Load += SettingForm_Load;
+            //this.Load = SettingForm_Load;
 
         }
 
@@ -59,8 +60,30 @@ namespace IOTClient
             posHistoryLocationTextBox.Text = csv_history_path;
 
             LoadGlobalConfig();
+            CheckLastestUploadDateTime();
             await UpdateAutotintVersion();
 
+
+        }
+
+        private void CheckLastestUploadDateTime()
+        {
+            string LatestExportDateTime = "";
+            string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            var directory = new DirectoryInfo(path);
+            if(directory.GetFiles().Length > 0)
+            {
+                var latestFileInfo = (from f in directory.GetFiles()
+                                      orderby f.LastWriteTime descending
+                                      select f).First();
+                LatestExportDateTime = latestFileInfo.CreationTime.ToString("dddd dd MMMM yyyy HH:mm:ff", new System.Globalization.CultureInfo("th-TH"));
+            }
+            else
+            {
+                LatestExportDateTime = "ไม่พบประวัติการส่งออกข้อมูล";
+            }
+           
+            HistoryExportDateTime.Text = $"{LatestExportDateTime}";
         }
 
         private void LoadGlobalConfig()
@@ -90,13 +113,16 @@ namespace IOTClient
                 DateTime startTimeFormate = DateTime.UtcNow;
                 TimeZoneInfo systemTimeZone = TimeZoneInfo.Local;
                 DateTime localDateTime = TimeZoneInfo.ConvertTimeFromUtc(startTimeFormate, systemTimeZone);
-                lblDatabaseCheckVal.Text = "" + localDateTime;
+                string ICTDateTimeText = localDateTime.ToString("dddd dd MMMM yyyy HH:mm:ff", new System.Globalization.CultureInfo("th-TH"));
+
+                lblDatabaseCheckVal.Text = ICTDateTimeText;
                 //Check the server for newer version.
                 PrismaProLatestVersion checkVersion = await APIHelper.GetDBLatestVersion(client, result.pos_setting_version.id);
                 Logger.Info($"Successful on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
                 if (result.pos_setting_version.id < checkVersion.id)
                 {
                     //Goto download
+                    MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"รุ่นของฐานข้อมูลไม่ใช่รุ่นล่าสุด \n รุ่นปัจจุบัน : {result.pos_setting_version.id} \n รุ่นล่าสุด : {checkVersion.id}", "แจ้งเตือน", MessageBoxButton.OK);
                 }
             }
             else
