@@ -15,6 +15,7 @@ using Newtonsoft.Json;
 using AutoTintLibrary;
 using Newtonsoft.Json.Linq;
 using System.IO;
+using System.Threading;
 
 namespace IOTClient
 {
@@ -175,13 +176,33 @@ namespace IOTClient
         private void btnExport1_Click(object sender, EventArgs e)
         {
             var instance = new FileOperationLibrary();
+
+            Thread progressThread = new Thread(delegate ()
+            {
+                LoadingForm progress = new LoadingForm();
+                progress.ShowDialog();
+            });
+
+            progressThread.Start();
             instance.StartOperation();
-            //StartOperation();
+            var utcTime = DateTime.UtcNow;
+            var ictZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            var actualTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, ictZone);
+            logMaskAsDoneDate("" + actualTime);
+
+            progressThread.Abort();
+            CheckLastestUploadDateTime();
         }
 
         private void btnCheckShopID_Click(object sender, EventArgs e)
         {
             ManageConfig.ReadGlobalConfig("global_config_path");
+        }
+
+        private static void logMaskAsDoneDate(string text)
+        {
+            Console.WriteLine("Call logger !!");
+            Logger.Trace("Done for today " + text);
         }
 
         //private void Form1_Resize(object sender, System.EventArgs e)
