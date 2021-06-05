@@ -56,7 +56,8 @@ namespace TAService
             var ictZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
             var actualTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, ictZone);
             bool isTodayDone = false;
-            string programdata_path = ConfigurationManager.AppSettings.Get("programdata_log_path");
+            //string programdata_path = ConfigurationManager.AppSettings.Get("programdata_log_path");
+            string programdata_path = ManageConfig.ReadConfig("programdata_log_path");
             DirectoryInfo programdata_info = new DirectoryInfo(programdata_path);
             foreach (var txtFile in programdata_info.GetFiles("*.txt"))
             {
@@ -76,7 +77,8 @@ namespace TAService
                 {
                     //Random time
                     Random r = new Random();
-                    int genRand = r.Next(0, 5);
+                    string randomThreshold = ManageConfig.ReadGlobalConfig("start_random_minutes_threshold");
+                    int genRand = r.Next(0, Int16.Parse(randomThreshold));
                     randomStartTime = actualTime.AddMinutes(genRand);
                     Logger.Info("Start Time will be : " + randomStartTime);
                 }
@@ -105,8 +107,14 @@ namespace TAService
         {
             // Here is the code we need to execute periodically
             //random when 07:30
-            var startDatetime = new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 09, 35, 00); //!!! MOVE HARD CODE TO CONFIGURATION FILE
-            var tillDateTime = new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 09, 59, 00); //!!! MOVE HARD CODE TO CONFIGURATION FILE
+            string startTime = ManageConfig.ReadGlobalConfig("service_operation_start");
+            string runningTillTime = ManageConfig.ReadGlobalConfig("service_operation_stop");
+            int startH = Int16.Parse(startTime.Split(':')[0]);
+            int startM = Int16.Parse(startTime.Split(':')[1]);
+            int tillH = Int16.Parse(runningTillTime.Split(':')[0]);
+            int tillM = Int16.Parse(runningTillTime.Split(':')[1]);
+            var startDatetime = new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, startH, startM, 00); //!!! MOVE HARD CODE TO CONFIGURATION FILE
+            var tillDateTime = new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, tillH, tillM, 00); //!!! MOVE HARD CODE TO CONFIGURATION FILE
 
             //if local timm diff between server time ? > 1 
             //ExecuteCmd exe = new ExecuteCmd();

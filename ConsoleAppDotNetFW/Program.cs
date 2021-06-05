@@ -86,24 +86,34 @@ namespace ConsoleAppDotNetFW
 
 
             Console.WriteLine(actualTime.ToString("yyyy-MM-dd"));
-            bool isTodayDone = false;
-            string programdata_path = ConfigurationManager.AppSettings.Get("programdata_log_path");
-            DirectoryInfo programdata_info = new DirectoryInfo(programdata_path);
-            foreach (var txtFile in programdata_info.GetFiles("*.txt"))
-            {
-                if (txtFile.Name.Contains(actualTime.ToString("yyyy-MM-dd")))
-                {
-                    isTodayDone = true;
-                    Console.WriteLine("today is done!!");
-                }
+            //bool isTodayDone = false;
+            //string programdata_path = ConfigurationManager.AppSettings.Get("programdata_log_path");
+            //DirectoryInfo programdata_info = new DirectoryInfo(programdata_path);
+            //foreach (var txtFile in programdata_info.GetFiles("*.txt"))
+            //{
+            //    if (txtFile.Name.Contains(actualTime.ToString("yyyy-MM-dd")))
+            //    {
+            //        isTodayDone = true;
+            //        Console.WriteLine("today is done!!");
+            //    }
 
-            }
+            //}
 
 
             var instance = new FileOperationLibrary();
             //instance.WriteHelloworld();
 
+            string startTime = ManageConfig.ReadGlobalConfig("service_operation_start");
+            string runningTillTime = ManageConfig.ReadGlobalConfig("service_operation_stop");
+            int startH = Int16.Parse(startTime.Split(':')[0]);
+            int startM = Int16.Parse(startTime.Split(':')[1]);
+            int tillH = Int16.Parse(runningTillTime.Split(':')[0]);
+            int tillM = Int16.Parse(runningTillTime.Split(':')[1]);
+            var tesstart = new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, startH, startM, 00); //!!! MOVE HARD CODE TO CONFIGURATION FILE
+            var testtill = new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, tillH, tillM, 00); //!!! MOVE HARD CODE TO CONFIGURATION FILE
 
+            Console.WriteLine(tesstart);
+            Console.WriteLine(testtill);
 
             System.Console.ReadKey();
 

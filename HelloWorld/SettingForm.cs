@@ -24,16 +24,9 @@ namespace IOTClient
         private dynamic client = APIHelper.init();
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         //On screen attribute
-        //private string auto_tint_id = ConfigurationManager.AppSettings.Get("auto_tint_id");
-        //private string csv_history_path = ConfigurationManager.AppSettings.Get("csv_history_path");
-        //private string database_path = ConfigurationManager.AppSettings.Get("database_path");
         private string auto_tint_id = ManageConfig.ReadConfig("auto_tint_id");
         private string csv_history_path = ManageConfig.ReadConfig("csv_history_path");
         public static string database_path = ManageConfig.ReadConfig("database_path");
-
-        //For export and move file
-        private string jsonDispenseLogPath = ConfigurationManager.AppSettings.Get("json_dispense_log_path");
-        private string csv_history_achive_path = ConfigurationManager.AppSettings.Get("csv_history_achive_path");
 
         public SettingForm()
         {
@@ -89,9 +82,9 @@ namespace IOTClient
 
         private void LoadGlobalConfig()
         {
-            tbxShopDispenVal.Text = ManageConfig.ReadGlobalConfig("auto_tint_id");
-            posHistoryLocationTextBox.Text = ManageConfig.ReadGlobalConfig("csv_history_path");
-            databaseLocationTextbox.Text = ManageConfig.ReadGlobalConfig("database_path");
+            tbxShopDispenVal.Text = auto_tint_id;
+            posHistoryLocationTextBox.Text = csv_history_path;
+            databaseLocationTextbox.Text = database_path;
         }
 
         private async void button1_Click_1(object sender, EventArgs e)
