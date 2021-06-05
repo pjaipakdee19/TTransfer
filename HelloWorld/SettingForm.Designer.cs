@@ -254,6 +254,8 @@ namespace IOTClient
             this.Controls.Add(this.lblHelloWorld);
             this.Controls.Add(this.btnExport1);
             this.Name = "SettingForm";
+            this.ShowIcon = false;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "TOA IOT Setting";
             this.Load += new System.EventHandler(this.SettingForm_Load);
             this.ResumeLayout(false);

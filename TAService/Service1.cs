@@ -64,7 +64,7 @@ namespace TAService
                 if (txtFile.Name.Contains(actualTime.ToString("yyyy-MM-dd")))
                 {
                     isTodayDone = true;
-                    Logger.Info("Today is done do nothing");
+                    //Logger.Info("Today is done do nothing");
                 }
 
             }

@@ -15,12 +15,13 @@ namespace AutoTintLibrary
 {
     public class FileOperationLibrary
     {
+        private dynamic client = APIHelper.init();
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private static readonly CsvConfiguration csvConfig = new CsvConfiguration(CultureInfo.InvariantCulture)
         {
             MissingFieldFound = null,
         };
-        public void StartOperation()
+        public async void StartOperation()
         {
             //Init configuration variable
             string csv_history_path = ConfigurationManager.AppSettings.Get("csv_history_path");
@@ -66,7 +67,8 @@ namespace AutoTintLibrary
                     }
                     if (exportRecord.Count > 0)
                     {
-                        var export_path = jsonDispenseLogPath + "\\" + "full_dispense_log_" + cleanDate[i].Replace("/", "_") + ".json";
+                        //var export_path = jsonDispenseLogPath + "\\" + "full_dispense_log_" + cleanDate[i].Replace("/", "_") + ".json";
+                        var export_path = $"{jsonDispenseLogPath}\\full_dispense_log_{cleanDate[i].Replace("/", "_")}.json";
 
                         Logger.Info("Export log path : " + export_path);
                         File.WriteAllText(export_path, JsonConvert.SerializeObject(exportRecord));
@@ -80,7 +82,7 @@ namespace AutoTintLibrary
                 //Move complete extract file into achive folder
                 reader.Close();
                 new System.IO.FileInfo(csv_history_achive_path).Directory.Create();
-                File.Move(csvFile.FullName, csv_history_achive_path + "\\" + csvFile.Name);
+                File.Move(csvFile.FullName, $"{csv_history_achive_path}\\{csvFile.Name}");
             }
 
 
@@ -95,21 +97,30 @@ namespace AutoTintLibrary
                     {
 
                         int retry = 1;
-                        while (retry <= 3)
+                        while (retry <= 5)
                         {
                             //send to api
-
+                            var result = await APIHelper.UploadFile(client, jsonFile.FullName);
                             //success mv change filename end with _p2
                             //string[] mvFile = Directory.GetFiles(jsonFile.FullName);
-                            int extensionIndex = jsonFile.Name.IndexOf(".json");
-
-                            File.Move(jsonFile.FullName, jsonDispenseLogPath + "\\" + jsonFile.Name.Substring(0, extensionIndex) + "_p2.json");
-                            Logger.Info("Transfer to server complete move json files to : " + jsonDispenseLogPath + "\\" + jsonFile.Name.Substring(0, extensionIndex) + "_p2.json");
-                            retry = 4;
+                            APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(result);
+                            if(response.statusCode == 201)
+                            {
+                                int extensionIndex = jsonFile.Name.IndexOf(".json");
+                                string moveTo = $"{jsonDispenseLogPath}\\{jsonFile.Name.Substring(0, extensionIndex)}_p2.json";
+                                File.Move(jsonFile.FullName, moveTo);
+                                Logger.Info("Transfer to server complete move json files to : " + moveTo);
+                            }
+                            else
+                            {
+                                retry++;
+                                Logger.Error($"Error when upload file retring {retry} {jsonFile.FullName}");
+                                Logger.Error($"Service response {response.statusCode} {response.message}");
+                            }
                         }
-                        if (retry > 3)
+                        if (retry > 5)
                         {
-                            Logger.Error("Exception on send to api");
+                            Logger.Error($"Exception on send to api {jsonFile.FullName}");
                         }
                     }
                 }
