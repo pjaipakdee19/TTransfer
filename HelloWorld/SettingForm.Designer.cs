@@ -30,7 +30,7 @@ namespace IOTClient
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.btnClickThis = new System.Windows.Forms.Button();
+            this.btnExport1 = new System.Windows.Forms.Button();
             this.lblHelloWorld = new System.Windows.Forms.Label();
             this.databaseFolderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.btnDatabaseSelect = new System.Windows.Forms.Button();
@@ -47,22 +47,22 @@ namespace IOTClient
             this.lblDatabaseTime = new System.Windows.Forms.Label();
             this.lblDatabaseCheckVal = new System.Windows.Forms.Label();
             this.btnCheckShopID = new System.Windows.Forms.Button();
-            this.label3 = new System.Windows.Forms.Label();
+            this.HistoryExportDateTime = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.SaveInputData = new System.Windows.Forms.Button();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.SuspendLayout();
             // 
-            // btnClickThis
+            // btnExport1
             // 
-            this.btnClickThis.Location = new System.Drawing.Point(409, 381);
-            this.btnClickThis.Name = "btnClickThis";
-            this.btnClickThis.Size = new System.Drawing.Size(145, 23);
-            this.btnClickThis.TabIndex = 0;
-            this.btnClickThis.Text = "ส่งออกประวัติ POS";
-            this.btnClickThis.UseVisualStyleBackColor = true;
-            this.btnClickThis.Click += new System.EventHandler(this.button1_Click);
+            this.btnExport1.Location = new System.Drawing.Point(409, 381);
+            this.btnExport1.Name = "btnExport1";
+            this.btnExport1.Size = new System.Drawing.Size(145, 23);
+            this.btnExport1.TabIndex = 0;
+            this.btnExport1.Text = "ส่งออกประวัติ POS";
+            this.btnExport1.UseVisualStyleBackColor = true;
+            this.btnExport1.Click += new System.EventHandler(this.btnExport1_Click);
             // 
             // lblHelloWorld
             // 
@@ -71,7 +71,6 @@ namespace IOTClient
             this.lblHelloWorld.Name = "lblHelloWorld";
             this.lblHelloWorld.Size = new System.Drawing.Size(0, 13);
             this.lblHelloWorld.TabIndex = 1;
-            this.lblHelloWorld.Click += new System.EventHandler(this.label1_Click);
             // 
             // btnDatabaseSelect
             // 
@@ -154,7 +153,7 @@ namespace IOTClient
             // lblDatabaseVersion
             // 
             this.lblDatabaseVersion.AutoSize = true;
-            this.lblDatabaseVersion.Location = new System.Drawing.Point(71, 323);
+            this.lblDatabaseVersion.Location = new System.Drawing.Point(74, 324);
             this.lblDatabaseVersion.Name = "lblDatabaseVersion";
             this.lblDatabaseVersion.Size = new System.Drawing.Size(71, 13);
             this.lblDatabaseVersion.TabIndex = 12;
@@ -163,7 +162,7 @@ namespace IOTClient
             // lblDatabaseVersionText
             // 
             this.lblDatabaseVersionText.AutoSize = true;
-            this.lblDatabaseVersionText.Location = new System.Drawing.Point(149, 323);
+            this.lblDatabaseVersionText.Location = new System.Drawing.Point(152, 324);
             this.lblDatabaseVersionText.Name = "lblDatabaseVersionText";
             this.lblDatabaseVersionText.Size = new System.Drawing.Size(31, 13);
             this.lblDatabaseVersionText.TabIndex = 13;
@@ -195,16 +194,16 @@ namespace IOTClient
             this.btnCheckShopID.TabIndex = 16;
             this.btnCheckShopID.Text = "ตรวจสอบ";
             this.btnCheckShopID.UseVisualStyleBackColor = true;
-            this.btnCheckShopID.Visible = false;
+            this.btnCheckShopID.Click += new System.EventHandler(this.btnCheckShopID_Click);
             // 
-            // label3
+            // HistoryExportDateTime
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(493, 349);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(169, 13);
-            this.label3.TabIndex = 18;
-            this.label3.Text = "07:20 , อาทิตย์ 15 พฤษภาคม 2564";
+            this.HistoryExportDateTime.AutoSize = true;
+            this.HistoryExportDateTime.Location = new System.Drawing.Point(493, 349);
+            this.HistoryExportDateTime.Name = "HistoryExportDateTime";
+            this.HistoryExportDateTime.Size = new System.Drawing.Size(169, 13);
+            this.HistoryExportDateTime.TabIndex = 18;
+            this.HistoryExportDateTime.Text = "07:20 , อาทิตย์ 15 พฤษภาคม 2564";
             // 
             // label4
             // 
@@ -229,7 +228,6 @@ namespace IOTClient
             // 
             this.notifyIcon1.Text = "IOTClient";
             this.notifyIcon1.Visible = true;
-            this.notifyIcon1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon1_MouseDoubleClick);
             // 
             // SettingForm
             // 
@@ -237,7 +235,7 @@ namespace IOTClient
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.SaveInputData);
-            this.Controls.Add(this.label3);
+            this.Controls.Add(this.HistoryExportDateTime);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.btnCheckShopID);
             this.Controls.Add(this.lblDatabaseCheckVal);
@@ -254,9 +252,11 @@ namespace IOTClient
             this.Controls.Add(this.btnSeletectHistoryCVS);
             this.Controls.Add(this.btnDatabaseSelect);
             this.Controls.Add(this.lblHelloWorld);
-            this.Controls.Add(this.btnClickThis);
+            this.Controls.Add(this.btnExport1);
             this.Name = "SettingForm";
-            this.Text = "Form1";
+            this.ShowIcon = false;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "TOA IOT Setting";
             this.Load += new System.EventHandler(this.SettingForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -265,7 +265,7 @@ namespace IOTClient
 
         #endregion
 
-        private System.Windows.Forms.Button btnClickThis;
+        private System.Windows.Forms.Button btnExport1;
         private System.Windows.Forms.Label lblHelloWorld;
         private System.Windows.Forms.FolderBrowserDialog databaseFolderBrowserDialog;
         private System.Windows.Forms.Button btnDatabaseSelect;
@@ -282,7 +282,7 @@ namespace IOTClient
         private System.Windows.Forms.Label lblDatabaseTime;
         private System.Windows.Forms.Label lblDatabaseCheckVal;
         private System.Windows.Forms.Button btnCheckShopID;
-        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label HistoryExportDateTime;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Button SaveInputData;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;

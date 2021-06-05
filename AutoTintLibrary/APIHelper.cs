@@ -18,60 +18,83 @@ namespace AutoTintLibrary
             return client;
         }
 
-        [Obsolete]
         public static async Task<string> RequestGet(RestClient client, string url)
         {
-            var request = new RestRequest(url, Method.GET);
-            var cancellationTokenSource = new CancellationTokenSource();
-            request.AddHeader("Accept", "application/json");
-            request.Parameters.Clear();
-            IRestResponse result = await client.ExecuteTaskAsync(request, cancellationTokenSource.Token);
-            Console.WriteLine(result.Content);
-            return result.Content;
-        }
-
-        [Obsolete]
-        public static async Task<string> UploadFile(RestClient client, string url, string file_path)
-        {
+            IRestResponse response = new RestResponse();
             try
             {
-                var request = new RestRequest(url, Method.POST);
+                var request = new RestRequest(url, Method.GET);
+                var cancellationTokenSource = new CancellationTokenSource();
+                request.AddHeader("Accept", "application/json");
+                request.Parameters.Clear();
+                response = await client.ExecuteAsync(request, cancellationTokenSource.Token);
+                Console.WriteLine(response.Content);
+                //return result.Content;
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Call logger about exception " + ex);
+
+            }
+
+            return JsonConvert.SerializeObject(new { statusCode = response.StatusCode, message = response.Content });
+        }
+
+        public static async Task<string> UploadFile(RestClient client, string file_path)
+        {
+            IRestResponse response = new RestResponse();
+            try
+            {
+                var request = new RestRequest($"{baseURL}/dispense_history/", Method.POST);
                 var cancellationTokenSource = new CancellationTokenSource();
                 request.AddHeader("Accept", "application/json");
                 request.AddHeader("Content-Type", "application/json");
                 string streamFile = File.ReadAllText(file_path);
                 request.AddParameter("data", streamFile, ParameterType.RequestBody);
-                IRestResponse result = await client.ExecuteTaskAsync(request, cancellationTokenSource.Token);
-
-                return JsonConvert.SerializeObject(new { statusCode = result.StatusCode, message = result.Content });
+                response = await client.ExecuteAsync(request, cancellationTokenSource.Token);
+                
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Call logger about exception " + ex);
-                return "Error";
+                
             }
+
+            return JsonConvert.SerializeObject(new { statusCode = response.StatusCode, message = response.Content });
         }
 
-        [Obsolete]
-        public static async Task<AutoTintWithId> GetAutoTintVersion(RestClient client, string auto_tint_id)
+        public static async Task<string> GetAutoTintVersion(RestClient client, string auto_tint_id)
         {
-            var request = new RestRequest(baseURL + "/auto_tint/" + auto_tint_id, Method.GET);
-            var cancellationTokenSource = new CancellationTokenSource();
-            request.AddHeader("Accept", "application/json");
-            request.Parameters.Clear();
-            IRestResponse result = await client.ExecuteTaskAsync(request, cancellationTokenSource.Token);
-            //Console.WriteLine(result.Content);
-            return JsonConvert.DeserializeObject<AutoTintWithId>(result.Content);
+            IRestResponse response = new RestResponse();
+            try
+            {
+                //auto_tint_id = "12345678AT01";
+                var request = new RestRequest(baseURL + "/auto_tint/" + auto_tint_id, Method.GET);
+                var cancellationTokenSource = new CancellationTokenSource();
+                request.AddHeader("Accept", "application/json");
+                //request.Parameters.Clear();
+                response = await client.ExecuteAsync(request, cancellationTokenSource.Token);
+                //Console.WriteLine(result.Content);
+                //return JsonConvert.DeserializeObject<AutoTintWithId>(result.Content);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Call logger about exception " + ex);
+                return JsonConvert.SerializeObject(new { statusCode = response.StatusCode, message = response.Content });
+
+            }
+            //return JsonConvert.DeserializeObject<AutoTintWithId>(response.Content);
+            return JsonConvert.SerializeObject(new { statusCode = response.StatusCode, message = response.Content });
         }
 
-        [Obsolete]
         public static async Task<PrismaProLatestVersion> GetDBLatestVersion(RestClient client, int pos_setting_id)
         {
             var request = new RestRequest(baseURL + "/prisma_pro/" + pos_setting_id + "/latest_version", Method.GET);
             var cancellationTokenSource = new CancellationTokenSource();
             request.AddHeader("Accept", "application/json");
             request.Parameters.Clear();
-            IRestResponse result = await client.ExecuteTaskAsync(request, cancellationTokenSource.Token);
+            IRestResponse result = await client.ExecuteAsync(request, cancellationTokenSource.Token);
             //Console.WriteLine(result.Content);
             PrismaProLatestVersion checkVersion = JsonConvert.DeserializeObject<PrismaProLatestVersion>(result.Content);
             return JsonConvert.DeserializeObject<PrismaProLatestVersion>(result.Content);
