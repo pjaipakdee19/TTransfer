@@ -53,7 +53,6 @@ namespace AutoTintLibrary
                 string streamFile = File.ReadAllText(file_path);
                 request.AddParameter("data", streamFile, ParameterType.RequestBody);
                 response = await client.ExecuteAsync(request, cancellationTokenSource.Token);
-                Console.WriteLine(response);
                 
             }
             catch (Exception ex)

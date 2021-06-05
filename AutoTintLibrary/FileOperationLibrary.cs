@@ -96,33 +96,61 @@ namespace AutoTintLibrary
                     if (!jsonFile.Name.Contains("_p2"))
                     {
 
-                        int retry = 1;
-                        while (retry <= 5)
+                        int retry = 1, retry_bi = 1;
+                        while (retry <= 3)
                         {
-                            //send to api
-                            var result = await APIHelper.UploadFile(client, jsonFile.FullName);
-                            //success mv change filename end with _p2
+                            //send to dispense history api
+                            var result = await APIHelper.UploadFile(client, "dispense_history", jsonFile.FullName);
                             //string[] mvFile = Directory.GetFiles(jsonFile.FullName);
                             APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(result);
-                            if(response.statusCode == 201)
-                            {
-                                int extensionIndex = jsonFile.Name.IndexOf(".json");
-                                string moveTo = $"{jsonDispenseLogPath}\\{jsonFile.Name.Substring(0, extensionIndex)}_p2.json";
-                                File.Move(jsonFile.FullName, moveTo);
-                                Logger.Info("Transfer to server complete move json files to : " + moveTo);
-                            }
-                            else
+                            if(response.statusCode != 201)
                             {
                                 retry++;
                                 Logger.Error($"Error when upload file retring {retry} {jsonFile.FullName}");
                                 Logger.Error($"Service response {response.statusCode} {response.message}");
                             }
                         }
-                        if (retry > 5)
+                        if (retry > 3)
                         {
                             Logger.Error($"Exception on send to api {jsonFile.FullName}");
                         }
+
+                        while (retry_bi <= 3)
+                        {
+                            //send to dispense history bi api
+                            var result = await APIHelper.UploadFile(client, "dispense_history_bi", jsonFile.FullName);
+                            //string[] mvFile = Directory.GetFiles(jsonFile.FullName);
+                            APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(result);
+                            if (response.statusCode != 201)
+                            {
+                                retry_bi++;
+                                Logger.Error($"Error when upload file retring {retry} {jsonFile.FullName}");
+                                Logger.Error($"Service response {response.statusCode} {response.message}");
+                            }
+                        }
+                        if (retry_bi > 3)
+                        {
+                            Logger.Error($"Exception on send to api {jsonFile.FullName}");
+                        }
+
+                        if(retry < 4 && retry_bi < 4)
+                        {
+                            //change file name to xxx_p2 after sucessful transfer
+                            int extensionIndex = jsonFile.Name.IndexOf(".json");
+                            string moveTo = $"{jsonDispenseLogPath}\\{jsonFile.Name.Substring(0, extensionIndex)}_p2.json";
+                            File.Move(jsonFile.FullName, moveTo);
+                            Logger.Info("Transfer to server complete move json files to : " + moveTo);
+                        }
+                        else
+                        {
+                            //remove this json file
+                            File.Delete(jsonFile.FullName);
+                            Logger.Info($"Transfer to server error delete json files name {jsonFile.FullName}");
+                        }
                     }
+
+
+                    
                 }
                 catch (Exception ex)
                 {
