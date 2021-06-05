@@ -1,7 +1,7 @@
 ﻿
-namespace HelloWorld
+namespace IOTClient
 {
-    partial class Form1
+    partial class SettingForm
     {
         /// <summary>
         /// Required designer variable.
@@ -29,14 +29,15 @@ namespace HelloWorld
         /// </summary>
         private void InitializeComponent()
         {
-            this.btnClickThis = new System.Windows.Forms.Button();
+            this.components = new System.ComponentModel.Container();
+            this.btnExport1 = new System.Windows.Forms.Button();
             this.lblHelloWorld = new System.Windows.Forms.Label();
             this.databaseFolderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.btnDatabaseSelect = new System.Windows.Forms.Button();
-            this.btnSeletectSetting = new System.Windows.Forms.Button();
+            this.btnSeletectHistoryCVS = new System.Windows.Forms.Button();
             this.lblDatabasePath = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.databaseLocationTextbox = new System.Windows.Forms.TextBox();
+            this.posHistoryLocationTextBox = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.tbxShopDispenVal = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
@@ -46,19 +47,22 @@ namespace HelloWorld
             this.lblDatabaseTime = new System.Windows.Forms.Label();
             this.lblDatabaseCheckVal = new System.Windows.Forms.Label();
             this.btnCheckShopID = new System.Windows.Forms.Button();
-            this.label3 = new System.Windows.Forms.Label();
+            this.HistoryExportDateTime = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
+            this.SaveInputData = new System.Windows.Forms.Button();
+            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+            this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.SuspendLayout();
             // 
-            // btnClickThis
+            // btnExport1
             // 
-            this.btnClickThis.Location = new System.Drawing.Point(409, 381);
-            this.btnClickThis.Name = "btnClickThis";
-            this.btnClickThis.Size = new System.Drawing.Size(145, 23);
-            this.btnClickThis.TabIndex = 0;
-            this.btnClickThis.Text = "ส่งออกประวัติ POS";
-            this.btnClickThis.UseVisualStyleBackColor = true;
-            this.btnClickThis.Click += new System.EventHandler(this.button1_Click);
+            this.btnExport1.Location = new System.Drawing.Point(409, 381);
+            this.btnExport1.Name = "btnExport1";
+            this.btnExport1.Size = new System.Drawing.Size(145, 23);
+            this.btnExport1.TabIndex = 0;
+            this.btnExport1.Text = "ส่งออกประวัติ POS";
+            this.btnExport1.UseVisualStyleBackColor = true;
+            this.btnExport1.Click += new System.EventHandler(this.btnExport1_Click);
             // 
             // lblHelloWorld
             // 
@@ -67,7 +71,6 @@ namespace HelloWorld
             this.lblHelloWorld.Name = "lblHelloWorld";
             this.lblHelloWorld.Size = new System.Drawing.Size(0, 13);
             this.lblHelloWorld.TabIndex = 1;
-            this.lblHelloWorld.Click += new System.EventHandler(this.label1_Click);
             // 
             // btnDatabaseSelect
             // 
@@ -77,15 +80,17 @@ namespace HelloWorld
             this.btnDatabaseSelect.TabIndex = 2;
             this.btnDatabaseSelect.Text = "...";
             this.btnDatabaseSelect.UseVisualStyleBackColor = true;
+            this.btnDatabaseSelect.Click += new System.EventHandler(this.btnDatabaseSelect_Click);
             // 
-            // btnSeletectSetting
+            // btnSeletectHistoryCVS
             // 
-            this.btnSeletectSetting.Location = new System.Drawing.Point(607, 182);
-            this.btnSeletectSetting.Name = "btnSeletectSetting";
-            this.btnSeletectSetting.Size = new System.Drawing.Size(75, 23);
-            this.btnSeletectSetting.TabIndex = 3;
-            this.btnSeletectSetting.Text = "...";
-            this.btnSeletectSetting.UseVisualStyleBackColor = true;
+            this.btnSeletectHistoryCVS.Location = new System.Drawing.Point(607, 182);
+            this.btnSeletectHistoryCVS.Name = "btnSeletectHistoryCVS";
+            this.btnSeletectHistoryCVS.Size = new System.Drawing.Size(75, 23);
+            this.btnSeletectHistoryCVS.TabIndex = 3;
+            this.btnSeletectHistoryCVS.Text = "...";
+            this.btnSeletectHistoryCVS.UseVisualStyleBackColor = true;
+            this.btnSeletectHistoryCVS.Click += new System.EventHandler(this.btnSeletectHistoryCVS_Click);
             // 
             // lblDatabasePath
             // 
@@ -96,19 +101,19 @@ namespace HelloWorld
             this.lblDatabasePath.TabIndex = 5;
             this.lblDatabasePath.Text = "ฐานข้อมูล POS";
             // 
-            // textBox1
+            // databaseLocationTextbox
             // 
-            this.textBox1.Location = new System.Drawing.Point(198, 142);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(383, 20);
-            this.textBox1.TabIndex = 6;
+            this.databaseLocationTextbox.Location = new System.Drawing.Point(198, 142);
+            this.databaseLocationTextbox.Name = "databaseLocationTextbox";
+            this.databaseLocationTextbox.Size = new System.Drawing.Size(383, 20);
+            this.databaseLocationTextbox.TabIndex = 6;
             // 
-            // textBox2
+            // posHistoryLocationTextBox
             // 
-            this.textBox2.Location = new System.Drawing.Point(198, 185);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(383, 20);
-            this.textBox2.TabIndex = 8;
+            this.posHistoryLocationTextBox.Location = new System.Drawing.Point(198, 185);
+            this.posHistoryLocationTextBox.Name = "posHistoryLocationTextBox";
+            this.posHistoryLocationTextBox.Size = new System.Drawing.Size(383, 20);
+            this.posHistoryLocationTextBox.TabIndex = 8;
             // 
             // label1
             // 
@@ -143,11 +148,12 @@ namespace HelloWorld
             this.button1.TabIndex = 11;
             this.button1.Text = "ครวจสอบรุ่นฐานข้อมูล";
             this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click_1);
             // 
             // lblDatabaseVersion
             // 
             this.lblDatabaseVersion.AutoSize = true;
-            this.lblDatabaseVersion.Location = new System.Drawing.Point(71, 323);
+            this.lblDatabaseVersion.Location = new System.Drawing.Point(74, 324);
             this.lblDatabaseVersion.Name = "lblDatabaseVersion";
             this.lblDatabaseVersion.Size = new System.Drawing.Size(71, 13);
             this.lblDatabaseVersion.TabIndex = 12;
@@ -156,7 +162,7 @@ namespace HelloWorld
             // lblDatabaseVersionText
             // 
             this.lblDatabaseVersionText.AutoSize = true;
-            this.lblDatabaseVersionText.Location = new System.Drawing.Point(149, 323);
+            this.lblDatabaseVersionText.Location = new System.Drawing.Point(152, 324);
             this.lblDatabaseVersionText.Name = "lblDatabaseVersionText";
             this.lblDatabaseVersionText.Size = new System.Drawing.Size(31, 13);
             this.lblDatabaseVersionText.TabIndex = 13;
@@ -188,15 +194,16 @@ namespace HelloWorld
             this.btnCheckShopID.TabIndex = 16;
             this.btnCheckShopID.Text = "ตรวจสอบ";
             this.btnCheckShopID.UseVisualStyleBackColor = true;
+            this.btnCheckShopID.Click += new System.EventHandler(this.btnCheckShopID_Click);
             // 
-            // label3
+            // HistoryExportDateTime
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(493, 349);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(169, 13);
-            this.label3.TabIndex = 18;
-            this.label3.Text = "07:20 , อาทิตย์ 15 พฤษภาคม 2564";
+            this.HistoryExportDateTime.AutoSize = true;
+            this.HistoryExportDateTime.Location = new System.Drawing.Point(493, 349);
+            this.HistoryExportDateTime.Name = "HistoryExportDateTime";
+            this.HistoryExportDateTime.Size = new System.Drawing.Size(169, 13);
+            this.HistoryExportDateTime.TabIndex = 18;
+            this.HistoryExportDateTime.Text = "07:20 , อาทิตย์ 15 พฤษภาคม 2564";
             // 
             // label4
             // 
@@ -207,12 +214,28 @@ namespace HelloWorld
             this.label4.TabIndex = 17;
             this.label4.Text = "เวลาส่งออกล่าสุด :";
             // 
-            // Form1
+            // SaveInputData
+            // 
+            this.SaveInputData.Location = new System.Drawing.Point(219, 233);
+            this.SaveInputData.Name = "SaveInputData";
+            this.SaveInputData.Size = new System.Drawing.Size(265, 23);
+            this.SaveInputData.TabIndex = 19;
+            this.SaveInputData.Text = "บันทึก";
+            this.SaveInputData.UseVisualStyleBackColor = true;
+            this.SaveInputData.Click += new System.EventHandler(this.SaveInputData_Click);
+            // 
+            // notifyIcon1
+            // 
+            this.notifyIcon1.Text = "IOTClient";
+            this.notifyIcon1.Visible = true;
+            // 
+            // SettingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Controls.Add(this.label3);
+            this.Controls.Add(this.SaveInputData);
+            this.Controls.Add(this.HistoryExportDateTime);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.btnCheckShopID);
             this.Controls.Add(this.lblDatabaseCheckVal);
@@ -222,16 +245,19 @@ namespace HelloWorld
             this.Controls.Add(this.button1);
             this.Controls.Add(this.tbxShopDispenVal);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.textBox2);
+            this.Controls.Add(this.posHistoryLocationTextBox);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.databaseLocationTextbox);
             this.Controls.Add(this.lblDatabasePath);
-            this.Controls.Add(this.btnSeletectSetting);
+            this.Controls.Add(this.btnSeletectHistoryCVS);
             this.Controls.Add(this.btnDatabaseSelect);
             this.Controls.Add(this.lblHelloWorld);
-            this.Controls.Add(this.btnClickThis);
-            this.Name = "Form1";
-            this.Text = "Form1";
+            this.Controls.Add(this.btnExport1);
+            this.Name = "SettingForm";
+            this.ShowIcon = false;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "TOA IOT Setting";
+            this.Load += new System.EventHandler(this.SettingForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -239,14 +265,14 @@ namespace HelloWorld
 
         #endregion
 
-        private System.Windows.Forms.Button btnClickThis;
+        private System.Windows.Forms.Button btnExport1;
         private System.Windows.Forms.Label lblHelloWorld;
         private System.Windows.Forms.FolderBrowserDialog databaseFolderBrowserDialog;
         private System.Windows.Forms.Button btnDatabaseSelect;
-        private System.Windows.Forms.Button btnSeletectSetting;
+        private System.Windows.Forms.Button btnSeletectHistoryCVS;
         private System.Windows.Forms.Label lblDatabasePath;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox databaseLocationTextbox;
+        private System.Windows.Forms.TextBox posHistoryLocationTextBox;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox tbxShopDispenVal;
         private System.Windows.Forms.Label label2;
@@ -256,8 +282,11 @@ namespace HelloWorld
         private System.Windows.Forms.Label lblDatabaseTime;
         private System.Windows.Forms.Label lblDatabaseCheckVal;
         private System.Windows.Forms.Button btnCheckShopID;
-        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label HistoryExportDateTime;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Button SaveInputData;
+        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
+        private System.Windows.Forms.NotifyIcon notifyIcon1;
     }
 }
 
