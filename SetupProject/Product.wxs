@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"><?define HelloWorld_TargetDir=$(var.HelloWorld.TargetDir)?><?define AutoTintLibrary_TargetDir=$(var.AutoTintLibrary.TargetDir)?>
+	<Product Id="*" Name="Win App" Language="1033" Version="2.0.0.0" Manufacturer="WinApp Software Inc." UpgradeCode="a9b1d837-9b09-491b-bd81-b794560745a4">
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+
+		<Media Id="1" Cabinet="WinApp.cab" EmbedCab="yes" />
+
+		<Feature Id="Executable" Level="1">
+			<ComponentRef Id="Executable" />
+			<ComponentRef Id="Documentation" />
+			<!--<ComponentGroupRef Id="RegistryGroup" />-->
+			<ComponentGroupRef Id="INSTALLDIR_files" />
+			<ComponentGroupRef Id="ProgramFilesFolder_files" />
+		</Feature>
+
+		<Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
+		<!--<UIRef Id="WixUI_InstallDir" />-->
+
+		<InstallExecuteSequence>
+			<Custom Action="PropertySetupAction" Before="InstallFinalize">NOT Installed</Custom>
+			<!--<Custom Action="LicenseInfoCustomAction" Before="InstallFinalize">NOT Installed</Custom>-->
+		</InstallExecuteSequence>
+
+	</Product>
+
+	<!--<Fragment>
+		<Binary Id="CustomActionBinary" SourceFile="$(var.MyCustomAction.TargetDir)$(var.MyCustomAction.TargetName).CA.dll"/>
+		<CustomAction Id="LicenseInfoCustomAction" BinaryKey="CustomActionBinary" DllEntry="ShowLicenseInfo" Execute="immediate" Return="check"/>
+	</Fragment>-->
+
+	<Fragment>
+		<!--<Binary Id="FolderSelectForm" SourceFile="$(var.PropertySetupAction.TargetDir)$(var.PropertySetupAction.TargetName).CA.dll"/>-->
+		<Binary Id="FolderSelectFormBinary" SourceFile="..\PropertySetupAction\bin\Debug\PropertySetupAction.CA.dll" />
+		<CustomAction Id="PropertySetupAction" BinaryKey="FolderSelectFormBinary" DllEntry="CustomAction1" Execute="immediate" Return="check" />
+	</Fragment>
+
+	<Fragment>
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFilesFolder">
+				<Directory Id="INSTALLDIR" Name="IOTClient">
+					<Component Id="Executable" Guid="7B289C8E-6F5B-4A7B-A9A1-E78A89239714">
+						<RemoveFolder Id="INSTALLDIR" On="uninstall" />
+					</Component>
+					<Component Id="Documentation" Guid="E4AA4677-6DDA-4746-A956-0A636DBB2995">
+						<RemoveFile Id="RemoveReadMe" Name="ReadMe.txt" On="both" />
+					</Component>
+				</Directory>
+			</Directory>
+		</Directory>
+
+		<!--<ComponentGroup Id="RegistryGroup">
+			<Component Id="_69CB4E7B_273F_4510_B885_4633736280D0" Guid="2EC2BF60-997B-44BB-BA82-C5760FB48A19" Transitive="no" Directory="TARGETDIR">
+				<RegistryKey Root="HKLM" Key="Software" ForceCreateOnInstall="no" ForceDeleteOnUninstall="no" />
+			</Component>
+			<Component Id="_A159385C_39DE_404D_833B_6F83828512C0" Guid="1D85B1A4-ABDD-4EB5-8E70-82C609462AEB" Transitive="no" Directory="TARGETDIR">
+				<RegistryKey Root="HKLM" Key="Software\WinApp Software" ForceCreateOnInstall="no" ForceDeleteOnUninstall="no" />
+			</Component>
+			<Component Id="_AAF14A16_5774_4861_AD86_C21F01857F59" Guid="E5F8A3A2-209A-4297-8B01-F7BB4FC6603B" Transitive="no" Directory="TARGETDIR">
+				<RegistryValue Root="HKLM" Key="Software\WinApp Software" Type="string" Name="License" Value="Free" />
+			</Component>
+		</ComponentGroup>-->
+
+	</Fragment>
+	<Fragment>
+	  <ComponentGroup Id="INSTALLDIR_files" Directory="INSTALLDIR">
+	    <Component Id="RestSharp.dll" Guid="ac2cbf52-2db5-49a0-a2ab-b4d14868c30f">
+	      <File Id="RestSharp.dll" Name="RestSharp.dll" Source="$(var.HelloWorld_TargetDir)RestSharp.dll" />
+	    </Component>
+	    <Component Id="NLog.config" Guid="1e889337-ef02-43dd-a0fc-cc949ed95490">
+	      <File Id="NLog.config" Name="NLog.config" Source="$(var.AutoTintLibrary_TargetDir)NLog.config" />
+	    </Component>
+	    <Component Id="IOTClient.exe.config" Guid="da8739d8-ff11-493f-a18a-337d4f4a695b">
+	      <File Id="IOTClient.exe.config" Name="IOTClient.exe.config" Source="$(var.HelloWorld_TargetDir)IOTClient.exe.config" />
+	    </Component>
+	    <Component Id="IOTClient.exe" Guid="8c846565-53a0-473b-b9fc-f9f24b7b7366">
+	      <File Id="IOTClient.exe" Name="IOTClient.exe" Source="$(var.HelloWorld_TargetDir)IOTClient.exe" />
+	    </Component>
+	    <Component Id="NLog.dll" Guid="bc2b62ac-d40c-4c4e-942e-99aeae421e28">
+	      <File Id="NLog.dll" Name="NLog.dll" Source="$(var.HelloWorld_TargetDir)NLog.dll" />
+	    </Component>
+	    <Component Id="AutoTintLibrary.dll" Guid="bbbfbbbe-f1c3-48cf-a653-6d30c7033e99">
+	      <File Id="AutoTintLibrary.dll" Name="AutoTintLibrary.dll" Source="$(var.AutoTintLibrary_TargetDir)AutoTintLibrary.dll" />
+	    </Component>
+	    <Component Id="Newtonsoft.Json.dll" Guid="bb399e27-98c6-4779-8d3e-1890de44a7d4">
+	      <File Id="Newtonsoft.Json.dll" Name="Newtonsoft.Json.dll" Source="$(var.HelloWorld_TargetDir)Newtonsoft.Json.dll" />
+	    </Component>
+	    <Component Id="System.Buffers.dll" Guid="e3f309a0-0155-4c27-9236-2c88241e5e57">
+	      <File Id="System.Buffers.dll" Name="System.Buffers.dll" Source="$(var.HelloWorld_TargetDir)System.Buffers.dll" />
+	    </Component>
+	    <Component Id="CsvHelper.dll" Guid="0994cd15-a4d4-4e9f-b51d-a4b893d0ac16">
+	      <File Id="CsvHelper.dll" Name="CsvHelper.dll" Source="$(var.HelloWorld_TargetDir)CsvHelper.dll" />
+	    </Component>
+	    <Component Id="Microsoft.Bcl.AsyncInterfaces.dll" Guid="9ae7994d-6957-4c64-b83d-8749de675185">
+	      <File Id="Microsoft.Bcl.AsyncInterfaces.dll" Name="Microsoft.Bcl.AsyncInterfaces.dll" Source="$(var.HelloWorld_TargetDir)Microsoft.Bcl.AsyncInterfaces.dll" />
+	    </Component>
+	    <Component Id="System.Threading.Tasks.Extensions.dll" Guid="d3d41e50-76f9-4a53-b2fd-f484c889f63c">
+	      <File Id="System.Threading.Tasks.Extensions.dll" Name="System.Threading.Tasks.Extensions.dll" Source="$(var.HelloWorld_TargetDir)System.Threading.Tasks.Extensions.dll" />
+	    </Component>
+	    <Component Id="System.Runtime.CompilerServices.Unsafe.dll" Guid="c917e73f-8747-4053-ab76-af8e4afd3369">
+	      <File Id="System.Runtime.CompilerServices.Unsafe.dll" Name="System.Runtime.CompilerServices.Unsafe.dll" Source="$(var.HelloWorld_TargetDir)System.Runtime.CompilerServices.Unsafe.dll" />
+	    </Component>
+	    <Component Id="Microsoft.Bcl.HashCode.dll" Guid="2f8e4550-c779-4758-af2c-ffd51e505dd6">
+	      <File Id="Microsoft.Bcl.HashCode.dll" Name="Microsoft.Bcl.HashCode.dll" Source="$(var.HelloWorld_TargetDir)Microsoft.Bcl.HashCode.dll" />
+	    </Component>
+	    <Component Id="System.Memory.dll" Guid="4adf4d91-afa1-4bf4-a235-f2ff7b954754">
+	      <File Id="System.Memory.dll" Name="System.Memory.dll" Source="$(var.HelloWorld_TargetDir)System.Memory.dll" />
+	    </Component>
+	    <Component Id="System.Numerics.Vectors.dll" Guid="a107204d-6a4d-4e12-bcfc-58e2ea2abcec">
+	      <File Id="System.Numerics.Vectors.dll" Name="System.Numerics.Vectors.dll" Source="$(var.HelloWorld_TargetDir)System.Numerics.Vectors.dll" />
+	    </Component>
+	  </ComponentGroup>
+	</Fragment>
+
+
+  <Fragment>
+    <ComponentGroup Id="ProgramFilesFolder_files" Directory="ProgramFilesFolder">
+      <Component Id="Images_Exit.png" Guid="f2c98c6b-5c9d-44c6-aa6a-7102fc2c4d14">
+        <File Id="Images_Exit.png" Name="Exit.png" Source="$(var.HelloWorld_TargetDir)Images\Exit.png" />
+      </Component>
+      <Component Id="Images_Explorer.png" Guid="80e06223-3f4e-4a51-b6fa-d7d8c5e8bfd5">
+        <File Id="Images_Explorer.png" Name="Explorer.png" Source="$(var.HelloWorld_TargetDir)Images\Explorer.png" />
+      </Component>
+      <Component Id="Images_SystemTrayApp.ico" Guid="dcfef4db-0f0d-47a3-88f7-155780b7fb34">
+        <File Id="Images_SystemTrayApp.ico" Name="SystemTrayApp.ico" Source="$(var.HelloWorld_TargetDir)Images\SystemTrayApp.ico" />
+      </Component>
+      <Component Id="Images_About.png" Guid="398fc8b4-21fb-40aa-87f6-5c86af6a2e4f">
+        <File Id="Images_About.png" Name="About.png" Source="$(var.HelloWorld_TargetDir)Images\About.png" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>
