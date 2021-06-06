@@ -53,6 +53,10 @@ namespace PropertySetupAction
             else
             {
                 //Check if file exist or not first
+                if (File.Exists(GlobalConfigPath))
+                {
+                    File.Delete(GlobalConfigPath);
+                }
                 
                 WriteGlobalConfig("auto_tint_id", txtCustomerId.Text);
                 WriteGlobalConfig("database_path", txtDBLocation.Text);
@@ -114,10 +118,14 @@ namespace PropertySetupAction
                 GlobalConfig OldConfig = JsonConvert.DeserializeObject<GlobalConfig>(File.ReadAllText(GlobalConfigPath));
                 //Load old value to item
 
-                item.global_config_path = OldConfig.global_config_path;
-                item.auto_tint_id = OldConfig.auto_tint_id;
-                item.csv_history_path = OldConfig.csv_history_path;
-                item.database_path = OldConfig.database_path;
+                //item.global_config_path = OldConfig.global_config_path;
+                //item.auto_tint_id = OldConfig.auto_tint_id;
+                //item.csv_history_path = OldConfig.csv_history_path;
+                //item.csv_history_achive_path = OldConfig.csv_history_achive_path;
+                //item.database_path = OldConfig.database_path;
+                //item.json_dispense_log_path = OldConfig.json_dispense_log_path;
+                //item.programdata_log_path = OldConfig.programdata_log_path;
+                item = OldConfig;
 
             }
 
