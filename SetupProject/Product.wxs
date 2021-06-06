@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"><?define HelloWorld_TargetDir=$(var.HelloWorld.TargetDir)?><?define AutoTintLibrary_TargetDir=$(var.AutoTintLibrary.TargetDir)?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"><?define HelloWorld_TargetDir=$(var.HelloWorld.TargetDir)?><?define AutoTintLibrary_TargetDir=$(var.AutoTintLibrary.TargetDir)?><?define TAService_TargetDir=$(var.TAService.TargetDir)?>
 	<Product Id="*" Name="TOA IOT Project" Language="1033" Version="2.0.0.0" Manufacturer="TOA" UpgradeCode="a9b1d837-9b09-491b-bd81-b794560745a4">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
@@ -10,6 +10,7 @@
 		<Feature Id="Executable" Level="1">
 			<ComponentRef Id="Executable" />
 			<ComponentRef Id="Documentation" />
+			<ComponentRef Id="StartUpandinstallService" />
 			<!--<ComponentGroupRef Id="RegistryGroup" />-->
 			<ComponentGroupRef Id="INSTALLDIR_files" />
 			<ComponentGroupRef Id="ProgramFilesFolder_files" />
@@ -21,29 +22,17 @@
 			<UIRef Id="WixUI_InstallDir" />
 
 			<!-- Skip license dialog -->
-			<Publish Dialog="WelcomeDlg"
-                     Control="Next"
-                     Event="NewDialog"
-                     Value="InstallDirDlg"
-                     Order="2">1</Publish>
-			<Publish Dialog="InstallDirDlg"
-                     Control="Back"
-                     Event="NewDialog"
-                     Value="WelcomeDlg"
-                     Order="2">1</Publish>
-			<Publish Dialog="ExitDialog" 
-				Control="Finish" 
-				Event="DoAction" 
-				Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
+			<Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="InstallDirDlg" Order="2">1</Publish>
+			<Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg" Order="2">1</Publish>
+			<Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchApplication1">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
+			<!--<Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchApplication2">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>-->
 		</UI>
 		<Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
 		<Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch Application" />
 		
-		 <Property Id="WixShellExecTarget" Value="[#IOTClient.exe]" />
-		<CustomAction Id="LaunchApplication" 
-			BinaryKey="WixCA" 
-			DllEntry="WixShellExec"
-			Impersonate="yes" />
+		<CustomAction Id="LaunchApplication1" FileKey="IOTClient.exe" ExeCommand="" Impersonate="yes" />
+		
+		<!--<CustomAction Id="LaunchApplication2" FileKey="TAService.exe" ExeCommand="" Impersonate="yes" />-->
 
 		<InstallExecuteSequence>
 			<Custom Action="PropertySetupAction" Before="InstallFinalize">NOT Installed</Custom>
@@ -107,6 +96,23 @@
 			<Condition>1</Condition>
 		  </Component>
 		<ComponentRef Id="MerliniaAssistanceAutostart" />-->
+		<Component Id="StartUpandinstallService" Guid="E27ADFB6-63EF-49DC-ACA5-68439030FF48" Directory="INSTALLDIR">
+			<File Id='TAServiceEXE' Name='TAService.exe' DiskId='1' Source='$(var.TAService_TargetDir)TAService.exe'  KeyPath='yes'/>         
+				<ServiceInstall
+				  Id="ServiceInstaller"
+				  Type="ownProcess"
+				  Name="TOAIOTService"
+				  DisplayName="TOA IOT Auto Service"
+				  Description="Monitoring and transfering Jobs"
+				  Start="auto"
+				  Account="[SERVICEACCOUNT]"
+				  Password="[SERVICEPASSWORD]"
+				  ErrorControl="normal"
+				  Interactive="yes"
+				  Arguments=" /start TOAIOTService"
+				  />
+			<ServiceControl Id="StartService" Start="install" Stop="both" Remove="uninstall" Name="TOAIOTService" Wait="yes" />	
+	</Component>
 	</Fragment>
 	<Fragment>
 	  <ComponentGroup Id="INSTALLDIR_files" Directory="INSTALLDIR">
@@ -155,6 +161,12 @@
 	    <Component Id="System.Numerics.Vectors.dll" Guid="a107204d-6a4d-4e12-bcfc-58e2ea2abcec">
 	      <File Id="System.Numerics.Vectors.dll" Name="System.Numerics.Vectors.dll" Source="$(var.HelloWorld_TargetDir)System.Numerics.Vectors.dll" />
 	    </Component>
+	    <Component Id="TAService.exe.config" Guid="b682f54b-88a0-44c4-946d-af6f68c5a540">
+	      <File Id="TAService.exe.config" Name="TAService.exe.config" Source="$(var.TAService_TargetDir)TAService.exe.config" />
+	    </Component>
+	    <!--<Component Id="TAService.exe" Guid="4759b074-88ba-4c8e-9eb0-cac2e3b38dd7">
+	      <File Id="TAService.exe" Name="TAService.exe" Source="$(var.TAService_TargetDir)TAService.exe" />
+	    </Component>-->
 	  </ComponentGroup>
 	</Fragment>
 
