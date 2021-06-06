@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"><?define HelloWorld_TargetDir=$(var.HelloWorld.TargetDir)?><?define AutoTintLibrary_TargetDir=$(var.AutoTintLibrary.TargetDir)?>
-	<Product Id="*" Name="Win App" Language="1033" Version="2.0.0.0" Manufacturer="WinApp Software Inc." UpgradeCode="a9b1d837-9b09-491b-bd81-b794560745a4">
+	<Product Id="*" Name="TOA IOT Project" Language="1033" Version="2.0.0.0" Manufacturer="TOA" UpgradeCode="a9b1d837-9b09-491b-bd81-b794560745a4">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
 		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
@@ -16,7 +16,23 @@
 		</Feature>
 
 		<Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
-		<UIRef Id="WixUI_InstallDir" />
+		<!--<UIRef Id="WixUI_InstallDir" />-->
+		<UI>
+			<UIRef Id="WixUI_InstallDir" />
+
+			<!-- Skip license dialog -->
+			<Publish Dialog="WelcomeDlg"
+                     Control="Next"
+                     Event="NewDialog"
+                     Value="InstallDirDlg"
+                     Order="2">1</Publish>
+			<Publish Dialog="InstallDirDlg"
+                     Control="Back"
+                     Event="NewDialog"
+                     Value="WelcomeDlg"
+                     Order="2">1</Publish>
+		</UI>
+
 
 		<InstallExecuteSequence>
 			<Custom Action="PropertySetupAction" Before="InstallFinalize">NOT Installed</Custom>

@@ -31,6 +31,8 @@ namespace PropertySetupAction
         {
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.btnCSVSelect = new System.Windows.Forms.Button();
+            this.btnDatabaseSelect = new System.Windows.Forms.Button();
             this.txtCustomerId = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.txtHistoryLocation = new System.Windows.Forms.TextBox();
@@ -43,8 +45,6 @@ namespace PropertySetupAction
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnNext = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
-            this.btnDatabaseSelect = new System.Windows.Forms.Button();
-            this.btnCSVSelect = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -76,6 +76,26 @@ namespace PropertySetupAction
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(330, 312);
             this.panel1.TabIndex = 1;
+            // 
+            // btnCSVSelect
+            // 
+            this.btnCSVSelect.Location = new System.Drawing.Point(302, 154);
+            this.btnCSVSelect.Name = "btnCSVSelect";
+            this.btnCSVSelect.Size = new System.Drawing.Size(23, 23);
+            this.btnCSVSelect.TabIndex = 9;
+            this.btnCSVSelect.Text = "...";
+            this.btnCSVSelect.UseVisualStyleBackColor = true;
+            this.btnCSVSelect.Click += new System.EventHandler(this.btnCSVSelect_Click);
+            // 
+            // btnDatabaseSelect
+            // 
+            this.btnDatabaseSelect.Location = new System.Drawing.Point(302, 116);
+            this.btnDatabaseSelect.Name = "btnDatabaseSelect";
+            this.btnDatabaseSelect.Size = new System.Drawing.Size(23, 23);
+            this.btnDatabaseSelect.TabIndex = 8;
+            this.btnDatabaseSelect.Text = "...";
+            this.btnDatabaseSelect.UseVisualStyleBackColor = true;
+            this.btnDatabaseSelect.Click += new System.EventHandler(this.btnDatabaseSelect_Click);
             // 
             // txtCustomerId
             // 
@@ -183,26 +203,6 @@ namespace PropertySetupAction
             this.button2.Text = "&Back";
             this.button2.UseVisualStyleBackColor = true;
             // 
-            // btnDatabaseSelect
-            // 
-            this.btnDatabaseSelect.Location = new System.Drawing.Point(302, 116);
-            this.btnDatabaseSelect.Name = "btnDatabaseSelect";
-            this.btnDatabaseSelect.Size = new System.Drawing.Size(23, 23);
-            this.btnDatabaseSelect.TabIndex = 8;
-            this.btnDatabaseSelect.Text = "...";
-            this.btnDatabaseSelect.UseVisualStyleBackColor = true;
-            this.btnDatabaseSelect.Click += new System.EventHandler(this.btnDatabaseSelect_Click);
-            // 
-            // btnCSVSelect
-            // 
-            this.btnCSVSelect.Location = new System.Drawing.Point(302, 154);
-            this.btnCSVSelect.Name = "btnCSVSelect";
-            this.btnCSVSelect.Size = new System.Drawing.Size(23, 23);
-            this.btnCSVSelect.TabIndex = 9;
-            this.btnCSVSelect.Text = "...";
-            this.btnCSVSelect.UseVisualStyleBackColor = true;
-            this.btnCSVSelect.Click += new System.EventHandler(this.btnCSVSelect_Click);
-            // 
             // FolderSelectForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -219,7 +219,7 @@ namespace PropertySetupAction
             this.MaximizeBox = false;
             this.Name = "FolderSelectForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Win App Registration";
+            this.Text = "TOA IOT Setting";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
