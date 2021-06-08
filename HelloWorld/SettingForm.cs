@@ -16,6 +16,7 @@ using AutoTintLibrary;
 using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Threading;
+using System.Net;
 
 namespace IOTClient
 {
@@ -196,6 +197,23 @@ namespace IOTClient
         {
             Console.WriteLine("Call logger !!");
             Logger.Trace("Done for today " + text);
+        }
+
+        private void btnDownloadUpdate_Click(object sender, EventArgs e)
+        {
+            WebClient webClient = new WebClient();
+            webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(Completed);
+            webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
+            webClient.DownloadFileAsync(new Uri("http://49.229.21.8/files/settings/Tint_On_Shop_3vsL6ey.SDF"), @"E:\VM\Tint_On_Shop_3vsL6ey.SDF");
+        }
+        private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        {
+            progressBar1.Value = e.ProgressPercentage;
+        }
+
+        private void Completed(object sender, AsyncCompletedEventArgs e)
+        {
+            System.Windows.MessageBox.Show("Download completed!");
         }
 
         //private void Form1_Resize(object sender, System.EventArgs e)
