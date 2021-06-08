@@ -21,7 +21,7 @@ namespace AutoTintLibrary
         {
             MissingFieldFound = null,
         };
-        public async void StartOperation()
+        public async Task StartOperation()
         {
             //Init configuration variable
             string csv_history_path = ConfigurationManager.AppSettings.Get("csv_history_path");
@@ -93,11 +93,12 @@ namespace AutoTintLibrary
                 try
                 {
                     //Y Did the files name ended with _p2 ? (Does it have file name not end with p2 ?)
-                    if (!jsonFile.Name.Contains("_p2"))
-                    {
+                    //if (!jsonFile.Name.Contains("_p2"))
+                    //{
+                    bool isDispenseDone = false, isDispenseBIDone = false;
 
                         int retry = 1, retry_bi = 1;
-                        while (retry <= 3)
+                        while (retry <= 3 && isDispenseDone == false)
                         {
                             //send to dispense history api
                             var result = await APIHelper.UploadFile(client, "dispense_history", jsonFile.FullName);
@@ -109,13 +110,14 @@ namespace AutoTintLibrary
                                 Logger.Error($"Error when upload file retring {retry} {jsonFile.FullName}");
                                 Logger.Error($"Service response {response.statusCode} {response.message}");
                             }
+                            isDispenseDone = true;
                         }
                         if (retry > 3)
                         {
                             Logger.Error($"Exception on send to api {jsonFile.FullName}");
                         }
 
-                        while (retry_bi <= 3)
+                        while (retry_bi <= 3 && retry <=3 && isDispenseBIDone == false)
                         {
                             //send to dispense history bi api
                             var result = await APIHelper.UploadFile(client, "dispense_history_bi", jsonFile.FullName);
@@ -127,6 +129,7 @@ namespace AutoTintLibrary
                                 Logger.Error($"Error when upload file retring {retry} {jsonFile.FullName}");
                                 Logger.Error($"Service response {response.statusCode} {response.message}");
                             }
+                            isDispenseBIDone = true;
                         }
                         if (retry_bi > 3)
                         {
@@ -135,19 +138,21 @@ namespace AutoTintLibrary
 
                         if(retry < 4 && retry_bi < 4)
                         {
-                            //change file name to xxx_p2 after sucessful transfer
-                            int extensionIndex = jsonFile.Name.IndexOf(".json");
-                            string moveTo = $"{jsonDispenseLogPath}\\{jsonFile.Name.Substring(0, extensionIndex)}_p2.json";
-                            File.Move(jsonFile.FullName, moveTo);
-                            Logger.Info("Transfer to server complete move json files to : " + moveTo);
+                            //sucessful transfer remove this json file
+                            File.Delete(jsonFile.FullName);
+                            Logger.Info($"Transfer to server complete delete json files name {jsonFile.FullName}");
+
                         }
                         else
                         {
-                            //remove this json file
-                            File.Delete(jsonFile.FullName);
-                            Logger.Info($"Transfer to server error delete json files name {jsonFile.FullName}");
+                            //change file name to xxx_p2 after unsucessful transfer
+                            int extensionIndex = jsonFile.Name.IndexOf(".json");
+                            string moveTo = $"{jsonDispenseLogPath}\\{jsonFile.Name.Substring(0, extensionIndex)}_p2.json";
+                            File.Move(jsonFile.FullName, moveTo);
+                            Logger.Info("Transfer to server error move json files to : " + moveTo);
+                        
                         }
-                    }
+                    //}
 
 
                     

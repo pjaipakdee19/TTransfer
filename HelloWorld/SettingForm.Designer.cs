@@ -64,7 +64,7 @@ namespace IOTClient
             this.btnExport1.TabIndex = 0;
             this.btnExport1.Text = "ส่งออกประวัติ POS";
             this.btnExport1.UseVisualStyleBackColor = true;
-            this.btnExport1.Click += new System.EventHandler(this.btnExport1_Click);
+            this.btnExport1.Click += new System.EventHandler(this.btnExport1_ClickAsync);
             // 
             // lblHelloWorld
             // 
