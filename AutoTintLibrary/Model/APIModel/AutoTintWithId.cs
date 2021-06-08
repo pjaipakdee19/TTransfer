@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 namespace AutoTintLibrary
 {
     // AutoTintWithId myDeserializedClass = JsonConvert.DeserializeObject<AutoTintWithId>(myJsonResponse); 
+    // Also use with /pos_history_update/
     public class Company
     {
         public int id { get; set; }

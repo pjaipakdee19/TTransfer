@@ -52,6 +52,8 @@ namespace IOTClient
             this.SaveInputData = new System.Windows.Forms.Button();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
+            this.btnDownloadUpdate = new System.Windows.Forms.Button();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.SuspendLayout();
             // 
             // btnExport1
@@ -229,11 +231,30 @@ namespace IOTClient
             this.notifyIcon1.Text = "IOTClient";
             this.notifyIcon1.Visible = true;
             // 
+            // btnDownloadUpdate
+            // 
+            this.btnDownloadUpdate.Location = new System.Drawing.Point(257, 380);
+            this.btnDownloadUpdate.Name = "btnDownloadUpdate";
+            this.btnDownloadUpdate.Size = new System.Drawing.Size(94, 23);
+            this.btnDownloadUpdate.TabIndex = 20;
+            this.btnDownloadUpdate.Text = "TestDownload";
+            this.btnDownloadUpdate.UseVisualStyleBackColor = true;
+            this.btnDownloadUpdate.Click += new System.EventHandler(this.btnDownloadUpdate_Click);
+            // 
+            // progressBar1
+            // 
+            this.progressBar1.Location = new System.Drawing.Point(251, 409);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(100, 23);
+            this.progressBar1.TabIndex = 21;
+            // 
             // SettingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.progressBar1);
+            this.Controls.Add(this.btnDownloadUpdate);
             this.Controls.Add(this.SaveInputData);
             this.Controls.Add(this.HistoryExportDateTime);
             this.Controls.Add(this.label4);
@@ -287,6 +308,8 @@ namespace IOTClient
         private System.Windows.Forms.Button SaveInputData;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
         private System.Windows.Forms.NotifyIcon notifyIcon1;
+        private System.Windows.Forms.Button btnDownloadUpdate;
+        private System.Windows.Forms.ProgressBar progressBar1;
     }
 }
 

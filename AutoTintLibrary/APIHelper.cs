@@ -6,6 +6,8 @@ using System.Threading;
 using System.IO;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using System.Net;
+using System.ComponentModel;
 
 namespace AutoTintLibrary
 {
@@ -40,6 +42,7 @@ namespace AutoTintLibrary
 
             return JsonConvert.SerializeObject(new { statusCode = response.StatusCode, message = response.Content });
         }
+
 
         public static async Task<string> UploadFile(RestClient client,string method, string file_path)
         {
