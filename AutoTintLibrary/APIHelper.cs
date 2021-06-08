@@ -43,12 +43,13 @@ namespace AutoTintLibrary
             return JsonConvert.SerializeObject(new { statusCode = response.StatusCode, message = response.Content });
         }
 
-        public static async Task<string> UploadFile(RestClient client,string url, string file_path)
+
+        public static async Task<string> UploadFile(RestClient client,string method, string file_path)
         {
             IRestResponse response = new RestResponse();
             try
             {
-                var request = new RestRequest($"{baseURL}/dispense_history/", Method.POST);
+                var request = new RestRequest($"{baseURL}/{method}/", Method.POST);
                 var cancellationTokenSource = new CancellationTokenSource();
                 request.AddHeader("Accept", "application/json");
                 request.AddHeader("Content-Type", "application/json");
