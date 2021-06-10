@@ -196,6 +196,7 @@ namespace IOTClient
             this.btnCheckShopID.TabIndex = 16;
             this.btnCheckShopID.Text = "ตรวจสอบ";
             this.btnCheckShopID.UseVisualStyleBackColor = true;
+            this.btnCheckShopID.Visible = false;
             this.btnCheckShopID.Click += new System.EventHandler(this.btnCheckShopID_Click);
             // 
             // HistoryExportDateTime
@@ -239,6 +240,7 @@ namespace IOTClient
             this.btnDownloadUpdate.TabIndex = 20;
             this.btnDownloadUpdate.Text = "TestDownload";
             this.btnDownloadUpdate.UseVisualStyleBackColor = true;
+            this.btnDownloadUpdate.Visible = false;
             this.btnDownloadUpdate.Click += new System.EventHandler(this.btnDownloadUpdate_Click);
             // 
             // progressBar1
@@ -247,6 +249,7 @@ namespace IOTClient
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(100, 23);
             this.progressBar1.TabIndex = 21;
+            this.progressBar1.Visible = false;
             // 
             // SettingForm
             // 
