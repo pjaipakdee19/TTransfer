@@ -25,9 +25,9 @@ namespace IOTClient
         private dynamic client = APIHelper.init();
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         //On screen attribute
-        private string auto_tint_id = ManageConfig.ReadConfig("auto_tint_id");
-        private string csv_history_path = ManageConfig.ReadConfig("csv_history_path");
-        public static string database_path = ManageConfig.ReadConfig("database_path");
+        private string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
+        private string csv_history_path = ManageConfig.ReadGlobalConfig("csv_history_path");
+        private string database_path = ManageConfig.ReadGlobalConfig("database_path");
 
         public SettingForm()
         {
@@ -167,7 +167,7 @@ namespace IOTClient
             }
         }
 
-        private void btnExport1_Click(object sender, EventArgs e)
+        private async void btnExport1_ClickAsync(object sender, EventArgs e)
         {
             var instance = new FileOperationLibrary();
 
@@ -178,7 +178,7 @@ namespace IOTClient
             });
 
             progressThread.Start();
-            instance.StartOperation();
+            await instance.StartOperation();
             var utcTime = DateTime.UtcNow;
             var ictZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
             var actualTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, ictZone);
@@ -196,7 +196,7 @@ namespace IOTClient
         private static void logMaskAsDoneDate(string text)
         {
             Console.WriteLine("Call logger !!");
-            Logger.Trace("Done for today " + text);
+            Logger.Trace("Manual Transfer done for today " + text);
         }
 
         private void btnDownloadUpdate_Click(object sender, EventArgs e)
