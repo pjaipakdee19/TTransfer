@@ -147,7 +147,9 @@ namespace AutoTintLibrary
                         {
                             //change file name to xxx_p2 after unsucessful transfer
                             int extensionIndex = jsonFile.Name.IndexOf(".json");
-                            string moveTo = $"{jsonDispenseLogPath}\\{jsonFile.Name.Substring(0, extensionIndex)}_p2.json";
+                            //create tmp directory
+                            new System.IO.FileInfo($"{jsonDispenseLogPath}\\tmp").Directory.Create();
+                            string moveTo = $"{jsonDispenseLogPath}\\tmp\\{jsonFile.Name.Substring(0, extensionIndex)}_p2.json";
                             File.Move(jsonFile.FullName, moveTo);
                             Logger.Info("Transfer to server error move json files to : " + moveTo);
                         
@@ -162,6 +164,14 @@ namespace AutoTintLibrary
                     Logger.Error(ex, "Exception on create json _p2 : " + ex.ToString());
                 }
 
+            }
+            //Move all convert "_p2" files back to jsonDispenseLogPath from tmp directory
+            new System.IO.FileInfo($"{jsonDispenseLogPath}\\tmp").Directory.Create();
+            DirectoryInfo jsonDispensetmpPathInfo = new DirectoryInfo($"{jsonDispenseLogPath}\\tmp");
+            foreach (var tmpjsonFile in jsonDispensetmpPathInfo.GetFiles("*.json"))
+            {
+                string moveTo = $"{jsonDispenseLogPath}\\{tmpjsonFile.Name}";
+                File.Move(tmpjsonFile.FullName, moveTo);
             }
         }
 
