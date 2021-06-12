@@ -12,6 +12,7 @@
 			<ComponentRef Id="Documentation" />
 			<ComponentRef Id="StartUpandinstallService" />
 			<!--<ComponentGroupRef Id="RegistryGroup" />-->
+			<ComponentRef Id="RegistryEntries" />
 			<ComponentGroupRef Id="INSTALLDIR_files" />
 			<ComponentGroupRef Id="ProgramFilesFolder_files" />
 		</Feature>
@@ -45,7 +46,17 @@
 		<Binary Id="CustomActionBinary" SourceFile="$(var.MyCustomAction.TargetDir)$(var.MyCustomAction.TargetName).CA.dll"/>
 		<CustomAction Id="LicenseInfoCustomAction" BinaryKey="CustomActionBinary" DllEntry="ShowLicenseInfo" Execute="immediate" Return="check"/>
 	</Fragment>-->
-
+<Fragment>
+		<DirectoryRef Id="INSTALLDIR">
+      <Component Id="RegistryEntries" Guid="{AB4D51B5-2E8B-4721-A882-994C6E5D5205}">
+        <RegistryKey Root="HKCU"
+                     Key="Software\Microsoft\Windows\CurrentVersion\Run"
+              Action="createAndRemoveOnUninstall">
+          <RegistryValue Type="string" Name="TOAIOTClient" Value="&quot;[#IOTClient.exe]&quot;" KeyPath="yes"/>          
+        </RegistryKey>
+      </Component>
+    </DirectoryRef>
+</Fragment>
 	<Fragment>
 		<!--<Binary Id="FolderSelectForm" SourceFile="$(var.PropertySetupAction.TargetDir)$(var.PropertySetupAction.TargetName).CA.dll"/>-->
 		<Binary Id="FolderSelectFormBinary" SourceFile="..\PropertySetupAction\bin\Debug\PropertySetupAction.CA.dll" />
@@ -75,27 +86,7 @@
 			</Component>
 			<Component Id="_AAF14A16_5774_4861_AD86_C21F01857F59" Guid="E5F8A3A2-209A-4297-8B01-F7BB4FC6603B" Transitive="no" Directory="TARGETDIR">
 				<RegistryValue Root="HKLM" Key="Software\WinApp Software" Type="string" Name="License" Value="Free" />
-			</Component>--><!--
-			
-			<Component Id="auto_start_client" Guid="E27ADFB6-63EF-49DC-ACA5-68439030FF48">
-				<RegistryValue Id="ClientTOAIOT" Root="HKMU" Action="write"
-							   Key="Software\Microsoft\Windows\CurrentVersion\Run"
-							   Name="TOA IOT Setting Client"
-							   Value="[INSTALLDIR]IOTClient.exe"
-							   Type="string" />
-				<Condition>1</Condition>
-			  </Component>
-		</ComponentGroup>-->
-		  <!-- Auto-start via Registry -->
-		  <!--<Component Id="MerliniAssistanceAutostart" Guid="E27ADFB6-63EF-49DC-ACA5-68439030FF48">
-			<RegistryValue Id="ClientTOAIOT" Root="HKMU" Action="write"
-						   Key="Software\Microsoft\Windows\CurrentVersion\Run"
-						   Name="TOA IOT Setting Client"
-						   Value="[INSTALLDIR]IOTClient.exe"
-						   Type="string" />
-			<Condition>1</Condition>
-		  </Component>
-		<ComponentRef Id="MerliniaAssistanceAutostart" />-->
+			</Component>-->
 		<Component Id="StartUpandinstallService" Guid="E27ADFB6-63EF-49DC-ACA5-68439030FF48" Directory="INSTALLDIR">
 			<File Id='TAServiceEXE' Name='TAService.exe' DiskId='1' Source='$(var.TAService_TargetDir)TAService.exe'  KeyPath='yes'/>         
 				<ServiceInstall
@@ -112,7 +103,7 @@
 				  Arguments=" /start TOAIOTService"
 				  />
 			<ServiceControl Id="StartService" Start="install" Stop="both" Remove="uninstall" Name="TOAIOTService" Wait="yes" />	
-	</Component>
+		</Component>
 	</Fragment>
 	<Fragment>
 	  <ComponentGroup Id="INSTALLDIR_files" Directory="INSTALLDIR">
