@@ -24,10 +24,10 @@ namespace AutoTintLibrary
         public async Task StartOperation()
         {
             //Init configuration variable
-            string csv_history_path = ConfigurationManager.AppSettings.Get("csv_history_path");
-            string jsonDispenseLogPath = ConfigurationManager.AppSettings.Get("json_dispense_log_path");
-            string csv_history_achive_path = ConfigurationManager.AppSettings.Get("csv_history_achive_path");
-            string auto_tint_id = ConfigurationManager.AppSettings.Get("auto_tint_id");
+            string csv_history_path = ManageConfig.ReadGlobalConfig("csv_history_path");
+            string jsonDispenseLogPath = ManageConfig.ReadGlobalConfig("json_dispense_log_path");
+            string csv_history_achive_path = ManageConfig.ReadGlobalConfig("csv_history_achive_path");
+            string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
             //find the csv in history files
             DirectoryInfo csvHistoryPathInfo = new DirectoryInfo(csv_history_path);
             foreach (var csvFile in csvHistoryPathInfo.GetFiles("*.csv"))
@@ -81,7 +81,11 @@ namespace AutoTintLibrary
 
                 //Move complete extract file into achive folder
                 reader.Close();
-                new System.IO.FileInfo(csv_history_achive_path).Directory.Create();
+                CreateDirectoryIfNotExist(csv_history_achive_path);
+                if (File.Exists($"{csv_history_achive_path}\\{csvFile.Name}"))
+                {
+                    File.Delete($"{csv_history_achive_path}\\{csvFile.Name}");
+                }
                 File.Move(csvFile.FullName, $"{csv_history_achive_path}\\{csvFile.Name}");
             }
 
@@ -96,65 +100,65 @@ namespace AutoTintLibrary
                     //if (!jsonFile.Name.Contains("_p2"))
                     //{
                     bool isDispenseDone = false, isDispenseBIDone = false;
+                    bool test_p2 = false;
+                    int retry = 1, retry_bi = 1;
+                    if(test_p2) { retry = 4; }
+                    while (retry <= 3 && isDispenseDone == false)
+                    {
+                        //send to dispense history api
+                        var result = await APIHelper.UploadFile(client, "dispense_history", jsonFile.FullName);
+                        //string[] mvFile = Directory.GetFiles(jsonFile.FullName);
+                        APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(result);
+                        if(response.statusCode != 201)
+                        {
+                            retry++;
+                            Logger.Error($"Error when upload file retring {retry} {jsonFile.FullName}");
+                            Logger.Error($"Service response {response.statusCode} {response.message}");
+                        }
+                        isDispenseDone = true;
+                    }
+                    if (retry > 3)
+                    {
+                        Logger.Error($"Exception on send to api {jsonFile.FullName}");
+                    }
 
-                        int retry = 1, retry_bi = 1;
-                        while (retry <= 3 && isDispenseDone == false)
+                    while (retry_bi <= 3 && retry <=3 && isDispenseBIDone == false)
+                    {
+                        //send to dispense history bi api
+                        var result = await APIHelper.UploadFile(client, "dispense_history_bi", jsonFile.FullName);
+                        APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(result);
+                        if (response.statusCode != 201)
                         {
-                            //send to dispense history api
-                            var result = await APIHelper.UploadFile(client, "dispense_history", jsonFile.FullName);
-                            //string[] mvFile = Directory.GetFiles(jsonFile.FullName);
-                            APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(result);
-                            if(response.statusCode != 201)
-                            {
-                                retry++;
-                                Logger.Error($"Error when upload file retring {retry} {jsonFile.FullName}");
-                                Logger.Error($"Service response {response.statusCode} {response.message}");
-                            }
-                            isDispenseDone = true;
+                            retry_bi++;
+                            Logger.Error($"Error when upload file retring {retry} {jsonFile.FullName}");
+                            Logger.Error($"Service response {response.statusCode} {response.message}");
                         }
-                        if (retry > 3)
-                        {
-                            Logger.Error($"Exception on send to api {jsonFile.FullName}");
-                        }
+                        isDispenseBIDone = true;
+                    }
+                    if (retry_bi > 3)
+                    {
+                        Logger.Error($"Exception on send to api {jsonFile.FullName}");
+                    }
 
-                        while (retry_bi <= 3 && retry <=3 && isDispenseBIDone == false)
-                        {
-                            //send to dispense history bi api
-                            var result = await APIHelper.UploadFile(client, "dispense_history_bi", jsonFile.FullName);
-                            //string[] mvFile = Directory.GetFiles(jsonFile.FullName);
-                            APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(result);
-                            if (response.statusCode != 201)
-                            {
-                                retry_bi++;
-                                Logger.Error($"Error when upload file retring {retry} {jsonFile.FullName}");
-                                Logger.Error($"Service response {response.statusCode} {response.message}");
-                            }
-                            isDispenseBIDone = true;
-                        }
-                        if (retry_bi > 3)
-                        {
-                            Logger.Error($"Exception on send to api {jsonFile.FullName}");
-                        }
+                    if(retry < 4 && retry_bi < 4)
+                    {
+                        //sucessful transfer remove this json file
+                        File.Delete(jsonFile.FullName);
+                        Logger.Info($"Transfer to server complete delete json files name {jsonFile.FullName}");
 
-                        if(retry < 4 && retry_bi < 4)
-                        {
-                            //sucessful transfer remove this json file
-                            File.Delete(jsonFile.FullName);
-                            Logger.Info($"Transfer to server complete delete json files name {jsonFile.FullName}");
-
-                        }
-                        else
-                        {
-                            //change file name to xxx_p2 after unsucessful transfer
-                            int extensionIndex = jsonFile.Name.IndexOf(".json");
-                            //create tmp directory
-                            new System.IO.FileInfo($"{jsonDispenseLogPath}\\tmp").Directory.Create();
-                            string moveTo = $"{jsonDispenseLogPath}\\tmp\\{jsonFile.Name.Substring(0, extensionIndex)}_p2.json";
-                            File.Move(jsonFile.FullName, moveTo);
-                            Logger.Info("Transfer to server error move json files to : " + moveTo);
+                    }
+                    else
+                    {
+                        //change file name to xxx_p2 after unsucessful transfer
+                        int extensionIndex = jsonFile.Name.IndexOf(".json");
+                        //create tmp directory
+                        CreateDirectoryIfNotExist($"{jsonDispenseLogPath}\\tmp");
+                        string moveTo = $"{jsonDispenseLogPath}\\tmp\\{jsonFile.Name.Substring(0, extensionIndex)}_p2.json";
+                        File.Move(jsonFile.FullName, moveTo);
+                        Logger.Info("Transfer to server error move json files to : " + moveTo);
                         
-                        }
-                    //}
+                    }
+                //}
 
 
                     
@@ -166,7 +170,7 @@ namespace AutoTintLibrary
 
             }
             //Move all convert "_p2" files back to jsonDispenseLogPath from tmp directory
-            new System.IO.FileInfo($"{jsonDispenseLogPath}\\tmp").Directory.Create();
+            CreateDirectoryIfNotExist($"{jsonDispenseLogPath}\\tmp");
             DirectoryInfo jsonDispensetmpPathInfo = new DirectoryInfo($"{jsonDispenseLogPath}\\tmp");
             foreach (var tmpjsonFile in jsonDispensetmpPathInfo.GetFiles("*.json"))
             {
@@ -189,6 +193,14 @@ namespace AutoTintLibrary
             string[] result = new string[set.Count];
             set.CopyTo(result);
             return result;
+        }
+
+        private void CreateDirectoryIfNotExist(string filepath)
+        {
+            if (!Directory.Exists(filepath))
+            {
+                Directory.CreateDirectory(filepath);
+            }
         }
     }
 }
