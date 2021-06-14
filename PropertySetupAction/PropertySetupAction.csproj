@@ -62,6 +62,7 @@
     <Compile Include="GlobalConfig.cs" />
     <Compile Include="PropertySetupAction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <None Include="pictureBox1.Image.png" />
     <Content Include="PropertySetupAction.config" />
   </ItemGroup>
   <ItemGroup>

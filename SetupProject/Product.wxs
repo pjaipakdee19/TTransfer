@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"><?define HelloWorld_TargetDir=$(var.HelloWorld.TargetDir)?><?define AutoTintLibrary_TargetDir=$(var.AutoTintLibrary.TargetDir)?><?define TAService_TargetDir=$(var.TAService.TargetDir)?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"><?define HelloWorld_TargetDir=$(var.HelloWorld.TargetDir)?><?define AutoTintLibrary_TargetDir=$(var.AutoTintLibrary.TargetDir)?><?define TAService_TargetDir=$(var.TAService.TargetDir)?><?define PropertySetupAction_TargetDir=$(var.PropertySetupAction.TargetDir)?>
 	<Product Id="*" Name="TOA IOT Project" Language="1033" Version="2.0.0.0" Manufacturer="TOA" UpgradeCode="a9b1d837-9b09-491b-bd81-b794560745a4">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
@@ -49,17 +49,15 @@
 <Fragment>
 		<DirectoryRef Id="INSTALLDIR">
       <Component Id="RegistryEntries" Guid="{AB4D51B5-2E8B-4721-A882-994C6E5D5205}">
-        <RegistryKey Root="HKCU"
-                     Key="Software\Microsoft\Windows\CurrentVersion\Run"
-              Action="createAndRemoveOnUninstall">
-          <RegistryValue Type="string" Name="TOAIOTClient" Value="&quot;[#IOTClient.exe]&quot;" KeyPath="yes"/>          
+        <RegistryKey Root="HKCU" Key="Software\Microsoft\Windows\CurrentVersion\Run" Action="createAndRemoveOnUninstall">
+          <RegistryValue Type="string" Name="TOAIOTClient" Value="&quot;[#IOTClient.exe]&quot;" KeyPath="yes" />          
         </RegistryKey>
       </Component>
     </DirectoryRef>
 </Fragment>
 	<Fragment>
 		<!--<Binary Id="FolderSelectForm" SourceFile="$(var.PropertySetupAction.TargetDir)$(var.PropertySetupAction.TargetName).CA.dll"/>-->
-		<Binary Id="FolderSelectFormBinary" SourceFile="..\PropertySetupAction\bin\Debug\PropertySetupAction.CA.dll" />
+		<Binary Id="FolderSelectFormBinary" SourceFile="..\PropertySetupAction\bin\Release\PropertySetupAction.CA.dll" />
 		<CustomAction Id="PropertySetupAction" BinaryKey="FolderSelectFormBinary" DllEntry="CustomAction1" Execute="immediate" Return="check" />
 	</Fragment>
 
@@ -88,20 +86,8 @@
 				<RegistryValue Root="HKLM" Key="Software\WinApp Software" Type="string" Name="License" Value="Free" />
 			</Component>-->
 		<Component Id="StartUpandinstallService" Guid="E27ADFB6-63EF-49DC-ACA5-68439030FF48" Directory="INSTALLDIR">
-			<File Id='TAServiceEXE' Name='TAService.exe' DiskId='1' Source='$(var.TAService_TargetDir)TAService.exe'  KeyPath='yes'/>         
-				<ServiceInstall
-				  Id="ServiceInstaller"
-				  Type="ownProcess"
-				  Name="TOAIOTService"
-				  DisplayName="TOA IOT Auto Service"
-				  Description="Monitoring and transfering Jobs"
-				  Start="auto"
-				  Account="[SERVICEACCOUNT]"
-				  Password="[SERVICEPASSWORD]"
-				  ErrorControl="normal"
-				  Interactive="yes"
-				  Arguments=" /start TOAIOTService"
-				  />
+			<File Id="TAServiceEXE" Name="TAService.exe" DiskId="1" Source="$(var.TAService_TargetDir)TAService.exe" KeyPath="yes" />         
+				<ServiceInstall Id="ServiceInstaller" Type="ownProcess" Name="TOAIOTService" DisplayName="TOA IOT Auto Service" Description="Monitoring and transfering Jobs" Start="auto" Account="[SERVICEACCOUNT]" Password="[SERVICEPASSWORD]" ErrorControl="normal" Interactive="yes" Arguments=" /start TOAIOTService" />
 			<ServiceControl Id="StartService" Start="install" Stop="both" Remove="uninstall" Name="TOAIOTService" Wait="yes" />	
 		</Component>
 	</Fragment>

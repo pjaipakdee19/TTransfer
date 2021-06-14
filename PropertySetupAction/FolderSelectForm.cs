@@ -27,7 +27,7 @@ namespace PropertySetupAction
         {
             if (File.Exists(GlobalConfigPath))
             {
-                DialogResult dialogResult = MessageBox.Show("พบค่าเก่าอยู่ในระบบ ต้องการใช้ค่าเก่าหรือไม่ ?", "แจ้งเตือน", MessageBoxButtons.YesNo);
+                DialogResult dialogResult = MessageBox.Show(new Form() { TopMost = true },"พบค่าเก่าอยู่ในระบบ ต้องการใช้ค่าเก่าหรือไม่ ?", "แจ้งเตือน", MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
                     useOldConfig = true;
