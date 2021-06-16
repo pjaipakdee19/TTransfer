@@ -18,6 +18,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
 using AutoTintLibrary;
+using System.Reflection;
 
 namespace ConsoleAppDotNetFW
 {
@@ -28,7 +29,7 @@ namespace ConsoleAppDotNetFW
         {
             MissingFieldFound = null,
         };
-
+        private static string GlobalConfigPath = @"C:\ProgramData\TOA_Autotint\config.json";
         private static string[] RemoveDuplicates(List<string> dateList)
         {
             HashSet<string> set = new HashSet<string>(dateList);
@@ -39,141 +40,75 @@ namespace ConsoleAppDotNetFW
         //static public async Task Main(string[] args)
         static public void Main(string[] args)
         {
-            string csv_history_path = ConfigurationManager.AppSettings.Get("csv_history_path");
-            string jsonDispenseLogPath = ConfigurationManager.AppSettings.Get("json_dispense_log_path");
-            string csv_history_achive_path = ConfigurationManager.AppSettings.Get("csv_history_achive_path");
-
-            var client = APIHelper.init();
-            //var result = await APIHelper.RequestGet(client, "http://49.229.21.8/poc/company/");
-            //Console.WriteLine(result);
-            //Console.WriteLine("Done!!!");
-            //System.Console.ReadKey();
-
-            //var sendfileResult = await APIHelper.UploadFile(client, "http://49.229.21.8/poc/dispense_history/", "E:\\Tutorial\\json_dispense_log\\full_dispense_log_1_2_2016.json");
-            ////var streamFile = File.ReadAllText("E:\\Tutorial\\json_dispense_log\\full_dispense_log_1_2_2016.json");
-            ////Console.WriteLine(streamFile);
-            //Console.WriteLine(sendfileResult);
-            //Console.WriteLine("Done!!!");
-            //System.Console.ReadKey();
-
-            DateTime time_nist_gov = NTPClient.GetTime().TransmitTimestamp; // uses NTPClient.DefaultTimeServer = "time.nist.gov"
-            DateTime time_windows_com = NTPClient.GetTime("time.windows.com").TransmitTimestamp;
-            DateTime pool_ntp_org = NTPClient.GetTime("pool.ntp.org").TransmitTimestamp;
-
-            Console.WriteLine(time_windows_com);
-
-            var ictZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            var utcTime = DateTime.UtcNow;
-            var actualTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, ictZone);
-            DateTime tester = new DateTime();
-            if(tester == (new DateTime()))
+            if (File.Exists(GlobalConfigPath))
             {
-                Console.WriteLine("Tester equal init value");
+                File.Delete(GlobalConfigPath);
             }
-            Console.WriteLine(tester);
-
-            Random r = new Random();
-            double genRand = r.Next(0, 25);
-            time_windows_com = time_windows_com.AddMinutes(genRand);
-            Console.WriteLine(time_windows_com);
-            var startDatetime = new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 07, 30, 00);
-
-            if(startDatetime >= time_windows_com)
-            {
-                Console.WriteLine("Start working!!!");
-            }
-            //logAppdata("" + startDatetime);
-
-
-            Console.WriteLine(actualTime.ToString("yyyy-MM-dd"));
-            //bool isTodayDone = false;
-            //string programdata_path = ConfigurationManager.AppSettings.Get("programdata_log_path");
-            //DirectoryInfo programdata_info = new DirectoryInfo(programdata_path);
-            //foreach (var txtFile in programdata_info.GetFiles("*.txt"))
-            //{
-            //    if (txtFile.Name.Contains(actualTime.ToString("yyyy-MM-dd")))
-            //    {
-            //        isTodayDone = true;
-            //        Console.WriteLine("today is done!!");
-            //    }
-
-            //}
-
-
-            var instance = new FileOperationLibrary();
-            //instance.WriteHelloworld();
-
-            string startTime = ManageConfig.ReadGlobalConfig("service_operation_start");
-            string runningTillTime = ManageConfig.ReadGlobalConfig("service_operation_stop");
-            int startH = Int16.Parse(startTime.Split(':')[0]);
-            int startM = Int16.Parse(startTime.Split(':')[1]);
-            int tillH = Int16.Parse(runningTillTime.Split(':')[0]);
-            int tillM = Int16.Parse(runningTillTime.Split(':')[1]);
-            var tesstart = new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, startH, startM, 00); //!!! MOVE HARD CODE TO CONFIGURATION FILE
-            var testtill = new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, tillH, tillM, 00); //!!! MOVE HARD CODE TO CONFIGURATION FILE
-
-            Console.WriteLine(tesstart);
-            Console.WriteLine(testtill);
-
-            System.Console.ReadKey();
-
-            ///////Test convert file csv
-            //find the csv in history files
-            //DirectoryInfo csvHistoryPathInfo = new DirectoryInfo(csv_history_path);
-            //foreach (var csvFile in csvHistoryPathInfo.GetFiles("*.csv"))
-            //{
-            //    var reader = new StreamReader(csvFile.FullName);
-            //    var csv = new CsvReader(reader, csvConfig);
-            //    var records = csv.GetRecords<DispenseHistory>().ToList();
-
-            //    var dateList = new List<string>();
-            //    //does csv file exist?
-            //    //Extract the csv to json following DISPENSED_DATE
-            //    //Get all date in csv
-            //    for (int i = 0; i < records.Count(); i++)
-            //    {
-            //        string[] date = records[i].dispensed_date.Split(' ');
-            //        dateList.Add(date[0]);
-
-            //    }
-
-            //    string[] cleanDate = RemoveDuplicates(dateList);
-
-
-            //    //save the dispenselog to file.json following date
-            //    for (int i = 0; i < cleanDate.Count(); i++)
-            //    {
-            //        var exportRecord = new List<DispenseHistory>();
-            //        for (int j = 0; j < records.Count(); j++)
-            //        {
-
-            //            if (records[j].dispensed_date.Contains(cleanDate[i]))
-            //            {
-            //                exportRecord.Add(records[j]);
-            //            }
-
-            //        }
-            //        if (exportRecord.Count > 0)
-            //        {
-            //            var export_path = jsonDispenseLogPath + "\\" + "full_dispense_log_" + cleanDate[i].Replace("/", "_") + ".json";
-            //            Logger.Info("Export " + export_path);
-            //            File.WriteAllText(export_path, JsonConvert.SerializeObject(exportRecord));
-            //        }
-            //    }
-
-            //    //Move complete extract file into achive folder
-            //    reader.Close();
-            //    new System.IO.FileInfo(csv_history_achive_path).Directory.Create();
-            //    File.Move(csvFile.FullName, csv_history_achive_path + "\\" + csvFile.Name);
-            //}
-
+            var txtCustomerId = "12345678TA01";
+            var txtDBLocation = @"C:\ProgramData\TOA_Autotint\DB";
+            var txtHistoryLocation = @"C:\ProgramData\TOA_Autotint\CSV";
+            WriteGlobalConfig("auto_tint_id", txtCustomerId);
+            WriteGlobalConfig("database_path", txtDBLocation);
+            WriteGlobalConfig("csv_history_path", txtHistoryLocation);
+            WriteGlobalConfig("csv_history_achive_path", $"{txtHistoryLocation}\\csv_achieve");
+            WriteGlobalConfig("csv_history_achive_path", $"{txtHistoryLocation}\\json_log");
+            WriteGlobalConfig("service_operation_start", "07:30");
+            WriteGlobalConfig("service_operation_stop", "07:55");
+            WriteGlobalConfig("start_random_minutes_threshold", "25");
+            WriteGlobalConfig("programdata_log_path", @"C:\ProgramData\TOA_Autotint\Logs");
 
         }
 
-        private static void logAppdata(string text)
+        public static string WriteGlobalConfig(string key, string value)
         {
-            Console.WriteLine("Call logger !!");
-            Logger.Trace("Done for today "+text);
+            GlobalConfig item = new GlobalConfig();
+            if (!File.Exists(GlobalConfigPath))
+            {
+                GlobalConfig conf = new GlobalConfig();
+                conf.global_config_path = GlobalConfigPath;
+                conf.auto_tint_id = "";
+                string JSONresult = JsonConvert.SerializeObject(conf);
+                var ProgramDataFolderPath = @"C:\ProgramData\TOA_Autotint";
+                if (!Directory.Exists(ProgramDataFolderPath))
+                {
+                    Directory.CreateDirectory(ProgramDataFolderPath);
+                }
+                File.WriteAllText(GlobalConfigPath, JSONresult);
+
+            }
+            else
+            {
+                GlobalConfig OldConfig = JsonConvert.DeserializeObject<GlobalConfig>(File.ReadAllText(GlobalConfigPath));
+                //Load old value to item
+
+                //item.global_config_path = OldConfig.global_config_path;
+                //item.auto_tint_id = OldConfig.auto_tint_id;
+                //item.csv_history_path = OldConfig.csv_history_path;
+                //item.csv_history_achive_path = OldConfig.csv_history_achive_path;
+                //item.database_path = OldConfig.database_path;
+                //item.json_dispense_log_path = OldConfig.json_dispense_log_path;
+                //item.programdata_log_path = OldConfig.programdata_log_path;
+                item = OldConfig;
+
+            }
+
+            Type configType = item.GetType();
+            PropertyInfo pinfo = configType.GetProperty(key);
+            pinfo.SetValue(item, value, null);
+
+
+            string NewConfJSONresult = JsonConvert.SerializeObject(item);
+            using (var tw = new StreamWriter(GlobalConfigPath, false))
+            {
+                tw.WriteLine(NewConfJSONresult.ToString());
+                tw.Close();
+            }
+
+            PropertyInfo pi = item.GetType().GetProperty(key);
+            String returnValue = (String)(pi.GetValue(item, null));
+
+
+            return returnValue;
         }
     }
 }

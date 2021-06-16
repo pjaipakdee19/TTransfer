@@ -79,11 +79,12 @@ namespace PropertySetupAction
                 GlobalConfig conf = new GlobalConfig();
                 conf.global_config_path = GlobalConfigPath;
                 string JSONresult = JsonConvert.SerializeObject(conf);
-                using (var tw = new StreamWriter(GlobalConfigPath, true))
+                var ProgramDataFolderPath = @"C:\ProgramData\TOA_Autotint";
+                if (!Directory.Exists(ProgramDataFolderPath))
                 {
-                    tw.WriteLine(JSONresult.ToString());
-                    tw.Close();
+                    Directory.CreateDirectory(ProgramDataFolderPath);
                 }
+                File.WriteAllText(GlobalConfigPath, JSONresult);
             }
             using (StreamReader r = new StreamReader(GlobalConfigPath))
             {

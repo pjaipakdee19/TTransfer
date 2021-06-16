@@ -23,21 +23,21 @@ namespace IOTClient
             Application.Run(new SettingForm());
 
             // Show the system tray icon.
-            //using (ProcessIcon pi = new ProcessIcon())
-            //{
-            //    pi.Display();
+            using (ProcessIcon pi = new ProcessIcon())
+            {
+                pi.Display();
 
-            //    // Make sure the application runs!
-            //    using (Mutex mutex = new Mutex(false, "Global\\" + appGuid))
-            //    {
-            //        if (!mutex.WaitOne(0, false))
-            //        {
-            //            MessageBox.Show("Instance already running");
-            //            return;
-            //        }
-            //        Application.Run();
-            //    }
-            //}
+                // Make sure the application runs!
+                using (Mutex mutex = new Mutex(false, "Global\\" + appGuid))
+                {
+                    if (!mutex.WaitOne(0, false))
+                    {
+                        MessageBox.Show("Instance already running");
+                        return;
+                    }
+                    Application.Run();
+                }
+            }
             //lblHelloWorld.Text = "Hello World!";
         }
     }
