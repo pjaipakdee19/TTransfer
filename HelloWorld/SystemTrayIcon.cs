@@ -34,7 +34,7 @@ namespace IOTClient
 			// Put the icon in the system tray and allow it react to mouse clicks.			
 			ni.MouseClick += new MouseEventHandler(ni_MouseClick);
 			ni.Icon = Resources.SystemTrayApp;
-			ni.Text = "TOA IOS Setting App";
+			ni.Text = "TOA IOT Setting App";
 			ni.Visible = true;
 
 			// Attach a context menu.

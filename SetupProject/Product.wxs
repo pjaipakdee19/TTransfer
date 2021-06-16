@@ -31,7 +31,7 @@
 		<Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
 		<Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch Application" />
 		
-		<CustomAction Id="LaunchApplication1" FileKey="IOTClient.exe" ExeCommand="" Impersonate="yes" />
+		<CustomAction Id="LaunchApplication1" FileKey="IOTClient.exe" ExeCommand="" Impersonate="yes" Return="asyncNoWait" />
 		
 		<!--<CustomAction Id="LaunchApplication2" FileKey="TAService.exe" ExeCommand="" Impersonate="yes" />-->
 

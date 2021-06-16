@@ -20,7 +20,7 @@ namespace IOTClient
             Application.SetCompatibleTextRenderingDefault(false);
 
             //Purpose for debugging release with below line comment.
-            Application.Run(new SettingForm());
+            //Application.Run(new SettingForm());
 
             // Show the system tray icon.
             using (ProcessIcon pi = new ProcessIcon())
