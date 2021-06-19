@@ -62,12 +62,13 @@ namespace PropertySetupAction
                 WriteGlobalConfig("database_path", txtDBLocation.Text);
                 WriteGlobalConfig("csv_history_path", txtHistoryLocation.Text);
                 WriteGlobalConfig("csv_history_achive_path",$"{txtHistoryLocation.Text}\\csv_achieve");
-                WriteGlobalConfig("csv_history_achive_path", $"{txtHistoryLocation.Text}\\json_log");
+                WriteGlobalConfig("json_dispense_log_path", $"{txtHistoryLocation.Text}\\json_log");
                 WriteGlobalConfig("service_operation_start","07:30");
                 WriteGlobalConfig("service_operation_stop", "07:55");
                 WriteGlobalConfig("start_random_minutes_threshold", "25");
                 WriteGlobalConfig("programdata_log_path", @"C:\ProgramData\TOA_Autotint\Logs");
-                
+                WriteGlobalConfig("global_config_path", @"C:\ProgramData\TOA_Autotint\config.json");
+
                 this.DialogResult = DialogResult.Yes;
             }
         }
