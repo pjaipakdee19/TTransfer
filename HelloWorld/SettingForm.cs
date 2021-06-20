@@ -17,6 +17,7 @@ using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Threading;
 using System.Net;
+using System.Reflection;
 
 namespace IOTClient
 {
@@ -33,7 +34,8 @@ namespace IOTClient
         {
 
             InitializeComponent();
-            
+            Version version = Assembly.GetExecutingAssembly().GetName().Version;
+            Text = Text + " " + version.Major + "." + version.Minor + " (build " + version.Build + ")"; //change form title
             //this.Load = SettingForm_Load;
 
         }

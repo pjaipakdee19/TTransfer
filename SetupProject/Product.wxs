@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"><?define HelloWorld_TargetDir=$(var.HelloWorld.TargetDir)?><?define AutoTintLibrary_TargetDir=$(var.AutoTintLibrary.TargetDir)?><?define TAService_TargetDir=$(var.TAService.TargetDir)?><?define PropertySetupAction_TargetDir=$(var.PropertySetupAction.TargetDir)?>
-	<Product Id="*" Name="TOA IOT Project" Language="1033" Version="2.0.0.0" Manufacturer="TOA" UpgradeCode="a9b1d837-9b09-491b-bd81-b794560745a4">
+	<Product Id="*" Name="TOA IOT Project" Language="1033" Version="0.1" Manufacturer="TOA" UpgradeCode="a9b1d837-9b09-491b-bd81-b794560745a4">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
 		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
@@ -63,6 +63,7 @@
 
 	<Fragment>
 		<Directory Id="TARGETDIR" Name="SourceDir"> <!-- we need C:/TOA/IOT -->
+			<Directory Id="WindowsVolume">
 				<Directory Id="PARENTINSTALLDIR" Name="TOA">
 					<Directory Id="INSTALLDIR" Name="IOT">
 					<Component Id="Executable" Guid="7B289C8E-6F5B-4A7B-A9A1-E78A89239714">
@@ -73,6 +74,7 @@
 					</Component>
 				</Directory>
 				</Directory>
+			</Directory>
 		</Directory>
 
 		<!--<ComponentGroup Id="RegistryGroup">
