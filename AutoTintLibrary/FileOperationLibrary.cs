@@ -120,10 +120,15 @@ namespace AutoTintLibrary
                     if (retry > 3)
                     {
                         Logger.Error($"Exception on send to api {jsonFile.FullName}");
+                        CreateDirectoryIfNotExist($"{jsonDispenseLogPath}\\tmp");
+                        string moveTo = $"{jsonDispenseLogPath}\\tmp\\{jsonFile.Name}.json";
+                        File.Move(jsonFile.FullName, moveTo);
+                        Logger.Info("Transfer to server error move json files to : " + moveTo);
                     }
 
                     while (retry_bi <= 3 && retry <=3 && isDispenseBIDone == false)
                     {
+                        //Convert successful json file to json bi format
                         //send to dispense history bi api
                         var result = await APIHelper.UploadFile(client, "dispense_history_bi", jsonFile.FullName);
                         APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(result);
@@ -138,17 +143,6 @@ namespace AutoTintLibrary
                     if (retry_bi > 3)
                     {
                         Logger.Error($"Exception on send to api {jsonFile.FullName}");
-                    }
-
-                    if(retry < 4 && retry_bi < 4)
-                    {
-                        //sucessful transfer remove this json file
-                        File.Delete(jsonFile.FullName);
-                        Logger.Info($"Transfer to server complete delete json files name {jsonFile.FullName}");
-
-                    }
-                    else
-                    {
                         //change file name to xxx_p2 after unsucessful transfer
                         int extensionIndex = jsonFile.Name.IndexOf(".json");
                         //create tmp directory
@@ -156,8 +150,29 @@ namespace AutoTintLibrary
                         string moveTo = $"{jsonDispenseLogPath}\\tmp\\{jsonFile.Name.Substring(0, extensionIndex)}_p2.json";
                         File.Move(jsonFile.FullName, moveTo);
                         Logger.Info("Transfer to server error move json files to : " + moveTo);
-                        
                     }
+
+                    if(retry < 4 && retry_bi < 4) //Fix this flow when normal file is not done we should not change name to _p2
+                    {
+                        //sucessful transfer remove this json file
+                        File.Delete(jsonFile.FullName);
+                        Logger.Info($"Transfer to server complete delete json files name {jsonFile.FullName}");
+
+                    }
+
+                    
+
+                    //if(retry_bi > 4)
+                    //{
+                    //    //change file name to xxx_p2 after unsucessful transfer
+                    //    int extensionIndex = jsonFile.Name.IndexOf(".json");
+                    //    //create tmp directory
+                    //    CreateDirectoryIfNotExist($"{jsonDispenseLogPath}\\tmp");
+                    //    string moveTo = $"{jsonDispenseLogPath}\\tmp\\{jsonFile.Name.Substring(0, extensionIndex)}_p2.json";
+                    //    File.Move(jsonFile.FullName, moveTo);
+                    //    Logger.Info("Transfer to server error move json files to : " + moveTo);
+                        
+                    //}
                 //}
 
 

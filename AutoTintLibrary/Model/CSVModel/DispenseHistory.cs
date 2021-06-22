@@ -297,5 +297,85 @@ namespace AutoTintLibrary
         public string lines_wanted_amount10 { get; set; }
         [Name("LINES_DISPENSED_AMOUNT10")]
         public string lines_dispensed_amount10 { get; set; }
+        [Name("COMPONENT_NAME10")]
+        public string component_name11 { get; set; }
+        [Name("DURATION_MILLISECONDS11")]
+        public string duration_milliseconds11 { get; set; }
+        [Name("LINES_WANTED_AMOUNT11")]
+        public string lines_wanted_amount11 { get; set; }
+        [Name("LINES_DISPENSED_AMOUNT11")]
+        public string lines_dispensed_amount11 { get; set; }
+        [Name("COMPONENT_NAME12")]
+        public string component_name12 { get; set; }
+        [Name("DURATION_MILLISECONDS12")]
+        public string duration_milliseconds12 { get; set; }
+        [Name("LINES_WANTED_AMOUNT12")]
+        public string lines_wanted_amount12 { get; set; }
+        [Name("LINES_DISPENSED_AMOUNT12")]
+        public string lines_dispensed_amount12 { get; set; }
+        [Name("COMPONENT_NAME13")]
+        public string component_name13 { get; set; }
+        [Name("DURATION_MILLISECONDS13")]
+        public string duration_milliseconds13 { get; set; }
+        [Name("LINES_WANTED_AMOUNT13")]
+        public string lines_wanted_amount13 { get; set; }
+        [Name("LINES_DISPENSED_AMOUNT13")]
+        public string lines_dispensed_amount13 { get; set; }
+        [Name("COMPONENT_NAME14")]
+        public string component_name14 { get; set; }
+        [Name("DURATION_MILLISECONDS14")]
+        public string duration_milliseconds14 { get; set; }
+        [Name("LINES_WANTED_AMOUNT14")]
+        public string lines_wanted_amount14 { get; set; }
+        [Name("LINES_DISPENSED_AMOUNT14")]
+        public string lines_dispensed_amount14 { get; set; }
+        [Name("COMPONENT_NAME15")]
+        public string component_name15 { get; set; }
+        [Name("DURATION_MILLISECONDS15")]
+        public string duration_milliseconds15 { get; set; }
+        [Name("LINES_WANTED_AMOUNT15")]
+        public string lines_wanted_amount15 { get; set; }
+        [Name("LINES_DISPENSED_AMOUNT15")]
+        public string lines_dispensed_amount15 { get; set; }
+        [Name("COMPONENT_NAME16")]
+        public string component_name16 { get; set; }
+        [Name("DURATION_MILLISECONDS16")]
+        public string duration_milliseconds16 { get; set; }
+        [Name("LINES_WANTED_AMOUNT16")]
+        public string lines_wanted_amount16 { get; set; }
+        [Name("LINES_DISPENSED_AMOUNT16")]
+        public string lines_dispensed_amount16 { get; set; }
+        [Name("COMPONENT_NAME17")]
+        public string component_name17 { get; set; }
+        [Name("DURATION_MILLISECONDS17")]
+        public string duration_milliseconds17 { get; set; }
+        [Name("LINES_WANTED_AMOUNT17")]
+        public string lines_wanted_amount17 { get; set; }
+        [Name("LINES_DISPENSED_AMOUNT17")]
+        public string lines_dispensed_amount17 { get; set; }
+        [Name("COMPONENT_NAME18")]
+        public string component_name18 { get; set; }
+        [Name("DURATION_MILLISECONDS18")]
+        public string duration_milliseconds18 { get; set; }
+        [Name("LINES_WANTED_AMOUNT18")]
+        public string lines_wanted_amount18 { get; set; }
+        [Name("LINES_DISPENSED_AMOUNT18")]
+        public string lines_dispensed_amount18 { get; set; }
+        [Name("COMPONENT_NAME19")]
+        public string component_name19 { get; set; }
+        [Name("DURATION_MILLISECONDS19")]
+        public string duration_milliseconds19 { get; set; }
+        [Name("LINES_WANTED_AMOUNT19")]
+        public string lines_wanted_amount19 { get; set; }
+        [Name("LINES_DISPENSED_AMOUNT19")]
+        public string lines_dispensed_amount19 { get; set; }
+        [Name("COMPONENT_NAME20")]
+        public string component_name20 { get; set; }
+        [Name("DURATION_MILLISECONDS20")]
+        public string duration_milliseconds20 { get; set; }
+        [Name("LINES_WANTED_AMOUNT20")]
+        public string lines_wanted_amount20 { get; set; }
+        [Name("LINES_DISPENSED_AMOUNT20")]
+        public string lines_dispensed_amount20 { get; set; }
     }
 }
