@@ -29,86 +29,124 @@ namespace ConsoleAppDotNetFW
         {
             MissingFieldFound = null,
         };
-        private static string GlobalConfigPath = @"C:\ProgramData\TOA_Autotint\config.json";
-        private static string[] RemoveDuplicates(List<string> dateList)
-        {
-            HashSet<string> set = new HashSet<string>(dateList);
-            string[] result = new string[set.Count];
-            set.CopyTo(result);
-            return result;
-        }
-        //static public async Task Main(string[] args)
-        static public void Main(string[] args)
-        {
-            if (File.Exists(GlobalConfigPath))
-            {
-                File.Delete(GlobalConfigPath);
-            }
-            var txtCustomerId = "12345678TA01";
-            var txtDBLocation = @"C:\ProgramData\TOA_Autotint\DB";
-            var txtHistoryLocation = @"C:\ProgramData\TOA_Autotint\CSV";
-            WriteGlobalConfig("auto_tint_id", txtCustomerId);
-            WriteGlobalConfig("database_path", txtDBLocation);
-            WriteGlobalConfig("csv_history_path", txtHistoryLocation);
-            WriteGlobalConfig("csv_history_achive_path", $"{txtHistoryLocation}\\csv_achieve");
-            WriteGlobalConfig("csv_history_achive_path", $"{txtHistoryLocation}\\json_log");
-            WriteGlobalConfig("service_operation_start", "07:30");
-            WriteGlobalConfig("service_operation_stop", "07:55");
-            WriteGlobalConfig("start_random_minutes_threshold", "25");
-            WriteGlobalConfig("programdata_log_path", @"C:\ProgramData\TOA_Autotint\Logs");
 
-        }
+        
 
-        public static string WriteGlobalConfig(string key, string value)
+
+        public static void Main(string[] args)
         {
-            GlobalConfig item = new GlobalConfig();
-            if (!File.Exists(GlobalConfigPath))
+            string file_path = @"E:\Tutorial\json_dispense_log\full_dispense_log_21_10_2015_p2_p2.json";
+            string streamFile = File.ReadAllText(file_path);
+            dynamic details = JArray.Parse(streamFile);
+            //dynamic stuff = JsonConvert.DeserializeObject<ListDispenseHistory>(details);
+            var exportRecordBI = new List<DispenseHistoryBI>();
+            //foreach (DispenseHistory history in stuff)
+            //{
+            //    var export_bi = new DispenseHistoryBI();
+
+            //    export_bi.dispensed_date = history.dispensed_date; //convert to BE.
+            //    export_bi.date = history.dispensed_date; //convert to yyyymmdd
+
+
+
+            //    exportRecordBI.Append(export_bi);
+            //}
+            foreach(dynamic detail in details)
             {
-                GlobalConfig conf = new GlobalConfig();
-                conf.global_config_path = GlobalConfigPath;
-                conf.auto_tint_id = "";
-                string JSONresult = JsonConvert.SerializeObject(conf);
-                var ProgramDataFolderPath = @"C:\ProgramData\TOA_Autotint";
-                if (!Directory.Exists(ProgramDataFolderPath))
+                //Console.WriteLine(detail);
+                var export_bi = new DispenseHistoryBI();
+
+                //Do a formatted date
+                String[] dispense_date = detail["dispensed_date"].ToString().Split(' ');
+                string formattedDate = "";
+                DateTime parsedDateTime;
+                if (DateTime.TryParseExact(dispense_date[0], "dd/mm/yyyy",
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out parsedDateTime))
                 {
-                    Directory.CreateDirectory(ProgramDataFolderPath);
+                    formattedDate = parsedDateTime.ToString("yyyymmdd");
                 }
-                File.WriteAllText(GlobalConfigPath, JSONresult);
+                else
+                {
+                    Console.WriteLine("Parsing failed");
+                }
+
+                //Do a dispenser_no,customer_key
+                String[] sp_company_code = detail["company_code"].ToString().Split(new String[] { "AT" }, StringSplitOptions.None);
+                String dispenser_no,customer_key = "";
+                if (sp_company_code.Length > 1)
+                {
+                    dispenser_no = $"{sp_company_code[1]}";
+                }
+                else
+                {
+                    dispenser_no = "01";
+                }
+                customer_key = sp_company_code[0];
+
+                //Do an cwlv
+                //export_bi["cw01_lv"] = "";
+                int component_qty = 20;
+                for(int i = 1; i <= component_qty; i++)
+                {
+                    String numStr = i.ToString();
+                    if (numStr.Length <= 1)
+                    {
+                        numStr = $"0{numStr}";
+                    }
+                    if (detail[$"component_name{i}"] == null)
+                    {
+                        export_bi[$"cw{numStr}_lv"] = "";
+                    }
+                    else
+                    {
+                        if (detail[$"component_name{i}"].ToString().IndexOf("CW") >= 0)
+                        {
+                            export_bi[$"cw{numStr}_lv"] = detail[$"lines_wanted_amount{i}"].ToString();
+                            Double total, lines_wanted_amount = 0;
+                            Double.TryParse((export_bi["cw_total"]!=null)?export_bi["cw_total"].ToString():"0",out total);
+                            Double.TryParse((detail[$"lines_wanted_amount{i}"] != null) ? detail[$"lines_wanted_amount{i}"].ToString() : "0", out lines_wanted_amount);
+                            total = total + lines_wanted_amount;
+                            export_bi["cw_total"] = total.ToString();
+                        }
+                        else
+                        {
+                            export_bi[$"cw{numStr}_lv"] = "";
+                        }
+                    }
+                    
+                    
+                }
+                
+                export_bi.dispensed_date = detail["dispensed_date"]; //convert to BE.
+                export_bi.date = formattedDate;
+                export_bi.record_key = detail["dispensed_formula_id"]+formattedDate+detail["company_code"];
+                export_bi.wanted_amount = detail["wanted_amount"];
+                export_bi.unit_name = detail["unit_name"];
+                export_bi.db_name = detail["db_name"];
+                export_bi.product_name = detail["product_name"];
+                export_bi.product_code = detail["product_code"];
+                export_bi.colour_code = detail["colour_code"];
+                export_bi.color_name = detail["colour_name"];
+                export_bi.collection_name = detail["collection_name"];
+                export_bi.base_name = detail["base_name"];
+                export_bi.base_value = detail["base_name"].ToString().Substring(detail["base_name"].ToString().Length - (detail["base_name"].ToString().IndexOf("Base") + 3));
+                export_bi.price = detail["price"];
+                export_bi.base_price = detail["base_price"];
+                export_bi.colorant_price = detail["colorant_price"];
+                export_bi.company_name = detail["company_name"];
+                export_bi.company_code = detail["company_code"];
+                export_bi.dispenser_no = dispenser_no;
+                export_bi.customer_key = customer_key;
+                export_bi.material_pf_code = detail["material_pf_code"];
+                export_bi.component_name = "";
 
             }
-            else
-            {
-                GlobalConfig OldConfig = JsonConvert.DeserializeObject<GlobalConfig>(File.ReadAllText(GlobalConfigPath));
-                //Load old value to item
-
-                //item.global_config_path = OldConfig.global_config_path;
-                //item.auto_tint_id = OldConfig.auto_tint_id;
-                //item.csv_history_path = OldConfig.csv_history_path;
-                //item.csv_history_achive_path = OldConfig.csv_history_achive_path;
-                //item.database_path = OldConfig.database_path;
-                //item.json_dispense_log_path = OldConfig.json_dispense_log_path;
-                //item.programdata_log_path = OldConfig.programdata_log_path;
-                item = OldConfig;
-
-            }
-
-            Type configType = item.GetType();
-            PropertyInfo pinfo = configType.GetProperty(key);
-            pinfo.SetValue(item, value, null);
-
-
-            string NewConfJSONresult = JsonConvert.SerializeObject(item);
-            using (var tw = new StreamWriter(GlobalConfigPath, false))
-            {
-                tw.WriteLine(NewConfJSONresult.ToString());
-                tw.Close();
-            }
-
-            PropertyInfo pi = item.GetType().GetProperty(key);
-            String returnValue = (String)(pi.GetValue(item, null));
-
-
-            return returnValue;
+            //Console.WriteLine(string.Concat("Hi ", details["FirstName"], " " + details["LastName"]));
+            //Console.WriteLine(details);
+            Console.ReadLine();
         }
+       
     }
 }

@@ -85,6 +85,7 @@
   <ItemGroup>
     <Compile Include="APIHelper.cs" />
     <Compile Include="DispenseHistory.cs" />
+    <Compile Include="DispenseHistoryBI.cs" />
     <Compile Include="ExecuteCMD.cs" />
     <Compile Include="GlobalConfig.cs" />
     <Compile Include="NTPClient.cs" />
