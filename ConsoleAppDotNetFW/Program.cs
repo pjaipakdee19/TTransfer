@@ -16,6 +16,7 @@ using RestSharp;
 using RestSharp.Authenticators;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using UnitsNet;
 
 using AutoTintLibrary;
 using System.Reflection;
@@ -30,12 +31,13 @@ namespace ConsoleAppDotNetFW
             MissingFieldFound = null,
         };
 
-        
+
 
 
         public static void Main(string[] args)
         {
-            string file_path = @"E:\Tutorial\json_dispense_log\full_dispense_log_21_10_2015_p2_p2.json";
+            //string file_path = @"E:\Tutorial\json_dispense_log\full_dispense_log_21_10_2015_p2_p2.json";
+            string file_path = @"E:\Tutorial\json_dispense_log\full_dispense_log_21_10_2015_p2_test.json";
             string streamFile = File.ReadAllText(file_path);
             dynamic details = JArray.Parse(streamFile);
             //dynamic stuff = JsonConvert.DeserializeObject<ListDispenseHistory>(details);
@@ -51,7 +53,7 @@ namespace ConsoleAppDotNetFW
 
             //    exportRecordBI.Append(export_bi);
             //}
-            foreach(dynamic detail in details)
+            foreach (dynamic detail in details)
             {
                 //Console.WriteLine(detail);
                 var export_bi = new DispenseHistoryBI();
@@ -74,7 +76,7 @@ namespace ConsoleAppDotNetFW
 
                 //Do a dispenser_no,customer_key
                 String[] sp_company_code = detail["company_code"].ToString().Split(new String[] { "AT" }, StringSplitOptions.None);
-                String dispenser_no,customer_key = "";
+                String dispenser_no, customer_key = "";
                 if (sp_company_code.Length > 1)
                 {
                     dispenser_no = $"{sp_company_code[1]}";
@@ -88,7 +90,7 @@ namespace ConsoleAppDotNetFW
                 //Do an cwlv
                 //export_bi["cw01_lv"] = "";
                 int component_qty = 20;
-                for(int i = 1; i <= component_qty; i++)
+                for (int i = 1; i <= component_qty; i++)
                 {
                     String numStr = i.ToString();
                     if (numStr.Length <= 1)
@@ -105,7 +107,7 @@ namespace ConsoleAppDotNetFW
                         {
                             export_bi[$"cw{numStr}_lv"] = detail[$"lines_wanted_amount{i}"].ToString();
                             Double total, lines_wanted_amount = 0;
-                            Double.TryParse((export_bi["cw_total"]!=null)?export_bi["cw_total"].ToString():"0",out total);
+                            Double.TryParse((export_bi["cw_total"] != null) ? export_bi["cw_total"].ToString() : "0", out total);
                             Double.TryParse((detail[$"lines_wanted_amount{i}"] != null) ? detail[$"lines_wanted_amount{i}"].ToString() : "0", out lines_wanted_amount);
                             total = total + lines_wanted_amount;
                             export_bi["cw_total"] = total.ToString();
@@ -115,13 +117,65 @@ namespace ConsoleAppDotNetFW
                             export_bi[$"cw{numStr}_lv"] = "";
                         }
                     }
-                    
-                    
                 }
-                
+
+                //Convert a sales out qty (gl)
+                double amount = (double)detail["wanted_amount"];
+                string libUnits = detail["unit_name"].ToString(); //Quart => UsQuart , GL,Gallon => UsGallon , Liter => Liter , ml => Milliliter
+                if (libUnits.IndexOf("Quart") >= 0) libUnits = "UsQuart";
+                if (libUnits.IndexOf("Gallon") >= 0) libUnits = "UsGallon";
+                if (libUnits.IndexOf("GL") >= 0) libUnits = "UsGallon";
+                if (libUnits.IndexOf("Liter") >= 0) libUnits = "Liter";
+                if (libUnits.IndexOf("ml") >= 0) libUnits = "Milliliter";
+                string sales_out_qty_gl = UnitConverter.ConvertByName(amount, "Volume", libUnits, "UsGallon").ToString();
+                string sales_out_qty_l = UnitConverter.ConvertByName(amount, "Volume", libUnits, "Liter").ToString();
+
+                //sale_out_amt_thb
+                double base_price = (double)detail["base_price"];
+                double colorant_price = (double)detail["colorant_price"];
+                double sale_out_amt_thb = Math.Ceiling((base_price + (base_price * 7 / 100)) + (colorant_price + (colorant_price * 7 / 100)));
+
+                //getSaleType
+                string saleType = "";
+                if ((double)detail["base_price"] > 0)
+                {
+                    saleType = detail["base_price"].ToString();
+                }
+                else
+                {
+                    saleType = detail["colorant_price"].ToString();
+                }
+
+                //status shade
+                /*
+                 * Complete : LINES_WANTED_AMOUNT กับ LINES_DISPENSED_AMOUNT ของทุก component ต้องเท่ากัน ยกเว้นแม่สี ที่จะเป็น 0 เสมอ
+                Error  : LINES_WANTED_AMOUNT กับ LINES_DISPENSED_AMOUNT ของ component ไม่เท่ากัน แค่มี 1 อันไม่เท่า ก็เป็น Error เลย
+                View  :  LINES_DISPENSED_AMOUNT ของทุก component เป็น 0 สถานะนี้คือเรียกดูสูตรการผสมเฉยๆ ไม่มีการฉีดสีลงไปผสม
+                 * 
+                 */
+                string status_shade = "Complete";
+                bool errorFlag = false;
+                bool viewFlag = true;
+                for (int i = 1; i <= component_qty; i++)
+                {
+                    String numStr = i.ToString();
+                    if (detail[$"lines_wanted_amount{i}"] == null || detail[$"lines_dispensed_amount{i}"] == null)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        if (detail[$"lines_wanted_amount{i}"].ToString() != detail[$"lines_dispensed_amount{i}"].ToString()) errorFlag = true;
+                        if (detail[$"lines_dispensed_amount{i}"] > 0) viewFlag = false;
+                    }
+
+                }
+                if (errorFlag) status_shade = "Error";
+                if (viewFlag) status_shade = "View";
+
                 export_bi.dispensed_date = detail["dispensed_date"]; //convert to BE.
                 export_bi.date = formattedDate;
-                export_bi.record_key = detail["dispensed_formula_id"]+formattedDate+detail["company_code"];
+                export_bi.record_key = detail["dispensed_formula_id"] + formattedDate + detail["company_code"];
                 export_bi.wanted_amount = detail["wanted_amount"];
                 export_bi.unit_name = detail["unit_name"];
                 export_bi.db_name = detail["db_name"];
@@ -141,12 +195,19 @@ namespace ConsoleAppDotNetFW
                 export_bi.customer_key = customer_key;
                 export_bi.material_pf_code = detail["material_pf_code"];
                 export_bi.component_name = "";
+                export_bi.sale_out_quantity_gl = sales_out_qty_gl;
+                export_bi.sale_out_quantity_l = sales_out_qty_l;
+                export_bi.sale_out_quantity_ea = "";
+                export_bi.sale_out_amt_thb = sale_out_amt_thb.ToString();
+                export_bi.branch_code = "";
+                export_bi.branch_name = "";
+                export_bi.type = saleType;
+                export_bi.status_shade = status_shade;
 
             }
             //Console.WriteLine(string.Concat("Hi ", details["FirstName"], " " + details["LastName"]));
             //Console.WriteLine(details);
             Console.ReadLine();
         }
-       
     }
 }
