@@ -28,7 +28,7 @@ namespace AutoTintLibrary
                 var request = new RestRequest($"{baseURL}{url}", Method.GET);
                 var cancellationTokenSource = new CancellationTokenSource();
                 request.AddHeader("Accept", "application/json");
-                request.Parameters.Clear();
+                //request.Parameters.Clear();
                 response = await client.ExecuteAsync(request, cancellationTokenSource.Token);
                 Console.WriteLine(response.Content);
                 //return result.Content;
@@ -38,6 +38,13 @@ namespace AutoTintLibrary
             {
                 Console.WriteLine("Call logger about exception " + ex);
 
+            }
+
+            try { 
+                dynamic dddd = JsonConvert.SerializeObject(new { statusCode = response.StatusCode, message = response.Content });
+            }catch(Exception ex)
+            {
+                Console.WriteLine("Call logger about exception " + ex);
             }
 
             return JsonConvert.SerializeObject(new { statusCode = response.StatusCode, message = response.Content });

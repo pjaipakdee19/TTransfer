@@ -30,6 +30,12 @@ namespace IOTClient
         private string csv_history_path = ManageConfig.ReadGlobalConfig("csv_history_path");
         private string database_path = ManageConfig.ReadGlobalConfig("database_path");
 
+        dynamic Jsonettings = new JsonSerializerSettings
+        {
+            NullValueHandling = NullValueHandling.Ignore,
+            MissingMemberHandling = MissingMemberHandling.Ignore
+        };
+
         public SettingForm()
         {
 
@@ -105,21 +111,42 @@ namespace IOTClient
 
             if (response.statusCode == 200)
             {
-                AutoTintWithId result = JsonConvert.DeserializeObject<AutoTintWithId>(response.message);
-                lblDatabaseVersionText.Text = "" + result.pos_setting_version.id;
+                AutoTintWithId result = JsonConvert.DeserializeObject<AutoTintWithId>(response.message, Jsonettings);
+                lblDatabaseVersionText.Text = "" + result.pos_setting_version;
                 DateTime startTimeFormate = DateTime.UtcNow;
                 TimeZoneInfo systemTimeZone = TimeZoneInfo.Local;
                 DateTime localDateTime = TimeZoneInfo.ConvertTimeFromUtc(startTimeFormate, systemTimeZone);
                 string ICTDateTimeText = localDateTime.ToString("dddd dd MMMM yyyy HH:mm:ff", new System.Globalization.CultureInfo("th-TH"));
 
                 lblDatabaseCheckVal.Text = ICTDateTimeText;
+                PrismaProLatestVersion checkVersion = new PrismaProLatestVersion();
                 //Check the server for newer version.
-                PrismaProLatestVersion checkVersion = await APIHelper.GetDBLatestVersion(client, result.pos_setting_version.id);
+                if (result.pos_setting_version == null)
+                {
+                    //Get the latest version of db
+
+                    dynamic prima_pro_version_response = await APIHelper.RequestGet(client, "/prisma_pro/");
+                    var lastestJson = JObject.Parse(prima_pro_version_response)["message"]["result"][0]["settings"]["file"];
+                    var message = lastestJson;
+
+                }
+                {
+                    checkVersion = await APIHelper.GetDBLatestVersion(client, result.pos_setting_version.id);
+                }
+                
                 Logger.Info($"Successful on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
-                if (result.pos_setting_version.id < checkVersion.id)
+                var shouldDownloadNewDB = (result.pos_setting_version == null) ? true : (result.pos_setting_version.id < checkVersion.id);
+                if (shouldDownloadNewDB)
                 {
                     //Goto download
                     MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"รุ่นของฐานข้อมูลไม่ใช่รุ่นล่าสุด \n รุ่นปัจจุบัน : {result.pos_setting_version.id} \n รุ่นล่าสุด : {checkVersion.id}", "แจ้งเตือน", MessageBoxButton.OK);
+                    
+                    string downloadURI = "";
+                    
+                    //WebClient webClient = new WebClient();
+                    //webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(Completed);
+                    //webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
+                    //webClient.DownloadFileAsync(new Uri("http://49.229.21.8/files/settings/Tint_On_Shop_3vsL6ey.SDF"), database_path);
                 }
             }
             else
@@ -133,9 +160,20 @@ namespace IOTClient
         {
             if (databaseLocationTextbox.Text != "" || posHistoryLocationTextBox.Text != "")
             {
+                //ManageConfig.WriteGlobalConfig("auto_tint_id", tbxShopDispenVal.Text);
+                //ManageConfig.WriteGlobalConfig("database_path", databaseLocationTextbox.Text);
+                //ManageConfig.WriteGlobalConfig("csv_history_path", posHistoryLocationTextBox.Text);
+
                 ManageConfig.WriteGlobalConfig("auto_tint_id", tbxShopDispenVal.Text);
                 ManageConfig.WriteGlobalConfig("database_path", databaseLocationTextbox.Text);
                 ManageConfig.WriteGlobalConfig("csv_history_path", posHistoryLocationTextBox.Text);
+                ManageConfig.WriteGlobalConfig("csv_history_achive_path", $"{posHistoryLocationTextBox.Text}\\csv_achieve");
+                ManageConfig.WriteGlobalConfig("json_dispense_log_path", $"{posHistoryLocationTextBox.Text}\\json_log");
+                ManageConfig.WriteGlobalConfig("service_operation_start", "07:30");
+                ManageConfig.WriteGlobalConfig("service_operation_stop", "07:55");
+                ManageConfig.WriteGlobalConfig("start_random_minutes_threshold", "25");
+                ManageConfig.WriteGlobalConfig("programdata_log_path", @"C:\ProgramData\TOA_Autotint\Logs");
+                ManageConfig.WriteGlobalConfig("global_config_path", @"C:\ProgramData\TOA_Autotint\config.json");
                 MessageBoxResult confirmResult = System.Windows.MessageBox.Show("บันทึกค่าเสร็จสิ้น", "สำเร็จ", MessageBoxButton.OK);
             }
             else
@@ -206,7 +244,7 @@ namespace IOTClient
             WebClient webClient = new WebClient();
             webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(Completed);
             webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-            webClient.DownloadFileAsync(new Uri("http://49.229.21.8/files/settings/Tint_On_Shop_3vsL6ey.SDF"), @"E:\VM\Tint_On_Shop_3vsL6ey.SDF");
+            webClient.DownloadFileAsync(new Uri("http://49.229.21.8/files/settings/Tint_On_Shop_3vsL6ey.SDF"), database_path);
         }
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {

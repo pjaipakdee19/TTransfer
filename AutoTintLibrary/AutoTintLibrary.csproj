@@ -110,6 +110,7 @@
     <Compile Include="ManageConfig.cs" />
     <Compile Include="Model\APIModel\APIHelperResponse.cs" />
     <Compile Include="Model\APIModel\AutoTintWithId.cs" />
+    <Compile Include="Model\APIModel\AutoTintWithIdV2.cs" />
     <Compile Include="Model\APIModel\ProsmaProLatestVersion.cs" />
     <Compile Include="Model\Config\GlobalConfig.cs" />
     <Compile Include="Model\CSVModel\DispenseHistory.cs" />
