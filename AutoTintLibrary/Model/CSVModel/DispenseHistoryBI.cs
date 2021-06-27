@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -115,5 +116,21 @@ namespace AutoTintLibrary
         public string branch_code { get; set; }
         [Name("STATUS_SHADE")]
         public string status_shade { get; set; }
+
+        public object this[string propertyName]
+        {
+            get
+            {
+                Type myType = typeof(DispenseHistoryBI);
+                PropertyInfo myPropInfo = myType.GetProperty(propertyName);
+                return myPropInfo.GetValue(this, null);
+            }
+            set
+            {
+                Type myType = typeof(DispenseHistoryBI);
+                PropertyInfo myPropInfo = myType.GetProperty(propertyName);
+                myPropInfo.SetValue(this, value, null);
+            }
+        }
     }
 }

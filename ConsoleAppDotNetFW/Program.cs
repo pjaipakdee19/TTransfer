@@ -25,6 +25,7 @@ namespace ConsoleAppDotNetFW
 {
     class Program
     {
+        
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private static readonly CsvConfiguration csvConfig = new CsvConfiguration(CultureInfo.InvariantCulture)
         {
@@ -34,7 +35,7 @@ namespace ConsoleAppDotNetFW
 
 
 
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             //string file_path = @"E:\Tutorial\json_dispense_log\full_dispense_log_21_10_2015_p2_p2.json";
             string file_path = @"E:\Tutorial\json_dispense_log\full_dispense_log_21_10_2015_p2_test.json";
@@ -49,8 +50,9 @@ namespace ConsoleAppDotNetFW
             //    export_bi.dispensed_date = history.dispensed_date; //convert to BE.
             //    export_bi.date = history.dispensed_date; //convert to yyyymmdd
 
-
-
+            dynamic client = new RestClient();
+            var latest_dispense_date = await APIHelper.GetLatestDispenseRecord(client, "11016469",$"/dispense_history/last_uploaded/");
+            var test = await APIHelper.RequestGet(client, "/auto_tint/");
             //    exportRecordBI.Append(export_bi);
             //}
             foreach (dynamic detail in details)

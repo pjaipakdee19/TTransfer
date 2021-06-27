@@ -13,7 +13,7 @@ namespace AutoTintLibrary
 {
     public class APIHelper
     {
-        public static string baseURL = "http://49.229.21.8/poc";
+        public static string baseURL = "http://49.229.21.7/dev";
         public static RestClient init()
         {
             var client = new RestClient();
@@ -25,10 +25,35 @@ namespace AutoTintLibrary
             IRestResponse response = new RestResponse();
             try
             {
-                var request = new RestRequest(url, Method.GET);
+                var request = new RestRequest($"{baseURL}{url}", Method.GET);
                 var cancellationTokenSource = new CancellationTokenSource();
                 request.AddHeader("Accept", "application/json");
                 request.Parameters.Clear();
+                response = await client.ExecuteAsync(request, cancellationTokenSource.Token);
+                Console.WriteLine(response.Content);
+                //return result.Content;
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Call logger about exception " + ex);
+
+            }
+
+            return JsonConvert.SerializeObject(new { statusCode = response.StatusCode, message = response.Content });
+        }
+
+        public static async Task<string> GetLatestDispenseRecord(RestClient client, string auto_tint_id, string url)
+        {
+            IRestResponse response = new RestResponse();
+            try
+            {
+
+
+
+                var request = new RestRequest($"{baseURL}{url}", Method.GET).AddParameter("auto_tint_id", auto_tint_id);
+                var cancellationTokenSource = new CancellationTokenSource();
+                request.AddHeader("Accept", "application/json");
                 response = await client.ExecuteAsync(request, cancellationTokenSource.Token);
                 Console.WriteLine(response.Content);
                 //return result.Content;
@@ -66,7 +91,6 @@ namespace AutoTintLibrary
 
             return JsonConvert.SerializeObject(new { statusCode = response.StatusCode, message = response.Content });
         }
-
         public static async Task<string> GetAutoTintVersion(RestClient client, string auto_tint_id)
         {
             IRestResponse response = new RestResponse();
