@@ -48,9 +48,6 @@ namespace AutoTintLibrary
             IRestResponse response = new RestResponse();
             try
             {
-
-
-
                 var request = new RestRequest($"{baseURL}{url}", Method.GET).AddParameter("auto_tint_id", auto_tint_id);
                 var cancellationTokenSource = new CancellationTokenSource();
                 request.AddHeader("Accept", "application/json");
