@@ -74,7 +74,7 @@ namespace IOTClient
             string LatestExportDateTime = "";
             string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             var directory = new DirectoryInfo(path);
-            if(directory.GetFiles().Length > 0)
+            if (directory.GetFiles().Length > 0)
             {
                 var latestFileInfo = (from f in directory.GetFiles()
                                       orderby f.LastWriteTime descending
@@ -85,7 +85,7 @@ namespace IOTClient
             {
                 LatestExportDateTime = "ไม่พบประวัติการส่งออกข้อมูล";
             }
-           
+
             HistoryExportDateTime.Text = $"{LatestExportDateTime}";
         }
 
@@ -98,9 +98,10 @@ namespace IOTClient
 
         private async void button1_Click_1(object sender, EventArgs e)
         {
-
+            auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
+            database_path = ManageConfig.ReadGlobalConfig("database_path");
             await UpdateAutotintVersion();
-            
+
         }
 
         private async Task UpdateAutotintVersion()
@@ -112,7 +113,7 @@ namespace IOTClient
             if (response.statusCode == 200)
             {
                 AutoTintWithId result = JsonConvert.DeserializeObject<AutoTintWithId>(response.message, Jsonettings);
-                lblDatabaseVersionText.Text = "" + result.pos_setting_version;
+                //lblDatabaseVersionText.Text = "" + result.pos_setting_version;
                 DateTime startTimeFormate = DateTime.UtcNow;
                 TimeZoneInfo systemTimeZone = TimeZoneInfo.Local;
                 DateTime localDateTime = TimeZoneInfo.ConvertTimeFromUtc(startTimeFormate, systemTimeZone);
@@ -121,32 +122,36 @@ namespace IOTClient
                 lblDatabaseCheckVal.Text = ICTDateTimeText;
                 PrismaProLatestVersion checkVersion = new PrismaProLatestVersion();
                 //Check the server for newer version.
-                if (result.pos_setting_version == null)
+                if (result.pos_setting?.id == null)
                 {
                     //Get the latest version of db
 
                     dynamic prima_pro_version_response = await APIHelper.RequestGet(client, "/prisma_pro/");
-                    var lastestJson = JObject.Parse(prima_pro_version_response)["message"]["result"][0]["settings"]["file"];
-                    var message = lastestJson;
+                    var lastestJson = JObject.Parse(prima_pro_version_response)["message"];
+                    PrismaPro prisma_pro_attr = JsonConvert.DeserializeObject<PrismaPro>(lastestJson.ToString());
+                    checkVersion = await APIHelper.GetDBLatestVersion(client, prisma_pro_attr.results[0].id);
 
                 }
+                else
                 {
-                    checkVersion = await APIHelper.GetDBLatestVersion(client, result.pos_setting_version.id);
+                    checkVersion = await APIHelper.GetDBLatestVersion(client, result.pos_setting.id);
                 }
-                
+
+
                 Logger.Info($"Successful on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
-                var shouldDownloadNewDB = (result.pos_setting_version == null) ? true : (result.pos_setting_version.id < checkVersion.id);
+                var shouldDownloadNewDB = (result.pos_setting_version == null) ? true : (result.pos_setting_version.number < checkVersion.id);
                 if (shouldDownloadNewDB)
                 {
-                    //Goto download
-                    MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"รุ่นของฐานข้อมูลไม่ใช่รุ่นล่าสุด \n รุ่นปัจจุบัน : {result.pos_setting_version.id} \n รุ่นล่าสุด : {checkVersion.id}", "แจ้งเตือน", MessageBoxButton.OK);
-                    
-                    string downloadURI = "";
-                    
-                    //WebClient webClient = new WebClient();
-                    //webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(Completed);
-                    //webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                    //webClient.DownloadFileAsync(new Uri("http://49.229.21.8/files/settings/Tint_On_Shop_3vsL6ey.SDF"), database_path);
+                    //    //Goto download
+                    MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"รุ่นของฐานข้อมูลไม่ใช่รุ่นล่าสุด \n รุ่นปัจจุบัน : {result.pos_setting_version?.id} \n รุ่นล่าสุด : {checkVersion.id}", "แจ้งเตือน", MessageBoxButton.OK);
+
+                    string downloadURI = $"http://49.229.21.7{checkVersion.file}";
+
+                    String[] URIArray = downloadURI.Split('/');
+                    WebClient webClient = new WebClient();
+                    webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(Completed);
+                    webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
+                    webClient.DownloadFileAsync(new Uri(downloadURI), $"{database_path}\\{URIArray[URIArray.Length-1]}");
                 }
             }
             else
@@ -244,7 +249,7 @@ namespace IOTClient
             WebClient webClient = new WebClient();
             webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(Completed);
             webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-            webClient.DownloadFileAsync(new Uri("http://49.229.21.8/files/settings/Tint_On_Shop_3vsL6ey.SDF"), database_path);
+            webClient.DownloadFileAsync(new Uri("http://49.229.21.7/files/settings/Tint_On_Shop_TuwDkNh.SDF"), @"E:\Tutorial\db_location\Tint_On_Shop_TuwDkNh.SDF");
         }
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
