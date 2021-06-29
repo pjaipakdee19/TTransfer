@@ -59,10 +59,7 @@ namespace AutoTintLibrary
                 var cancellationTokenSource = new CancellationTokenSource();
                 request.AddHeader("Accept", "application/json");
                 request.AddHeader("Content-Type", "application/json");
-                //request.Parameters.Clear();
                 Order order = JsonConvert.DeserializeObject<Order>(Jsondata);
-                //request.AddParameter("pos_setting_version_id",order.pos_setting_version_id, ParameterType.RequestBody);
-                string json = JsonConvert.SerializeObject(new { Jsondata });
 
                 request.AddJsonBody(new { pos_setting_version_id = order.pos_setting_version_id });
 
