@@ -122,25 +122,26 @@ namespace IOTClient
                 lblDatabaseCheckVal.Text = ICTDateTimeText;
                 PrismaProLatestVersion checkVersion = new PrismaProLatestVersion();
                 //Check the server for newer version.
-                if (result.pos_setting?.id == null)
-                {
-                    //Get the latest version of db
+                //if (result.pos_setting?.id == null)
+                //{
+                //    //Get the latest version of db
 
-                    dynamic prima_pro_version_response = await APIHelper.RequestGet(client, "/prisma_pro/");
-                    var lastestJson = JObject.Parse(prima_pro_version_response)["message"];
-                    PrismaPro prisma_pro_attr = JsonConvert.DeserializeObject<PrismaPro>(lastestJson.ToString());
-                    checkVersion = await APIHelper.GetDBLatestVersion(client, prisma_pro_attr.results[0].id);
+                //    dynamic prima_pro_version_response = await APIHelper.RequestGet(client, "/prisma_pro/");
+                //    var lastestJson = JObject.Parse(prima_pro_version_response)["message"];
+                //    PrismaPro prisma_pro_attr = JsonConvert.DeserializeObject<PrismaPro>(lastestJson.ToString());
+                //    checkVersion = await APIHelper.GetDBLatestVersion(client, prisma_pro_attr.results[0].id);
 
-                }
-                else
-                {
-                    checkVersion = await APIHelper.GetDBLatestVersion(client, result.pos_setting.id);
-                }
+                //}
+                //else
+                //{
+                checkVersion = await APIHelper.GetDBLatestVersion(client, result.pos_setting.id);
+                //}
 
 
                 Logger.Info($"Successful on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
-                var shouldDownloadNewDB = (result.pos_setting_version == null) ? true : (result.pos_setting_version.number < checkVersion.id);
+                var shouldDownloadNewDB = (result.pos_setting_version == null) ? true : (result.pos_setting_version.id < checkVersion.id);
                 if (shouldDownloadNewDB)
+                //if (true)
                 {
                     //    //Goto download
                     MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"รุ่นของฐานข้อมูลไม่ใช่รุ่นล่าสุด \n รุ่นปัจจุบัน : {result.pos_setting_version?.id} \n รุ่นล่าสุด : {checkVersion.id}", "แจ้งเตือน", MessageBoxButton.OK);
@@ -152,6 +153,13 @@ namespace IOTClient
                     webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(Completed);
                     webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
                     webClient.DownloadFileAsync(new Uri(downloadURI), $"{database_path}\\{URIArray[URIArray.Length-1]}");
+                    //Update to API about new version of database
+                    string data = @"
+                    {
+                    ""pos_setting_version_id"": " + checkVersion.id + @"
+                    }
+                    ";
+                    dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data);
                 }
             }
             else
@@ -159,6 +167,7 @@ namespace IOTClient
                 MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Status Code : {response.statusCode} \nMessage : {response.message}", "Error", MessageBoxButton.OK);
                 Logger.Error($"Exception on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
             }
+            
         }
 
         private void SaveInputData_Click(object sender, EventArgs e)

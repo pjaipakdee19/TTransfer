@@ -50,6 +50,35 @@ namespace AutoTintLibrary
             return JsonConvert.SerializeObject(new { statusCode = response.StatusCode, message = response.Content });
         }
 
+        public static async Task<string> RequestPut(RestClient client, string url,string Jsondata)
+        {
+            IRestResponse response = new RestResponse();
+            try
+            {
+                var request = new RestRequest($"{baseURL}{url}/", Method.PUT);
+                var cancellationTokenSource = new CancellationTokenSource();
+                request.AddHeader("Accept", "application/json");
+                request.AddHeader("Content-Type", "application/json");
+                //request.Parameters.Clear();
+                Order order = JsonConvert.DeserializeObject<Order>(Jsondata);
+                //request.AddParameter("pos_setting_version_id",order.pos_setting_version_id, ParameterType.RequestBody);
+                string json = JsonConvert.SerializeObject(new { Jsondata });
+
+                request.AddJsonBody(new { pos_setting_version_id = order.pos_setting_version_id });
+
+                response = await client.ExecuteAsync(request, cancellationTokenSource.Token);
+                Console.WriteLine(response.Content);
+                //return result.Content;
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Call logger about exception " + ex);
+
+            }
+            return JsonConvert.SerializeObject(new { statusCode = response.StatusCode, message = response.Content });
+        }
+
         public static async Task<string> GetLatestDispenseRecord(RestClient client, string auto_tint_id, string url)
         {
             IRestResponse response = new RestResponse();
@@ -130,5 +159,11 @@ namespace AutoTintLibrary
             PrismaProLatestVersion checkVersion = JsonConvert.DeserializeObject<PrismaProLatestVersion>(result.Content);
             return JsonConvert.DeserializeObject<PrismaProLatestVersion>(result.Content);
         }
+    }
+
+    internal class Order
+    {
+        public string pos_setting_version_id { get; set; }
+        public string value { get; set; }
     }
 }
