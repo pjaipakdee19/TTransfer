@@ -122,12 +122,16 @@ namespace AutoTintLibrary
                         File.Move(jsonFile.FullName, moveTo);
                         Logger.Info("Transfer to server error move json files to : " + moveTo);
                     }
-
+                    var export_bi_file = $"{jsonDispenseLogPath}\\full_dispense_log_{jsonFile.Name}_bi.json";
                     while (retry_bi <= 3 && retry <=3 && isDispenseBIDone == false)
                     {
                         //Convert successful json file to json bi format
+                        dynamic test = convertToBIDataNew(jsonFile.FullName);
+                        //var export_path = $"{jsonDispenseLogPath}\\full_dispense_log_{cleanDate[i].Replace("/", "_")}.json";
+                        
+                        File.WriteAllText(export_bi_file, JsonConvert.SerializeObject(test));
                         //send to dispense history bi api
-                        var result = await APIHelper.UploadFile(client, "dispense_history_bi", jsonFile.FullName);
+                        var result = await APIHelper.UploadFile(client, "dispense_history_bi", export_bi_file);
                         APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(result);
                         if (response.statusCode != 201)
                         {
@@ -145,7 +149,7 @@ namespace AutoTintLibrary
                         //create tmp directory
                         CreateDirectoryIfNotExist($"{jsonDispenseLogPath}\\tmp");
                         string moveTo = $"{jsonDispenseLogPath}\\tmp\\{jsonFile.Name.Substring(0, extensionIndex)}_p2.json";
-                        File.Move(jsonFile.FullName, moveTo);
+                        File.Move(export_bi_file, moveTo);
                         Logger.Info("Transfer to server error move json files to : " + moveTo);
                     }
 
@@ -199,9 +203,9 @@ namespace AutoTintLibrary
             return data;
         }
 
-        private List<DispenseHistoryBI> convertToBIDataNew(string clean_date,string auto_tint_id,string json_history_path)
+        private List<DispenseHistoryBI> convertToBIDataNew(string json_history_path)
         {
-            string file_path = @"E:\Tutorial\json_dispense_log\full_dispense_log_21_10_2015_p2_test.json";
+            string file_path = json_history_path;//@"E:\Tutorial\json_dispense_log\full_dispense_log_21_10_2015_p2_test.json";
             string streamFile = File.ReadAllText(file_path);
             dynamic details = JArray.Parse(streamFile);
             //dynamic stuff = JsonConvert.DeserializeObject<ListDispenseHistory>(details);
