@@ -12,6 +12,8 @@ using CsvHelper.Configuration;
 using System.Globalization;
 using Newtonsoft.Json.Linq;
 using UnitsNet;
+using System.Net;
+using System.ComponentModel;
 
 namespace AutoTintLibrary
 {
@@ -381,6 +383,83 @@ namespace AutoTintLibrary
             {
                 Directory.CreateDirectory(filepath);
             }
+        }
+        dynamic JsonSetting = new JsonSerializerSettings
+        {
+            NullValueHandling = NullValueHandling.Ignore,
+            MissingMemberHandling = MissingMemberHandling.Ignore
+        };
+        public async Task UpdateAutotintVersion()
+        {
+            string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
+            string database_path = ManageConfig.ReadGlobalConfig("database_path");
+            string str_response = await APIHelper.GetAutoTintVersion(client, auto_tint_id);
+
+            APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(str_response);
+
+            if (response.statusCode == 200)
+            {
+                AutoTintWithId result = JsonConvert.DeserializeObject<AutoTintWithId>(response.message, JsonSetting);
+                //lblDatabaseVersionText.Text = "" + result.pos_setting_version;
+                DateTime startTimeFormate = DateTime.UtcNow;
+                TimeZoneInfo systemTimeZone = TimeZoneInfo.Local;
+                DateTime localDateTime = TimeZoneInfo.ConvertTimeFromUtc(startTimeFormate, systemTimeZone);
+                string ICTDateTimeText = localDateTime.ToString("dddd dd MMMM yyyy HH:mm:ff", new System.Globalization.CultureInfo("th-TH"));
+
+                PrismaProLatestVersion checkVersion = new PrismaProLatestVersion();
+                //Check the server for newer version.
+                //if (result.pos_setting?.id == null)
+                //{
+                //    //Get the latest version of db
+
+                //    dynamic prima_pro_version_response = await APIHelper.RequestGet(client, "/prisma_pro/");
+                //    var lastestJson = JObject.Parse(prima_pro_version_response)["message"];
+                //    PrismaPro prisma_pro_attr = JsonConvert.DeserializeObject<PrismaPro>(lastestJson.ToString());
+                //    checkVersion = await APIHelper.GetDBLatestVersion(client, prisma_pro_attr.results[0].id);
+
+                //}
+                //else
+                //{
+                checkVersion = await APIHelper.GetDBLatestVersion(client, result.pos_setting.id);
+                //}
+
+
+                Logger.Info($"Successful on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
+                var shouldDownloadNewDB = (result.pos_setting_version == null) ? true : (result.pos_setting_version.id < checkVersion.id);
+                if (shouldDownloadNewDB)
+                //if (true)
+                {
+                    //    //Goto download
+                   
+
+                    string downloadURI = $"http://49.229.21.7{checkVersion.file}";
+
+                    String[] URIArray = downloadURI.Split('/');
+                    WebClient webClient = new WebClient();
+                    webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadCompleted);
+                    //webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
+                    webClient.DownloadFileAsync(new Uri(downloadURI), $"{database_path}\\{URIArray[URIArray.Length - 1]}");
+                    //Update to API about new version of database
+                    string data = @"
+                    {
+                    ""pos_setting_version_id"": " + checkVersion.id + @"
+                    }
+                    ";
+                    dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data);
+                }
+            }
+            else
+            {
+                //MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Status Code : {response.statusCode} \nMessage : {response.message}", "Error", MessageBoxButton.OK);
+                Logger.Error($"Exception on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
+            }
+
+        }
+
+        private void DownloadCompleted(object sender, AsyncCompletedEventArgs e)
+        {
+            //Logger.Error($"Exception on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
+            Logger.Info($"Download new update succesful");
         }
     }
 }

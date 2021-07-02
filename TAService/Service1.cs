@@ -50,7 +50,7 @@ namespace TAService
             NLog.LogManager.Shutdown();
         }
 
-        void timeScheduledTask_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        async void timeScheduledTask_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             var utcTime = DateTime.UtcNow;
             var ictZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
@@ -88,8 +88,10 @@ namespace TAService
                     try
                     {
                         var instance = new FileOperationLibrary();
-                        instance.StartOperation();
+                        await instance.StartOperation();
                         logMaskAsDoneDate("" + actualTime);
+                        //Start check for update and download if needed
+                        await instance.UpdateAutotintVersion();
                     }
                     catch (Exception ex)
                     {
