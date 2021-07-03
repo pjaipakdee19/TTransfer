@@ -100,7 +100,11 @@ namespace IOTClient
         {
             auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
             database_path = ManageConfig.ReadGlobalConfig("database_path");
-            await UpdateAutotintVersion();
+            //await UpdateAutotintVersion();
+
+            //Below is for testing the service.
+            //var instance = new FileOperationLibrary();
+            //await instance.UpdateAutotintVersion();
 
         }
 
