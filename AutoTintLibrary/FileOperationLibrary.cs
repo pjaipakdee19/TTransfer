@@ -24,6 +24,8 @@ namespace AutoTintLibrary
         private static readonly CsvConfiguration csvConfig = new CsvConfiguration(CultureInfo.InvariantCulture)
         {
             MissingFieldFound = null,
+            HeaderValidated = null
+
         };
         public async Task StartOperation()
         {
@@ -32,6 +34,7 @@ namespace AutoTintLibrary
             string jsonDispenseLogPath = ManageConfig.ReadGlobalConfig("json_dispense_log_path");
             string csv_history_achive_path = ManageConfig.ReadGlobalConfig("csv_history_achive_path");
             string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
+            CreateDirectoryIfNotExist($"{jsonDispenseLogPath}");
             //find the csv in history files
             DirectoryInfo csvHistoryPathInfo = new DirectoryInfo(csv_history_path);
             foreach (var csvFile in csvHistoryPathInfo.GetFiles("*.csv"))
@@ -43,14 +46,50 @@ namespace AutoTintLibrary
                 var dateList = new List<string>();
                 //does csv file exist?
                 //Extract the csv to json following DISPENSED_DATE
-                //(New requirement) 27/06/2021 : extract if the dispensed date from Response of API /dispense_history/last_uploaded/ is earlier than the date in file.
-                var latest_dispense_date = await APIHelper.RequestGet(client, $"/dispense_history/last_uploaded/?auto_tint_id={auto_tint_id}");
-                //Get all date in csv
+                //(New requirement) 27/06/2021 : extract if the dispensed date from Response of API /dispense_history/last_updated/ is earlier than the date in file.
+                string latest_dispense_date = await APIHelper.RequestGet(client, $"/dispense_history/last_updated/?auto_tint_id={auto_tint_id}");
+                APIHelperResponse latest_dispense_date_response = JsonConvert.DeserializeObject<APIHelperResponse>(latest_dispense_date);
+                Console.WriteLine("dddddd");
+                //Get all date in csv 
                 for (int i = 0; i < records.Count(); i++)
                 {
                     string[] date = records[i].dispensed_date.Split(' ');
-                    dateList.Add(date[0]);
+                    //date[0] = "21/10/2015"
+                    //date[1] = "15:30:16"
+                    //TODO: if lastest_dispense_date is 404 and lastest_dispense_data.dispensed_date > date we will not add the date to dateList
+                    //DateTime econvertedDate = Convert.ToDateTime(latest_dispense_date);
+                    //DateTime econvertedDate = Convert.ToDateTime();
+                    bool shouldUploaded = false;
+                    if (latest_dispense_date_response.statusCode != 404)
+                    {
+                        //convert latest_dispense_date_response.message then get the latest_dispense_date.dispensed_date
+                        DispenseHistory dispenseH = JsonConvert.DeserializeObject<DispenseHistory>(latest_dispense_date_response.message);
 
+                        string[] dd = dispenseH.dispensed_date.Split(' ');
+                        string dpdate = $"{dd[0].Split('/')[1]}/{dd[0].Split('/')[0]}/{dd[0].Split('/')[2]}";
+                        DateTime econvertedDate = DateTime.Parse(dpdate);
+
+                        string spdate = $"{date[0].Split('/')[1]}/{date[0].Split('/')[0]}/{date[0].Split('/')[2]}";
+                        DateTime sconvertedDate = DateTime.Parse(spdate);
+
+                        int result = DateTime.Compare(econvertedDate, sconvertedDate);
+                        //if (result < 0)
+                        //    relationship = "is earlier than";
+                        //else if (result == 0)
+                        //    relationship = "is the same time as";
+                        //else
+                        //    relationship = "is later than";
+                        //Console.WriteLine("{0} {1} {2}", econvertedDate, relationship, sconvertedDate);
+                        if (result <= 0) shouldUploaded = true;
+                    }
+                    
+                    
+                    
+                    
+                    if ((latest_dispense_date_response.statusCode == 404)||(shouldUploaded))
+                    {
+                        dateList.Add(date[0]);
+                    }
                 }
 
                 string[] cleanDate = RemoveDuplicates(dateList);
