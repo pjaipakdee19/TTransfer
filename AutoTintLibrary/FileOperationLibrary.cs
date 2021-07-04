@@ -47,7 +47,9 @@ namespace AutoTintLibrary
                 //does csv file exist?
                 //Extract the csv to json following DISPENSED_DATE
                 //(New requirement) 27/06/2021 : extract if the dispensed date from Response of API /dispense_history/last_updated/ is earlier than the date in file.
-                string latest_dispense_date = await APIHelper.RequestGet(client, $"/dispense_history/last_updated/?auto_tint_id={auto_tint_id}");
+                //string latest_dispense_date = await APIHelper.RequestGet(client, $"/dispense_history/last_updated/?auto_tint_id={auto_tint_id}");
+                
+                string latest_dispense_date = await APIHelper.RequestGet(client, $"/dispense_history/last_updated/?auto_tint_id=11016469AT01");
                 APIHelperResponse latest_dispense_date_response = JsonConvert.DeserializeObject<APIHelperResponse>(latest_dispense_date);
                 Console.WriteLine("dddddd");
                 //Get all date in csv 
@@ -59,14 +61,16 @@ namespace AutoTintLibrary
                     //TODO: if lastest_dispense_date is 404 and lastest_dispense_data.dispensed_date > date we will not add the date to dateList
                     //DateTime econvertedDate = Convert.ToDateTime(latest_dispense_date);
                     //DateTime econvertedDate = Convert.ToDateTime();
-                    bool shouldUploaded = false;
+                    bool shouldConvert = false;
                     if (latest_dispense_date_response.statusCode != 404)
                     {
                         //convert latest_dispense_date_response.message then get the latest_dispense_date.dispensed_date
                         DispenseHistory dispenseH = JsonConvert.DeserializeObject<DispenseHistory>(latest_dispense_date_response.message);
 
                         string[] dd = dispenseH.dispensed_date.Split(' ');
-                        string dpdate = $"{dd[0].Split('/')[1]}/{dd[0].Split('/')[0]}/{dd[0].Split('/')[2]}";
+                        //date[0] = "2015-10-21"
+                        //string dpdate = dd[0].Split('-')[1]+"/"+dd[0].Split('-')[2]+"/"+dd[0].Split('-')[0];
+                        string dpdate = $"{dd[0].Split('-')[1]}/{dd[0].Split('-')[2]}/{dd[0].Split('-')[0]}";
                         DateTime econvertedDate = DateTime.Parse(dpdate);
 
                         string spdate = $"{date[0].Split('/')[1]}/{date[0].Split('/')[0]}/{date[0].Split('/')[2]}";
@@ -80,13 +84,13 @@ namespace AutoTintLibrary
                         //else
                         //    relationship = "is later than";
                         //Console.WriteLine("{0} {1} {2}", econvertedDate, relationship, sconvertedDate);
-                        if (result <= 0) shouldUploaded = true;
+                        if (result <= 0) shouldConvert = true;
                     }
                     
                     
                     
                     
-                    if ((latest_dispense_date_response.statusCode == 404)||(shouldUploaded))
+                    if ((latest_dispense_date_response.statusCode != 404)&&(shouldConvert))
                     {
                         dateList.Add(date[0]);
                     }
@@ -167,10 +171,18 @@ namespace AutoTintLibrary
                     while (retry_bi <= 3 && retry <=3 && isDispenseBIDone == false)
                     {
                         //Convert successful json file to json bi format
-                        dynamic test = convertToBIDataNew(jsonFile.FullName);
+                        try { 
+                            dynamic test = convertToBIDataNew(jsonFile.FullName);
+                            File.WriteAllText(export_bi_file, JsonConvert.SerializeObject(test));
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine("Exception " + ex.ToString());
+                            //Logger.Error(ex, "Exception on create json _p2 : " + ex.ToString());
+                        }
                         //var export_path = $"{jsonDispenseLogPath}\\full_dispense_log_{cleanDate[i].Replace("/", "_")}.json";
+
                         
-                        File.WriteAllText(export_bi_file, JsonConvert.SerializeObject(test));
                         //send to dispense history bi api
                         var result = await APIHelper.UploadFile(client, "dispense_history_bi", export_bi_file);
                         APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(result);
@@ -385,7 +397,7 @@ namespace AutoTintLibrary
                 export_bi.color_name = detail["colour_name"];
                 export_bi.collection_name = detail["collection_name"];
                 export_bi.base_name = detail["base_name"];
-                export_bi.base_value = detail["base_name"].ToString().Substring(detail["base_name"].ToString().Length - (detail["base_name"].ToString().IndexOf("Base") + 3));
+                export_bi.base_value = ((export_bi.base_name.Length > 0)&&(export_bi.base_name != " "))? detail["base_name"].ToString().Substring(detail["base_name"].ToString().Length - (detail["base_name"].ToString().IndexOf("Base") + 3)):"";
                 export_bi.price = detail["price"];
                 export_bi.base_price = detail["base_price"];
                 export_bi.colorant_price = detail["colorant_price"];
@@ -403,7 +415,7 @@ namespace AutoTintLibrary
                 export_bi.branch_name = "";
                 export_bi.type = saleType;
                 export_bi.status_shade = status_shade;
-                exportRecordBI.Append(export_bi);
+                exportRecordBI.Add(export_bi);
             }
             return exportRecordBI;
         }
