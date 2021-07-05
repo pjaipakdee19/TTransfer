@@ -167,7 +167,8 @@ namespace AutoTintLibrary
                         File.Move(jsonFile.FullName, moveTo);
                         Logger.Info("Transfer to server error move json files to : " + moveTo);
                     }
-                    var export_bi_file = $"{jsonDispenseLogPath}\\full_dispense_log_{jsonFile.Name}_bi.json";
+                    int extensionIndex = jsonFile.Name.IndexOf(".json");
+                    var export_bi_file = $"{jsonDispenseLogPath}\\full_dispense_log_{jsonFile.Name.Substring(0, extensionIndex)}_bi.json";
                     while (retry_bi <= 3 && retry <=3 && isDispenseBIDone == false)
                     {
                         //Convert successful json file to json bi format
@@ -198,10 +199,15 @@ namespace AutoTintLibrary
                     {
                         Logger.Error($"Exception on send to api {jsonFile.FullName}");
                         //change file name to xxx_p2 after unsucessful transfer
-                        int extensionIndex = jsonFile.Name.IndexOf(".json");
+                        
                         //create tmp directory
                         CreateDirectoryIfNotExist($"{jsonDispenseLogPath}\\tmp");
-                        string moveTo = $"{jsonDispenseLogPath}\\tmp\\{jsonFile.Name.Substring(0, extensionIndex)}_p2.json";
+                        string moveTo = $"{jsonDispenseLogPath}\\tmp\\{jsonFile.Name}";
+                        if (!jsonFile.Name.Contains("_p2"))
+                        {
+                            moveTo = $"{jsonDispenseLogPath}\\tmp\\{jsonFile.Name.Substring(0, extensionIndex)}_p2.json";
+                        }
+                        
                         File.Move(export_bi_file, moveTo);
                         Logger.Info("Transfer to server error move json files to : " + moveTo);
                     }

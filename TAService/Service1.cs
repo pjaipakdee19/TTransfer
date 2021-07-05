@@ -133,7 +133,7 @@ namespace TAService
         private static void logMaskAsDoneDate(string text)
         {
             Console.WriteLine("Call logger !!");
-            Logger.Trace("Done for today " + text);
+            Logger.Trace("Service Done for today " + text);
         }
     }
 }
