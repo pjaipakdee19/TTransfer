@@ -114,7 +114,7 @@ namespace PropertySetupAction
                     Directory.CreateDirectory(ProgramDataFolderPath);
                     Directory.CreateDirectory($"{ProgramDataFolderPath}\\Logs");
                 }
-                File.WriteAllText(GlobalConfigPath, JSONresult);
+                File.WriteAllText(GlobalConfigPath, JSONresult,Encoding.UTF8);
             }
             else
             {

@@ -254,7 +254,7 @@ namespace IOTClient
         private static void logMaskAsDoneDate(string text)
         {
             Console.WriteLine("Call logger !!");
-            //Logger.Trace("Manual Transfer done for today " + text);
+            Logger.Info("Manual Transfer done for today " + text);
         }
 
         private void btnDownloadUpdate_Click(object sender, EventArgs e)

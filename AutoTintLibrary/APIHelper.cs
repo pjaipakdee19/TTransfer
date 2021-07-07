@@ -8,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Net;
 using System.ComponentModel;
+using System.Text;
 
 namespace AutoTintLibrary
 {
@@ -17,6 +18,8 @@ namespace AutoTintLibrary
         public static RestClient init()
         {
             var client = new RestClient();
+            client.Encoding = Encoding.UTF8;
+            //client.AddDefaultHeader("Content-Type", "text/html;charset=gb2312");
             return client;
         }
 

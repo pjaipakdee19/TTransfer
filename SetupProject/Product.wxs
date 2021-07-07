@@ -90,9 +90,18 @@
 				<RegistryValue Root="HKLM" Key="Software\WinApp Software" Type="string" Name="License" Value="Free" />
 			</Component>-->
 		<Component Id="StartUpandinstallService" Guid="E27ADFB6-63EF-49DC-ACA5-68439030FF48" Directory="INSTALLDIR">
-			<File Id="TAServiceEXE" Name="TAService.exe" DiskId="1" Source="$(var.TAService_TargetDir)TAService.exe" KeyPath="yes" />         
-				<ServiceInstall Id="ServiceInstaller" Type="ownProcess" Name="TOAIOTService" DisplayName="TOA IOT Auto Service" Description="Monitoring and transfering Jobs" Start="auto" Account="[SERVICEACCOUNT]" Password="[SERVICEPASSWORD]" ErrorControl="normal" Interactive="yes" Arguments=" /start TOAIOTService" />
-			<ServiceControl Id="StartService" Start="install" Stop="both" Remove="uninstall" Name="TOAIOTService" Wait="yes" />	
+			<File Id="TAServiceEXE" Name="TAService.exe" DiskId="1" 
+				  Source="$(var.TAService_TargetDir)TAService.exe" 
+				  KeyPath="yes" Vital="yes"/>         
+				<ServiceInstall Id="ServiceInstaller" Type="ownProcess" 
+								Name="TOAIOTService" DisplayName="TOA IOT Auto Service" 
+								Description="Monitoring and transfering Jobs" 
+								Start="auto" Account="[SERVICEACCOUNT]" Password="[SERVICEPASSWORD]" 
+								ErrorControl="normal" Interactive="yes" Arguments=" /start TOAIOTService" />
+			<ServiceControl Id="StartService" 
+							Start="install" Stop="both" 
+							Remove="uninstall" Name="TOAIOTService"
+							Wait="yes" />	
 		</Component>
 	</Fragment>
 	<Fragment>

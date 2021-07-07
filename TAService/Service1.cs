@@ -75,6 +75,7 @@ namespace TAService
                 bool isBetweenStartTime = check_service_starttime(actualTime);
                 if (isBetweenStartTime && (randomStartTime == (new DateTime())))
                 {
+                    Logger.Info("Start Time random time at : " + actualTime);
                     //Random time
                     Random r = new Random();
                     string randomThreshold = ManageConfig.ReadGlobalConfig("start_random_minutes_threshold");
@@ -98,7 +99,7 @@ namespace TAService
                         Logger.Error(ex, "Exception on " + ex.ToString());
                     }
 
-                    //Logger.Info("Operation Done for : " + randomStartTime);
+                    Logger.Info("Operation Done on : " + randomStartTime);
                     randomStartTime = new DateTime(); //Reset
                 }
             }

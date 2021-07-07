@@ -47,11 +47,10 @@ namespace AutoTintLibrary
                 //does csv file exist?
                 //Extract the csv to json following DISPENSED_DATE
                 //(New requirement) 27/06/2021 : extract if the dispensed date from Response of API /dispense_history/last_updated/ is earlier than the date in file.
-                //string latest_dispense_date = await APIHelper.RequestGet(client, $"/dispense_history/last_updated/?auto_tint_id={auto_tint_id}");
+                string latest_dispense_date = await APIHelper.RequestGet(client, $"/dispense_history/last_updated/?auto_tint_id={auto_tint_id}");
                 
-                string latest_dispense_date = await APIHelper.RequestGet(client, $"/dispense_history/last_updated/?auto_tint_id=11016469AT01");
+                //string latest_dispense_date = await APIHelper.RequestGet(client, $"/dispense_history/last_updated/?auto_tint_id=11016469AT01");
                 APIHelperResponse latest_dispense_date_response = JsonConvert.DeserializeObject<APIHelperResponse>(latest_dispense_date);
-                Console.WriteLine("dddddd");
                 //Get all date in csv 
                 for (int i = 0; i < records.Count(); i++)
                 {
@@ -84,7 +83,14 @@ namespace AutoTintLibrary
                         //else
                         //    relationship = "is later than";
                         //Console.WriteLine("{0} {1} {2}", econvertedDate, relationship, sconvertedDate);
-                        if (result <= 0) shouldConvert = true;
+                        if (result <= 0)
+                        {
+                            shouldConvert = true;
+                        }
+                        else
+                        {
+                            Logger.Info($"Lastest dispense date {econvertedDate} for {auto_tint_id}, it's earlier than {sconvertedDate} system will not convert and transfer data.");
+                        }
                     }
                     
                     
@@ -94,6 +100,7 @@ namespace AutoTintLibrary
                     {
                         dateList.Add(date[0]);
                     }
+                    
                 }
 
                 string[] cleanDate = RemoveDuplicates(dateList);
@@ -117,7 +124,7 @@ namespace AutoTintLibrary
                     {
                         var export_path = $"{jsonDispenseLogPath}\\full_dispense_log_{cleanDate[i].Replace("/", "_")}.json";
                         Logger.Info("Export log path : " + export_path);
-                        File.WriteAllText(export_path, JsonConvert.SerializeObject(exportRecord));
+                        File.WriteAllText(export_path, JsonConvert.SerializeObject(exportRecord),Encoding.UTF8);
                     }
                 }
 
@@ -174,7 +181,7 @@ namespace AutoTintLibrary
                         //Convert successful json file to json bi format
                         try { 
                             dynamic test = convertToBIDataNew(jsonFile.FullName);
-                            File.WriteAllText(export_bi_file, JsonConvert.SerializeObject(test));
+                            File.WriteAllText(export_bi_file, JsonConvert.SerializeObject(test),Encoding.UTF8);
                         }
                         catch (Exception ex)
                         {
