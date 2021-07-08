@@ -14,7 +14,8 @@ namespace AutoTintLibrary
 {
     public class APIHelper
     {
-        public static string baseURL = "http://49.229.21.7/dev";
+        //public static string baseURL = "http://49.229.21.7/dev";
+        public static string baseURL = ManageConfig.ReadGlobalConfig("base_url");
         public static RestClient init()
         {
             var client = new RestClient();

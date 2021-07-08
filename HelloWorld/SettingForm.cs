@@ -117,7 +117,6 @@ namespace IOTClient
             if (response.statusCode == 200)
             {
                 AutoTintWithId result = JsonConvert.DeserializeObject<AutoTintWithId>(response.message, Jsonettings);
-                //lblDatabaseVersionText.Text = "" + result.pos_setting_version;
                 DateTime startTimeFormate = DateTime.UtcNow;
                 TimeZoneInfo systemTimeZone = TimeZoneInfo.Local;
                 DateTime localDateTime = TimeZoneInfo.ConvertTimeFromUtc(startTimeFormate, systemTimeZone);
@@ -143,14 +142,17 @@ namespace IOTClient
 
 
                 Logger.Info($"Successful on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
+                //Set version label
+                lblDatabaseVersionText.Text = (result.pos_setting_version == null) ? "ไม่พบข้อมูล": $"{result.pos_setting_version.id}";
                 var shouldDownloadNewDB = (result.pos_setting_version == null) ? true : (result.pos_setting_version.id < checkVersion.id);
-                if (shouldDownloadNewDB)
-                //if (true)
+                //if (shouldDownloadNewDB)
+                if (true)
                 {
                     //    //Goto download
-                    MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"รุ่นของฐานข้อมูลไม่ใช่รุ่นล่าสุด \n รุ่นปัจจุบัน : {result.pos_setting_version?.id} \n รุ่นล่าสุด : {checkVersion.id}", "แจ้งเตือน", MessageBoxButton.OK);
+                    MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"รุ่นของฐานข้อมูลไม่ใช่รุ่นล่าสุด \n รุ่นปัจจุบัน : {result.pos_setting_version?.id} \n รุ่นล่าสุด : {checkVersion.id} \n ระบบจะทำการ Download อัตโนมัติ", "แจ้งเตือน", MessageBoxButton.OK);
 
-                    string downloadURI = $"http://49.229.21.7{checkVersion.file}";
+                    string baseURL = ManageConfig.ReadGlobalConfig("base_url");
+                    string downloadURI = $"{baseURL}{checkVersion.file}";
 
                     String[] URIArray = downloadURI.Split('/');
                     WebClient webClient = new WebClient();
@@ -164,6 +166,8 @@ namespace IOTClient
                     }
                     ";
                     dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data);
+                    //Update version after complete
+                    lblDatabaseVersionText.Text = $"{checkVersion.id}";
                 }
             }
             else
@@ -192,6 +196,16 @@ namespace IOTClient
                 ManageConfig.WriteGlobalConfig("start_random_minutes_threshold", "25");
                 ManageConfig.WriteGlobalConfig("programdata_log_path", @"C:\ProgramData\TOA_Autotint\Logs");
                 ManageConfig.WriteGlobalConfig("global_config_path", @"C:\ProgramData\TOA_Autotint\config.json");
+                string base_url_tmp = ManageConfig.ReadConfig("base_url");
+                if(base_url_tmp == null)
+                {
+                    ManageConfig.WriteGlobalConfig("base_url", "http://49.229.21.7");
+                }
+                else
+                {
+                    ManageConfig.WriteGlobalConfig("base_url", base_url_tmp);
+                }
+
                 MessageBoxResult confirmResult = System.Windows.MessageBox.Show("บันทึกค่าเสร็จสิ้น", "สำเร็จ", MessageBoxButton.OK);
             }
             else

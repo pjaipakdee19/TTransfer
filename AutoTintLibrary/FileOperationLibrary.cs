@@ -494,9 +494,9 @@ namespace AutoTintLibrary
                 //if (true)
                 {
                     //    //Goto download
-                   
 
-                    string downloadURI = $"http://49.229.21.7{checkVersion.file}";
+                    string baseURL = ManageConfig.ReadGlobalConfig("base_url");
+                    string downloadURI = $"{baseURL}{checkVersion.file}";
 
                     String[] URIArray = downloadURI.Split('/');
                     WebClient webClient = new WebClient();
