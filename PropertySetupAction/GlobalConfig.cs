@@ -16,6 +16,7 @@ namespace PropertySetupAction
         public string service_operation_start { get; set; }
         public string service_operation_stop { get; set; }
         public string start_random_minutes_threshold { get; set; }
+        public string base_url { get; set; }
 
     }
 }
