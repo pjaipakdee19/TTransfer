@@ -495,8 +495,8 @@ namespace AutoTintLibrary
                 {
                     //    //Goto download
 
-                    string baseURL = ManageConfig.ReadGlobalConfig("base_url");
-                    string downloadURI = $"{baseURL}{checkVersion.file}";
+                    
+                    string downloadURI = $"{checkVersion.file}";
 
                     String[] URIArray = downloadURI.Split('/');
                     WebClient webClient = new WebClient();

@@ -145,14 +145,14 @@ namespace IOTClient
                 //Set version label
                 lblDatabaseVersionText.Text = (result.pos_setting_version == null) ? "ไม่พบข้อมูล": $"{result.pos_setting_version.id}";
                 var shouldDownloadNewDB = (result.pos_setting_version == null) ? true : (result.pos_setting_version.id < checkVersion.id);
-                if (shouldDownloadNewDB)
-                //if (true)
+                //if (shouldDownloadNewDB)
+                if (true)
                 {
                     //    //Goto download
                     MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"รุ่นของฐานข้อมูลไม่ใช่รุ่นล่าสุด \n รุ่นปัจจุบัน : {result.pos_setting_version?.id} \n รุ่นล่าสุด : {checkVersion.id} \n ระบบจะทำการ Download อัตโนมัติ", "แจ้งเตือน", MessageBoxButton.OK);
 
-                    string baseURL = ManageConfig.ReadGlobalConfig("base_url");
-                    string downloadURI = $"{baseURL}{checkVersion.file}";
+                   
+                    string downloadURI = $"{checkVersion.file}";
 
                     String[] URIArray = downloadURI.Split('/');
                     WebClient webClient = new WebClient();
