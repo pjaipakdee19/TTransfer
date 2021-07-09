@@ -99,6 +99,9 @@ namespace AutoTintLibrary
                     if ((latest_dispense_date_response.statusCode != 404)&&(shouldConvert))
                     {
                         dateList.Add(date[0]);
+                    }else if(latest_dispense_date_response.statusCode == 404)
+                    {
+                        dateList.Add(date[0]);
                     }
                     
                 }
@@ -175,7 +178,7 @@ namespace AutoTintLibrary
                         Logger.Info("Transfer to server error move json files to : " + moveTo);
                     }
                     int extensionIndex = jsonFile.Name.IndexOf(".json");
-                    var export_bi_file = $"{jsonDispenseLogPath}\\full_dispense_log_{jsonFile.Name.Substring(0, extensionIndex)}_bi.json";
+                    var export_bi_file = $"{jsonDispenseLogPath}\\{jsonFile.Name.Substring(0, extensionIndex)}_bi.json";
                     while (retry_bi <= 3 && retry <=3 && isDispenseBIDone == false)
                     {
                         //Convert successful json file to json bi format
