@@ -407,7 +407,7 @@ namespace AutoTintLibrary
                 export_bi.product_name = detail["product_name"];
                 export_bi.product_code = detail["product_code"];
                 export_bi.colour_code = detail["colour_code"];
-                export_bi.color_name = detail["colour_name"];
+                export_bi.color_name = detail["color_name"];
                 export_bi.collection_name = detail["collection_name"];
                 export_bi.base_name = detail["base_name"];
                 export_bi.base_value = ((export_bi.base_name.Length > 0)&&(export_bi.base_name != " "))? detail["base_name"].ToString().Substring(detail["base_name"].ToString().Length - (detail["base_name"].ToString().IndexOf("Base") + 3)):"";
@@ -422,7 +422,7 @@ namespace AutoTintLibrary
                 export_bi.component_name = "";
                 export_bi.sale_out_quantity_gl = sales_out_qty_gl;
                 export_bi.sale_out_quantity_l = sales_out_qty_l;
-                export_bi.sale_out_quantity_ea = "";
+                export_bi.sale_out_quantity_ea = "1";
                 export_bi.sale_out_amt_thb = sale_out_amt_thb.ToString();
                 export_bi.branch_code = "";
                 export_bi.branch_name = "";
