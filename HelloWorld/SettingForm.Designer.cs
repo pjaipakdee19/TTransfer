@@ -62,7 +62,7 @@ namespace IOTClient
             this.btnExport1.Name = "btnExport1";
             this.btnExport1.Size = new System.Drawing.Size(145, 23);
             this.btnExport1.TabIndex = 0;
-            this.btnExport1.Text = "ส่งออกประวัติ POS";
+            this.btnExport1.Text = "Upload POS history";
             this.btnExport1.UseVisualStyleBackColor = true;
             this.btnExport1.Click += new System.EventHandler(this.btnExport1_ClickAsync);
             // 
@@ -99,20 +99,20 @@ namespace IOTClient
             this.lblDatabasePath.AutoSize = true;
             this.lblDatabasePath.Location = new System.Drawing.Point(110, 149);
             this.lblDatabasePath.Name = "lblDatabasePath";
-            this.lblDatabasePath.Size = new System.Drawing.Size(76, 13);
+            this.lblDatabasePath.Size = new System.Drawing.Size(103, 13);
             this.lblDatabasePath.TabIndex = 5;
-            this.lblDatabasePath.Text = "ฐานข้อมูล POS";
+            this.lblDatabasePath.Text = "POS Database Path";
             // 
             // databaseLocationTextbox
             // 
-            this.databaseLocationTextbox.Location = new System.Drawing.Point(198, 142);
+            this.databaseLocationTextbox.Location = new System.Drawing.Point(219, 142);
             this.databaseLocationTextbox.Name = "databaseLocationTextbox";
             this.databaseLocationTextbox.Size = new System.Drawing.Size(383, 20);
             this.databaseLocationTextbox.TabIndex = 6;
             // 
             // posHistoryLocationTextBox
             // 
-            this.posHistoryLocationTextBox.Location = new System.Drawing.Point(198, 185);
+            this.posHistoryLocationTextBox.Location = new System.Drawing.Point(219, 185);
             this.posHistoryLocationTextBox.Name = "posHistoryLocationTextBox";
             this.posHistoryLocationTextBox.Size = new System.Drawing.Size(383, 20);
             this.posHistoryLocationTextBox.TabIndex = 8;
@@ -122,13 +122,13 @@ namespace IOTClient
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(110, 192);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(63, 13);
+            this.label1.Size = new System.Drawing.Size(89, 13);
             this.label1.TabIndex = 7;
-            this.label1.Text = "ประวัติ POS";
+            this.label1.Text = "POS History Path";
             // 
             // tbxShopDispenVal
             // 
-            this.tbxShopDispenVal.Location = new System.Drawing.Point(198, 101);
+            this.tbxShopDispenVal.Location = new System.Drawing.Point(219, 101);
             this.tbxShopDispenVal.Name = "tbxShopDispenVal";
             this.tbxShopDispenVal.Size = new System.Drawing.Size(184, 20);
             this.tbxShopDispenVal.TabIndex = 10;
@@ -138,9 +138,9 @@ namespace IOTClient
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(110, 108);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(57, 13);
+            this.label2.Size = new System.Drawing.Size(68, 13);
             this.label2.TabIndex = 9;
-            this.label2.Text = "รหัสร้านค้า";
+            this.label2.Text = "Dispenser ID";
             // 
             // button1
             // 
@@ -148,7 +148,7 @@ namespace IOTClient
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(159, 23);
             this.button1.TabIndex = 11;
-            this.button1.Text = "ครวจสอบรุ่นฐานข้อมูล";
+            this.button1.Text = "Check for updates";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click_1);
             // 
@@ -157,14 +157,14 @@ namespace IOTClient
             this.lblDatabaseVersion.AutoSize = true;
             this.lblDatabaseVersion.Location = new System.Drawing.Point(74, 324);
             this.lblDatabaseVersion.Name = "lblDatabaseVersion";
-            this.lblDatabaseVersion.Size = new System.Drawing.Size(71, 13);
+            this.lblDatabaseVersion.Size = new System.Drawing.Size(96, 13);
             this.lblDatabaseVersion.TabIndex = 12;
-            this.lblDatabaseVersion.Text = "รุ่นฐานข้อมูล :";
+            this.lblDatabaseVersion.Text = "Database version :";
             // 
             // lblDatabaseVersionText
             // 
             this.lblDatabaseVersionText.AutoSize = true;
-            this.lblDatabaseVersionText.Location = new System.Drawing.Point(152, 324);
+            this.lblDatabaseVersionText.Location = new System.Drawing.Point(182, 324);
             this.lblDatabaseVersionText.Name = "lblDatabaseVersionText";
             this.lblDatabaseVersionText.Size = new System.Drawing.Size(31, 13);
             this.lblDatabaseVersionText.TabIndex = 13;
@@ -175,9 +175,9 @@ namespace IOTClient
             this.lblDatabaseTime.AutoSize = true;
             this.lblDatabaseTime.Location = new System.Drawing.Point(74, 349);
             this.lblDatabaseTime.Name = "lblDatabaseTime";
-            this.lblDatabaseTime.Size = new System.Drawing.Size(81, 13);
+            this.lblDatabaseTime.Size = new System.Drawing.Size(78, 13);
             this.lblDatabaseTime.TabIndex = 14;
-            this.lblDatabaseTime.Text = "ตรวจสอบล่าสุด :";
+            this.lblDatabaseTime.Text = "Last checked :";
             // 
             // lblDatabaseCheckVal
             // 
@@ -213,9 +213,9 @@ namespace IOTClient
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(406, 349);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(89, 13);
+            this.label4.Size = new System.Drawing.Size(82, 13);
             this.label4.TabIndex = 17;
-            this.label4.Text = "เวลาส่งออกล่าสุด :";
+            this.label4.Text = "Lastest upload :";
             // 
             // SaveInputData
             // 
@@ -223,7 +223,7 @@ namespace IOTClient
             this.SaveInputData.Name = "SaveInputData";
             this.SaveInputData.Size = new System.Drawing.Size(265, 23);
             this.SaveInputData.TabIndex = 19;
-            this.SaveInputData.Text = "บันทึก";
+            this.SaveInputData.Text = "Save";
             this.SaveInputData.UseVisualStyleBackColor = true;
             this.SaveInputData.Click += new System.EventHandler(this.SaveInputData_Click);
             // 
@@ -245,9 +245,9 @@ namespace IOTClient
             // 
             // progressBar1
             // 
-            this.progressBar1.Location = new System.Drawing.Point(102, 410);
+            this.progressBar1.Location = new System.Drawing.Point(74, 410);
             this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(100, 23);
+            this.progressBar1.Size = new System.Drawing.Size(159, 23);
             this.progressBar1.TabIndex = 21;
             // 
             // SettingForm

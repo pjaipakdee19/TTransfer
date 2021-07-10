@@ -81,7 +81,7 @@ namespace PropertySetupAction
             // 
             // btnCSVSelect
             // 
-            this.btnCSVSelect.Location = new System.Drawing.Point(302, 154);
+            this.btnCSVSelect.Location = new System.Drawing.Point(302, 185);
             this.btnCSVSelect.Name = "btnCSVSelect";
             this.btnCSVSelect.Size = new System.Drawing.Size(23, 23);
             this.btnCSVSelect.TabIndex = 9;
@@ -91,7 +91,7 @@ namespace PropertySetupAction
             // 
             // btnDatabaseSelect
             // 
-            this.btnDatabaseSelect.Location = new System.Drawing.Point(302, 116);
+            this.btnDatabaseSelect.Location = new System.Drawing.Point(302, 147);
             this.btnDatabaseSelect.Name = "btnDatabaseSelect";
             this.btnDatabaseSelect.Size = new System.Drawing.Size(23, 23);
             this.btnDatabaseSelect.TabIndex = 8;
@@ -101,23 +101,23 @@ namespace PropertySetupAction
             // 
             // txtCustomerId
             // 
-            this.txtCustomerId.Location = new System.Drawing.Point(122, 188);
+            this.txtCustomerId.Location = new System.Drawing.Point(122, 114);
             this.txtCustomerId.Name = "txtCustomerId";
-            this.txtCustomerId.Size = new System.Drawing.Size(195, 22);
+            this.txtCustomerId.Size = new System.Drawing.Size(174, 22);
             this.txtCustomerId.TabIndex = 7;
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(16, 191);
+            this.label5.Location = new System.Drawing.Point(11, 117);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(58, 14);
+            this.label5.Size = new System.Drawing.Size(75, 14);
             this.label5.TabIndex = 6;
-            this.label5.Text = "รหัสร้านค้า";
+            this.label5.Text = "Dispenser ID";
             // 
             // txtHistoryLocation
             // 
-            this.txtHistoryLocation.Location = new System.Drawing.Point(122, 154);
+            this.txtHistoryLocation.Location = new System.Drawing.Point(122, 185);
             this.txtHistoryLocation.Name = "txtHistoryLocation";
             this.txtHistoryLocation.Size = new System.Drawing.Size(174, 22);
             this.txtHistoryLocation.TabIndex = 5;
@@ -125,15 +125,15 @@ namespace PropertySetupAction
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(16, 157);
+            this.label4.Location = new System.Drawing.Point(11, 188);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(88, 14);
+            this.label4.Size = new System.Drawing.Size(100, 14);
             this.label4.TabIndex = 4;
-            this.label4.Text = "ที่ตั้งประวัติข้อมูล";
+            this.label4.Text = "POS History Path";
             // 
             // txtDBLocation
             // 
-            this.txtDBLocation.Location = new System.Drawing.Point(122, 117);
+            this.txtDBLocation.Location = new System.Drawing.Point(122, 148);
             this.txtDBLocation.Name = "txtDBLocation";
             this.txtDBLocation.Size = new System.Drawing.Size(174, 22);
             this.txtDBLocation.TabIndex = 3;
@@ -141,20 +141,20 @@ namespace PropertySetupAction
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(16, 120);
+            this.label3.Location = new System.Drawing.Point(11, 151);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(77, 14);
+            this.label3.Size = new System.Drawing.Size(113, 14);
             this.label3.TabIndex = 2;
-            this.label3.Text = "ที่ตั้งฐานข้อมูล";
+            this.label3.Text = "POS Database Path";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(13, 62);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(234, 14);
+            this.label2.Size = new System.Drawing.Size(198, 14);
             this.label2.TabIndex = 1;
-            this.label2.Text = "กรุณากรอกข้อมูลด้านล่างให้ครบถ้วนและถูกต้อง";
+            this.label2.Text = "Press \'Next\' after finish all the form";
             // 
             // label1
             // 
@@ -162,9 +162,9 @@ namespace PropertySetupAction
             this.label1.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(12, 23);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(262, 19);
+            this.label1.Size = new System.Drawing.Size(326, 19);
             this.label1.TabIndex = 0;
-            this.label1.Text = "กรุณาเพิ่มข้อมูลตามแบบฟอร์มด้านล่าง";
+            this.label1.Text = "Please select the path and fill the form below";
             // 
             // groupBox1
             // 
