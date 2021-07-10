@@ -35,6 +35,11 @@ namespace PropertySetupAction
             {
                 Directory.CreateDirectory(ProgramDataLogsFolderPath);
             }
+            var ProgramDataLogsManualFolderPath = @"C:\ProgramData\TOA_Autotint\Logs\Manual";
+            if (!Directory.Exists(ProgramDataLogsManualFolderPath))
+            {
+                Directory.CreateDirectory(ProgramDataLogsManualFolderPath);
+            }
         }
             private void CheckOldConfig()
         {

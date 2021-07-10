@@ -73,17 +73,41 @@ namespace IOTClient
         {
             string LatestExportDateTime = "";
             string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            string manual_path = $"{path}\\Manual";
+            FileInfo latestFileInfo = null;
+            FileInfo latestManualFileInfo = null;
+
             var directory = new DirectoryInfo(path);
             if (directory.GetFiles().Length > 0)
             {
-                var latestFileInfo = (from f in directory.GetFiles()
+                latestFileInfo = (from f in directory.GetFiles()
                                       orderby f.LastWriteTime descending
                                       select f).First();
+                //LatestExportDateTime = latestFileInfo.CreationTime.ToString("dddd dd MMMM yyyy HH:mm:ff", new System.Globalization.CultureInfo("th-TH"));
+            }
+            var directoryManual = new DirectoryInfo(manual_path);
+            if (directoryManual.GetFiles().Length > 0)
+            {
+                latestManualFileInfo = (from f in directoryManual.GetFiles()
+                                  orderby f.LastWriteTime descending
+                                  select f).First();
+                //LatestExportDateTime = latestManualFileInfo.LastWriteTime.ToString("dddd dd MMMM yyyy HH:mm:ff", new System.Globalization.CultureInfo("th-TH"));
+                //LastWriteTime
+            }
+            if (latestFileInfo == null && latestManualFileInfo == null) LatestExportDateTime = "ไม่พบประวัติการส่งออกข้อมูล";
+            if (latestFileInfo != null && latestManualFileInfo != null)
+            {
+                int result = DateTime.Compare(latestFileInfo.CreationTime, latestManualFileInfo.LastWriteTime);
+                DateTime tmp = (result <= 0) ? latestManualFileInfo.LastWriteTime : latestFileInfo.CreationTime;
+                LatestExportDateTime = tmp.ToString("dddd dd MMMM yyyy HH:mm:ff", new System.Globalization.CultureInfo("th-TH"));
+            }
+            if(LatestExportDateTime == "" && latestFileInfo != null)
+            {
                 LatestExportDateTime = latestFileInfo.CreationTime.ToString("dddd dd MMMM yyyy HH:mm:ff", new System.Globalization.CultureInfo("th-TH"));
             }
-            else
+            if (LatestExportDateTime == "" && latestManualFileInfo != null)
             {
-                LatestExportDateTime = "ไม่พบประวัติการส่งออกข้อมูล";
+                LatestExportDateTime = latestManualFileInfo.LastWriteTime.ToString("dddd dd MMMM yyyy HH:mm:ff", new System.Globalization.CultureInfo("th-TH"));
             }
 
             HistoryExportDateTime.Text = $"{LatestExportDateTime}";
@@ -267,8 +291,9 @@ namespace IOTClient
 
         private static void logMaskAsDoneDate(string text)
         {
-            Console.WriteLine("Call logger !!");
-            Logger.Info("Manual Transfer done for today " + text);
+            //Console.WriteLine("Call logger !!");
+            Logger.Info("Manual Transfer done on " + text);
+            Logger.Trace("Manual Transfer done on " + text);
         }
 
         private void btnDownloadUpdate_Click(object sender, EventArgs e)
