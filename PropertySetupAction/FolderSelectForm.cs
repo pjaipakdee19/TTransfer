@@ -19,11 +19,24 @@ namespace PropertySetupAction
         {
             InitializeComponent();
             Application.EnableVisualStyles();
+            CreatProgramDataFolder();
             CheckOldConfig();
             this.TopMost = true;
         }
-
-        private void CheckOldConfig()
+        private void CreatProgramDataFolder()
+        {
+            var ProgramDataFolderPath = @"C:\ProgramData\TOA_Autotint";
+            if (!Directory.Exists(ProgramDataFolderPath))
+            {
+                Directory.CreateDirectory(ProgramDataFolderPath);
+            }
+            var ProgramDataLogsFolderPath = @"C:\ProgramData\TOA_Autotint\Logs";
+            if (!Directory.Exists(ProgramDataLogsFolderPath))
+            {
+                Directory.CreateDirectory(ProgramDataLogsFolderPath);
+            }
+        }
+            private void CheckOldConfig()
         {
             if (File.Exists(GlobalConfigPath))
             {
@@ -114,6 +127,7 @@ namespace PropertySetupAction
                     Directory.CreateDirectory(ProgramDataFolderPath);
                     Directory.CreateDirectory($"{ProgramDataFolderPath}\\Logs");
                 }
+
                 File.WriteAllText(GlobalConfigPath, JSONresult,Encoding.UTF8);
             }
             else
