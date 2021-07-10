@@ -62,10 +62,11 @@ namespace AutoTintLibrary
                 GlobalConfig OldConfig = JsonConvert.DeserializeObject<GlobalConfig>(File.ReadAllText(GlobalConfigPath));
                 //Load old value to item
 
-                item.global_config_path = OldConfig.global_config_path;
-                item.auto_tint_id = OldConfig.auto_tint_id;
-                item.csv_history_path = OldConfig.csv_history_path;
-                item.database_path = OldConfig.database_path;
+                //item.global_config_path = OldConfig.global_config_path;
+                //item.auto_tint_id = OldConfig.auto_tint_id;
+                //item.csv_history_path = OldConfig.csv_history_path;
+                //item.database_path = OldConfig.database_path;
+                item = OldConfig;
 
             }
 
