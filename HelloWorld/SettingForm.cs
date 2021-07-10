@@ -166,14 +166,13 @@ namespace IOTClient
 
 
                 Logger.Info($"Successful on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
-                //Set version label
-                lblDatabaseVersionText.Text = (result.pos_setting_version == null) ? "ไม่พบข้อมูล": $"{result.pos_setting_version.id}";
+                
                 var shouldDownloadNewDB = (result.pos_setting_version == null) ? true : (result.pos_setting_version.id < checkVersion.id);
                 if (shouldDownloadNewDB)
                 //if (true)
                 {
                     //    //Goto download
-                    MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"รุ่นของฐานข้อมูลไม่ใช่รุ่นล่าสุด \n รุ่นปัจจุบัน : {result.pos_setting_version?.id} \n รุ่นล่าสุด : {checkVersion.id} \n ระบบจะทำการ Download อัตโนมัติ", "แจ้งเตือน", MessageBoxButton.OK);
+                    MessageBoxResult msgDownloadbox = System.Windows.MessageBox.Show($"รุ่นของฐานข้อมูลไม่ใช่รุ่นล่าสุด \n รุ่นปัจจุบัน : {result.pos_setting_version?.id} \n รุ่นล่าสุด : {checkVersion.id} \n ระบบจะทำการ Download อัตโนมัติ", "แจ้งเตือน", MessageBoxButton.OK);
 
                    
                     string downloadURI = $"{checkVersion.file}";
@@ -191,7 +190,12 @@ namespace IOTClient
                     ";
                     dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data);
                     //Update version after complete
-                    lblDatabaseVersionText.Text = $"{checkVersion.id}";
+                }
+                //Set version label
+                lblDatabaseVersionText.Text = (result.pos_setting_version == null) ? "ไม่พบข้อมูล" : $"{checkVersion.number}";
+                if (!shouldDownloadNewDB)
+                {
+                    MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Database is up to date", "Message", MessageBoxButton.OK);
                 }
             }
             else
@@ -305,11 +309,13 @@ namespace IOTClient
         }
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
+            progressBar1.Visible = true;
             progressBar1.Value = e.ProgressPercentage;
         }
 
         private void Completed(object sender, AsyncCompletedEventArgs e)
         {
+            progressBar1.Visible = false;
             System.Windows.MessageBox.Show("Download completed!");
         }
 

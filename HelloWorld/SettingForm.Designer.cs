@@ -58,7 +58,7 @@ namespace IOTClient
             // 
             // btnExport1
             // 
-            this.btnExport1.Location = new System.Drawing.Point(409, 381);
+            this.btnExport1.Location = new System.Drawing.Point(457, 380);
             this.btnExport1.Name = "btnExport1";
             this.btnExport1.Size = new System.Drawing.Size(145, 23);
             this.btnExport1.TabIndex = 0;
@@ -249,6 +249,7 @@ namespace IOTClient
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(159, 23);
             this.progressBar1.TabIndex = 21;
+            this.progressBar1.Visible = false;
             // 
             // SettingForm
             // 
