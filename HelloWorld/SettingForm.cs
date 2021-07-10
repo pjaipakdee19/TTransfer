@@ -302,10 +302,13 @@ namespace IOTClient
 
         private void btnDownloadUpdate_Click(object sender, EventArgs e)
         {
-            WebClient webClient = new WebClient();
-            webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(Completed);
-            webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-            webClient.DownloadFileAsync(new Uri("http://49.229.21.7/files/settings/Tint_On_Shop_TuwDkNh.SDF"), @"E:\Tutorial\db_location\Tint_On_Shop_TuwDkNh.SDF");
+            //WebClient webClient = new WebClient();
+            //webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(Completed);
+            //webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
+            //webClient.DownloadFileAsync(new Uri("http://49.229.21.7/files/settings/Tint_On_Shop_TuwDkNh.SDF"), @"E:\Tutorial\db_location\Tint_On_Shop_TuwDkNh.SDF");
+            string path = @"E:\Tutorial\csv_history\json_log\full_dispense_log_11_10_15.json";
+            var instance = new FileOperationLibrary();
+            instance.convertToBIDataNew(path);
         }
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {

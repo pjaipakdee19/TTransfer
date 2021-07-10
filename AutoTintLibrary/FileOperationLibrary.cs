@@ -167,7 +167,11 @@ namespace AutoTintLibrary
                             Logger.Error($"Error when upload file retring {retry} {jsonFile.FullName}");
                             Logger.Error($"Service response {response.statusCode} {response.message}");
                         }
-                        isDispenseDone = true;
+                        if (response.statusCode == 201)
+                        {
+                            isDispenseDone = true;
+                            Logger.Info($"Transfer to API dispense_history success filename : {jsonFile.Name}");
+                        }
                     }
                     if (retry > 3)
                     {
@@ -203,7 +207,11 @@ namespace AutoTintLibrary
                             Logger.Error($"Error when upload file retring {retry} {jsonFile.FullName}");
                             Logger.Error($"Service response {response.statusCode} {response.message}");
                         }
-                        isDispenseBIDone = true;
+                        if(response.statusCode == 201)
+                        {
+                            isDispenseBIDone = true;
+                            Logger.Info($"Transfer to API dispense_history_bi success filename : {jsonFile.Name.Substring(0, extensionIndex)}_bi.json");
+                        }
                     }
                     if (retry_bi > 3)
                     {
@@ -226,6 +234,7 @@ namespace AutoTintLibrary
                     {
                         //sucessful transfer remove this json file
                         File.Delete(jsonFile.FullName);
+                        File.Delete(export_bi_file);
                         Logger.Info($"Transfer to server complete delete json files name {jsonFile.FullName}");
 
                     }
@@ -272,7 +281,7 @@ namespace AutoTintLibrary
             return data;
         }
 
-        private List<DispenseHistoryBI> convertToBIDataNew(string json_history_path)
+        public List<DispenseHistoryBI> convertToBIDataNew(string json_history_path)
         {
             string file_path = json_history_path;//@"E:\Tutorial\json_dispense_log\full_dispense_log_21_10_2015_p2_test.json";
             string streamFile = File.ReadAllText(file_path);
@@ -288,6 +297,8 @@ namespace AutoTintLibrary
 
                 //Do a formatted date
                 String[] dispense_date = detail["dispensed_date"].ToString().Split(' ');
+                //Append the day to 2 length string
+                if (dispense_date[0].Split('/')[0].Length < 2) dispense_date[0] = $"0{dispense_date[0].Split('/')[0]}/{dispense_date[0].Split('/')[1]}/{dispense_date[0].Split('/')[2]}";
                 string formattedDate = "";
                 DateTime parsedDateTime;
                 if (DateTime.TryParseExact(dispense_date[0], "dd/mm/yyyy",
@@ -401,7 +412,7 @@ namespace AutoTintLibrary
                 if (errorFlag) status_shade = "Error";
                 if (viewFlag) status_shade = "View";
 
-                export_bi.dispensed_date = detail["dispensed_date"]; //convert to BE.
+                export_bi.dispensed_date = detail["dispensed_date"]; //convert to CE.
                 export_bi.date = formattedDate;
                 export_bi.record_key = detail["dispensed_formula_id"] + formattedDate + detail["company_code"];
                 export_bi.wanted_amount = detail["wanted_amount"];
