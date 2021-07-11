@@ -271,22 +271,26 @@ namespace IOTClient
         {
             var instance = new FileOperationLibrary();
 
-            Thread progressThread = new Thread(delegate ()
-            {
-                LoadingForm progress = new LoadingForm();
-                progress.ShowDialog();
-            });
+            //Thread progressThread = new Thread(delegate ()
+            //{
+            //    LoadingForm progress = new LoadingForm();
+            //    progress.ShowDialog();
+            //});
 
-            progressThread.Start();
+            //progressThread.Start();
+            btnExport1.Text = "Transfering ...";
+            btnExport1.Enabled = false;
             await instance.StartOperation();
             var utcTime = DateTime.UtcNow;
             var ictZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
             var actualTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, ictZone);
             logMaskAsDoneDate("" + actualTime);
 
-            progressThread.Abort();
+            //progressThread.Abort();
             CheckLastestUploadDateTime();
             MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Manual Upload Finish", "Message", MessageBoxButton.OK);
+            btnExport1.Text = "Upload POS history";
+            btnExport1.Enabled = true;
         }
 
         private void btnCheckShopID_Click(object sender, EventArgs e)
