@@ -32,7 +32,8 @@ namespace IOTClient
                 {
                     if (!mutex.WaitOne(0, false))
                     {
-                        MessageBox.Show("Instance already running");
+                        //MessageBox.Show("Instance already running");
+                        new SettingForm().ShowDialog();
                         return;
                     }
                     Application.Run();
