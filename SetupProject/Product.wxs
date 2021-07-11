@@ -90,18 +90,9 @@
 				<RegistryValue Root="HKLM" Key="Software\WinApp Software" Type="string" Name="License" Value="Free" />
 			</Component>-->
 		<Component Id="StartUpandinstallService" Guid="E27ADFB6-63EF-49DC-ACA5-68439030FF48" Directory="INSTALLDIR">
-			<File Id="TAServiceEXE" Name="TAService.exe" DiskId="1" 
-				  Source="$(var.TAService_TargetDir)TAService.exe" 
-				  KeyPath="yes" Vital="yes"/>         
-				<ServiceInstall Id="ServiceInstaller" Type="ownProcess" 
-								Name="TOAIOTService" DisplayName="TOA IOT Auto Service" 
-								Description="Monitoring and transfering Jobs" 
-								Start="auto" Account="[SERVICEACCOUNT]" Password="[SERVICEPASSWORD]" 
-								ErrorControl="normal" Interactive="yes" Arguments=" /start TOAIOTService" />
-			<ServiceControl Id="StartService" 
-							Start="install" Stop="both" 
-							Remove="uninstall" Name="TOAIOTService"
-							Wait="yes" />	
+			<File Id="TAServiceEXE" Name="TAService.exe" DiskId="1" Source="$(var.TAService_TargetDir)TAService.exe" KeyPath="yes" Vital="yes" />         
+				<ServiceInstall Id="ServiceInstaller" Type="ownProcess" Name="TOAIOTService" DisplayName="TOA IOT Auto Service" Description="Monitoring and transfering Jobs" Start="auto" Account="[SERVICEACCOUNT]" Password="[SERVICEPASSWORD]" ErrorControl="normal" Interactive="yes" Arguments=" /start TOAIOTService" />
+			<ServiceControl Id="StartService" Start="install" Stop="both" Remove="uninstall" Name="TOAIOTService" Wait="yes" />	
 		</Component>
 	</Fragment>
 	<Fragment>
@@ -157,6 +148,12 @@
 	    <!--<Component Id="TAService.exe" Guid="4759b074-88ba-4c8e-9eb0-cac2e3b38dd7">
 	      <File Id="TAService.exe" Name="TAService.exe" Source="$(var.TAService_TargetDir)TAService.exe" />
 	    </Component>-->
+	    <Component Id="System.ValueTuple.dll" Guid="1366f7ff-6127-4e3a-883d-697591f97b78">
+	      <File Id="System.ValueTuple.dll" Name="System.ValueTuple.dll" Source="$(var.AutoTintLibrary_TargetDir)System.ValueTuple.dll" />
+	    </Component>
+	    <Component Id="UnitsNet.dll" Guid="a86a3460-1348-401f-adb1-7303cc926173">
+	      <File Id="UnitsNet.dll" Name="UnitsNet.dll" Source="$(var.AutoTintLibrary_TargetDir)UnitsNet.dll" />
+	    </Component>
 	  </ComponentGroup>
 	</Fragment>
 
