@@ -386,11 +386,11 @@ namespace AutoTintLibrary
                 string saleType = "";
                 if ((double)detail["base_price"] > 0)
                 {
-                    saleType = detail["base_price"].ToString();
+                    saleType = "Base and Colorant";
                 }
                 else
                 {
-                    saleType = detail["colorant_price"].ToString();
+                    saleType = "Colorant Only";
                 }
 
                 //status shade
