@@ -58,7 +58,7 @@ namespace IOTClient
             // 
             // btnExport1
             // 
-            this.btnExport1.Location = new System.Drawing.Point(457, 380);
+            this.btnExport1.Location = new System.Drawing.Point(427, 380);
             this.btnExport1.Name = "btnExport1";
             this.btnExport1.Size = new System.Drawing.Size(145, 23);
             this.btnExport1.TabIndex = 0;
@@ -202,7 +202,7 @@ namespace IOTClient
             // HistoryExportDateTime
             // 
             this.HistoryExportDateTime.AutoSize = true;
-            this.HistoryExportDateTime.Location = new System.Drawing.Point(493, 349);
+            this.HistoryExportDateTime.Location = new System.Drawing.Point(523, 349);
             this.HistoryExportDateTime.Name = "HistoryExportDateTime";
             this.HistoryExportDateTime.Size = new System.Drawing.Size(169, 13);
             this.HistoryExportDateTime.TabIndex = 18;
@@ -211,7 +211,7 @@ namespace IOTClient
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(406, 349);
+            this.label4.Location = new System.Drawing.Point(424, 349);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(82, 13);
             this.label4.TabIndex = 17;

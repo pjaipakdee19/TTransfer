@@ -311,7 +311,7 @@ namespace IOTClient
             //webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(Completed);
             //webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
             //webClient.DownloadFileAsync(new Uri("http://49.229.21.7/files/settings/Tint_On_Shop_TuwDkNh.SDF"), @"E:\Tutorial\db_location\Tint_On_Shop_TuwDkNh.SDF");
-            string path = @"E:\Tutorial\csv_history\json_log\full_dispense_log_11_10_15.json";
+            string path = @"E:\Tutorial\csv_history\json_log\full_dispense_log_4_11_2015.json";
             var instance = new FileOperationLibrary();
             instance.convertToBIDataNew(path);
         }

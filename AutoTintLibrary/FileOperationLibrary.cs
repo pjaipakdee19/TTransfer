@@ -369,11 +369,12 @@ namespace AutoTintLibrary
 
                 //Convert a sales out qty (gl)
                 double amount = (double)detail["wanted_amount"];
-                string libUnits = detail["unit_name"].ToString(); //Quart => UsQuart , GL,Gallon => UsGallon , Liter => Liter , ml => Milliliter
-                if (libUnits.IndexOf("Quart") >= 0) libUnits = "UsQuart";
-                if (libUnits.IndexOf("Gallon") >= 0) libUnits = "UsGallon";
-                if (libUnits.IndexOf("GL") >= 0) libUnits = "UsGallon";
-                if (libUnits.IndexOf("Liter") >= 0) libUnits = "Liter";
+                string libUnits = detail["unit_name"].ToString().ToLower(); //Quart => UsQuart , GL,Gallon => UsGallon , Liter => Liter , ml => Milliliter
+                if (libUnits.IndexOf("quart") >= 0) libUnits = "UsQuart";
+                if (libUnits.IndexOf("gallon") >= 0) libUnits = "UsGallon";
+                if (libUnits.IndexOf("gl") >= 0) libUnits = "UsGallon";
+                if (libUnits.IndexOf("liter") >= 0) libUnits = "Liter";
+                if (libUnits.IndexOf("kg") >= 0) libUnits = "Liter";
                 if (libUnits.IndexOf("ml") >= 0) libUnits = "Milliliter";
                 string sales_out_qty_gl = UnitConverter.ConvertByName(amount, "Volume", libUnits, "UsGallon").ToString();
                 string sales_out_qty_l = UnitConverter.ConvertByName(amount, "Volume", libUnits, "Liter").ToString();
