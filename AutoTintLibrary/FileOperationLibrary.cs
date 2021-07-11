@@ -164,8 +164,9 @@ namespace AutoTintLibrary
                         if(response.statusCode != 201)
                         {
                             retry++;
-                            Logger.Error($"Error when upload file retring {retry} {jsonFile.FullName}");
-                            Logger.Error($"Service response {response.statusCode} {response.message}");
+                            Logger.Error($"Error when upload file retring round {retry} filename {jsonFile.FullName}");
+                            Logger.Error($"Service response statusCode : {response.statusCode}");
+                            Logger.Error($"Service response message :  {response.message}");
                         }
                         if (response.statusCode == 201)
                         {
@@ -193,7 +194,7 @@ namespace AutoTintLibrary
                         catch (Exception ex)
                         {
                             Console.WriteLine("Exception " + ex.ToString());
-                            //Logger.Error(ex, "Exception on create json _p2 : " + ex.ToString());
+                            Logger.Error("Exception on create json _bi : " + ex.ToString());
                         }
                         //var export_path = $"{jsonDispenseLogPath}\\full_dispense_log_{cleanDate[i].Replace("/", "_")}.json";
 
@@ -204,8 +205,9 @@ namespace AutoTintLibrary
                         if (response.statusCode != 201)
                         {
                             retry_bi++;
-                            Logger.Error($"Error when upload file retring {retry} {jsonFile.FullName}");
-                            Logger.Error($"Service response {response.statusCode} {response.message}");
+                            Logger.Error($"Error when upload file retring round {retry_bi} filename {export_bi_file}");
+                            Logger.Error($"Service response statusCode : {response.statusCode}");
+                            Logger.Error($"Service response message :  {response.message}");
                         }
                         if(response.statusCode == 201)
                         {
@@ -311,6 +313,7 @@ namespace AutoTintLibrary
                 else
                 {
                     Console.WriteLine("Parsing failed");
+                    Logger.Error($"Parsing dispense_date fail dispense_date data : {dispense_date[0]}");
                 }
 
                 //Do a dispenser_no,customer_key

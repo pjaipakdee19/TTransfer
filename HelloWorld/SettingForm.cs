@@ -286,6 +286,7 @@ namespace IOTClient
 
             progressThread.Abort();
             CheckLastestUploadDateTime();
+            MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Manual Upload Finish", "Message", MessageBoxButton.OK);
         }
 
         private void btnCheckShopID_Click(object sender, EventArgs e)

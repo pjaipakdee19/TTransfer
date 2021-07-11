@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.ComponentModel;
 using System.Text;
+using NLog;
 
 namespace AutoTintLibrary
 {
@@ -16,6 +17,8 @@ namespace AutoTintLibrary
     {
         //public static string baseURL = "http://49.229.21.7/dev";
         public static string baseURL = ManageConfig.ReadGlobalConfig("base_url");
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         public static RestClient init()
         {
             var client = new RestClient();
@@ -41,7 +44,7 @@ namespace AutoTintLibrary
             catch (Exception ex)
             {
                 Console.WriteLine("Call logger about exception " + ex);
-
+                Logger.Error($"Exception when called RequestGet {url} : {ex.ToString()}");
             }
 
             try { 
@@ -75,6 +78,8 @@ namespace AutoTintLibrary
             catch (Exception ex)
             {
                 Console.WriteLine("Call logger about exception " + ex);
+                Logger.Error($"Exception when called RequestPut {url} : {ex.ToString()}");
+                Logger.Error($"Exception when called RequestPut Data {Jsondata}");
 
             }
             return JsonConvert.SerializeObject(new { statusCode = response.StatusCode, message = response.Content });
@@ -96,6 +101,7 @@ namespace AutoTintLibrary
             catch (Exception ex)
             {
                 Console.WriteLine("Call logger about exception " + ex);
+                Logger.Error($"Exception when called GetLatestDispenseRecord {url} : {ex.ToString()}");
 
             }
 
@@ -120,7 +126,8 @@ namespace AutoTintLibrary
             catch (Exception ex)
             {
                 Console.WriteLine("Call logger about exception " + ex);
-                
+                Logger.Error($"Exception when called UploadFile {method} : {ex.ToString()}");
+                Logger.Error($"Exception when called UploadFile {file_path}");
             }
 
             return JsonConvert.SerializeObject(new { statusCode = response.StatusCode, message = response.Content });
@@ -142,6 +149,7 @@ namespace AutoTintLibrary
             catch (Exception ex)
             {
                 Console.WriteLine("Call logger about exception " + ex);
+                Logger.Error($"Exception when called GetAutoTintVersion of {auto_tint_id} : {ex.ToString()}");
                 return JsonConvert.SerializeObject(new { statusCode = response.StatusCode, message = response.Content });
 
             }
@@ -151,14 +159,24 @@ namespace AutoTintLibrary
 
         public static async Task<PrismaProLatestVersion> GetDBLatestVersion(RestClient client, int pos_setting_id)
         {
-            var request = new RestRequest(baseURL + "/prisma_pro/" + pos_setting_id + "/latest_version", Method.GET);
-            var cancellationTokenSource = new CancellationTokenSource();
-            request.AddHeader("Accept", "application/json");
-            request.Parameters.Clear();
-            IRestResponse result = await client.ExecuteAsync(request, cancellationTokenSource.Token);
-            //Console.WriteLine(result.Content);
-            PrismaProLatestVersion checkVersion = JsonConvert.DeserializeObject<PrismaProLatestVersion>(result.Content);
-            return JsonConvert.DeserializeObject<PrismaProLatestVersion>(result.Content);
+            IRestResponse response = new RestResponse();
+            try
+            {
+                var request = new RestRequest(baseURL + "/prisma_pro/" + pos_setting_id + "/latest_version", Method.GET);
+                var cancellationTokenSource = new CancellationTokenSource();
+                request.AddHeader("Accept", "application/json");
+                request.Parameters.Clear();
+                response = await client.ExecuteAsync(request, cancellationTokenSource.Token);
+                //Console.WriteLine(result.Content);
+                PrismaProLatestVersion checkVersion = JsonConvert.DeserializeObject<PrismaProLatestVersion>(response.Content);
+                
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Call logger about exception " + ex);
+                Logger.Error($"Exception when called GetDBLatestVersion of {pos_setting_id} : {ex.ToString()}");
+            }
+            return JsonConvert.DeserializeObject<PrismaProLatestVersion>(response.Content);
         }
     }
 
