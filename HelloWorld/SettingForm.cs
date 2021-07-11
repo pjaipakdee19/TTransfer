@@ -94,20 +94,20 @@ namespace IOTClient
                 //LatestExportDateTime = latestManualFileInfo.LastWriteTime.ToString("dddd dd MMMM yyyy HH:mm:ff", new System.Globalization.CultureInfo("th-TH"));
                 //LastWriteTime
             }
-            if (latestFileInfo == null && latestManualFileInfo == null) LatestExportDateTime = "ไม่พบประวัติการส่งออกข้อมูล";
+            if (latestFileInfo == null && latestManualFileInfo == null) LatestExportDateTime = "Didn't find the transfer history";
             if (latestFileInfo != null && latestManualFileInfo != null)
             {
                 int result = DateTime.Compare(latestFileInfo.CreationTime, latestManualFileInfo.LastWriteTime);
                 DateTime tmp = (result <= 0) ? latestManualFileInfo.LastWriteTime : latestFileInfo.CreationTime;
-                LatestExportDateTime = tmp.ToString("dddd dd MMMM yyyy HH:mm:ff", new System.Globalization.CultureInfo("th-TH"));
+                LatestExportDateTime = tmp.ToString("dddd dd MMMM yyyy HH:mm:ff", new System.Globalization.CultureInfo("en-EN"));
             }
             if(LatestExportDateTime == "" && latestFileInfo != null)
             {
-                LatestExportDateTime = latestFileInfo.CreationTime.ToString("dddd dd MMMM yyyy HH:mm:ff", new System.Globalization.CultureInfo("th-TH"));
+                LatestExportDateTime = latestFileInfo.CreationTime.ToString("dddd dd MMMM yyyy HH:mm:ff", new System.Globalization.CultureInfo("en-EN"));
             }
             if (LatestExportDateTime == "" && latestManualFileInfo != null)
             {
-                LatestExportDateTime = latestManualFileInfo.LastWriteTime.ToString("dddd dd MMMM yyyy HH:mm:ff", new System.Globalization.CultureInfo("th-TH"));
+                LatestExportDateTime = latestManualFileInfo.LastWriteTime.ToString("dddd dd MMMM yyyy HH:mm:ff", new System.Globalization.CultureInfo("en-EN"));
             }
 
             HistoryExportDateTime.Text = $"{LatestExportDateTime}";
@@ -144,8 +144,8 @@ namespace IOTClient
                 DateTime startTimeFormate = DateTime.UtcNow;
                 TimeZoneInfo systemTimeZone = TimeZoneInfo.Local;
                 DateTime localDateTime = TimeZoneInfo.ConvertTimeFromUtc(startTimeFormate, systemTimeZone);
-                string ICTDateTimeText = localDateTime.ToString("dddd dd MMMM yyyy HH:mm:ff", new System.Globalization.CultureInfo("th-TH"));
-
+                //string ICTDateTimeText = localDateTime.ToString("dddd dd MMMM yyyy HH:mm:ff", new System.Globalization.CultureInfo("th-TH"));
+                string ICTDateTimeText = localDateTime.ToString("dddd dd MMMM yyyy HH:mm:ff", new System.Globalization.CultureInfo("en-EN"));
                 lblDatabaseCheckVal.Text = ICTDateTimeText;
                 PrismaProLatestVersion checkVersion = new PrismaProLatestVersion();
                 //Check the server for newer version.
@@ -172,7 +172,7 @@ namespace IOTClient
                 //if (true)
                 {
                     //    //Goto download
-                    MessageBoxResult msgDownloadbox = System.Windows.MessageBox.Show($"รุ่นของฐานข้อมูลไม่ใช่รุ่นล่าสุด \n รุ่นปัจจุบัน : {result.pos_setting_version?.id} \n รุ่นล่าสุด : {checkVersion.id} \n ระบบจะทำการ Download อัตโนมัติ", "แจ้งเตือน", MessageBoxButton.OK);
+                    MessageBoxResult msgDownloadbox = System.Windows.MessageBox.Show($"The Database is not the latest version \n Current : {result.pos_setting_version?.id} \n Lastest : {checkVersion.id} \n System will continue Download update automatically", "", MessageBoxButton.OK);
 
                    
                     string downloadURI = $"{checkVersion.file}";
@@ -192,7 +192,7 @@ namespace IOTClient
                     //Update version after complete
                 }
                 //Set version label
-                lblDatabaseVersionText.Text = (result.pos_setting_version == null) ? "ไม่พบข้อมูล" : $"{checkVersion.number}";
+                lblDatabaseVersionText.Text = (result.pos_setting_version == null) ? "No data" : $"{checkVersion.number}";
                 if (!shouldDownloadNewDB)
                 {
                     MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Database is up to date", "Message", MessageBoxButton.OK);
@@ -234,11 +234,11 @@ namespace IOTClient
                     ManageConfig.WriteGlobalConfig("base_url", base_url_tmp);
                 }
 
-                MessageBoxResult confirmResult = System.Windows.MessageBox.Show("บันทึกค่าเสร็จสิ้น", "สำเร็จ", MessageBoxButton.OK);
+                MessageBoxResult confirmResult = System.Windows.MessageBox.Show("Configuration saved", "Success", MessageBoxButton.OK);
             }
             else
             {
-                MessageBoxResult confirmResult = System.Windows.MessageBox.Show("กรุณาเติมแบบฟอร์มทุกช่องก่อนกดบันทึก", "ผิดพลาด", MessageBoxButton.OK);
+                MessageBoxResult confirmResult = System.Windows.MessageBox.Show("Please fill all the form before save", "Error", MessageBoxButton.OK);
             }
 
         }
@@ -246,7 +246,7 @@ namespace IOTClient
         private void btnDatabaseSelect_Click(object sender, EventArgs e)
         {
             var fsd = new FolderSelectDialog();
-            fsd.Title = "กรุณาเลือกที่ตั้งฐานข้อมูล";
+            fsd.Title = "Please select the POS database path";
             fsd.InitialDirectory = @"c:\";
             if (fsd.ShowDialog(IntPtr.Zero))
             {
@@ -258,7 +258,7 @@ namespace IOTClient
         private void btnSeletectHistoryCVS_Click(object sender, EventArgs e)
         {
             var fsd = new FolderSelectDialog();
-            fsd.Title = "กรุณาเลือกที่ตั้งประวัติ";
+            fsd.Title = "Please select the POS history path (CSV file path)";
             fsd.InitialDirectory = @"c:\";
             if (fsd.ShowDialog(IntPtr.Zero))
             {
