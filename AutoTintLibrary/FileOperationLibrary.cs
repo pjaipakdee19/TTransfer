@@ -304,8 +304,9 @@ namespace AutoTintLibrary
 
                 //Do a formatted date
                 String[] dispense_date = detail["dispensed_date"].ToString().Split(' ');
-                //Append the day to 2 length string
+                //Append the day and month to 2 length string
                 if (dispense_date[0].Split('/')[0].Length < 2) dispense_date[0] = $"0{dispense_date[0].Split('/')[0]}/{dispense_date[0].Split('/')[1]}/{dispense_date[0].Split('/')[2]}";
+                if (dispense_date[0].Split('/')[1].Length < 2) dispense_date[0] = $"{dispense_date[0].Split('/')[0]}/0{dispense_date[0].Split('/')[1]}/{dispense_date[0].Split('/')[2]}";
                 string formattedDate = "";
                 DateTime parsedDateTime;
                 if (DateTime.TryParseExact(dispense_date[0], "dd/mm/yyyy",
