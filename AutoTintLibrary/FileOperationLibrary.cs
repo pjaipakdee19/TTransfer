@@ -89,7 +89,7 @@ namespace AutoTintLibrary
                         }
                         else
                         {
-                            Logger.Info($"Lastest dispense date {econvertedDate} for {auto_tint_id}, it's earlier than {sconvertedDate} system will not convert and transfer data.");
+                            Logger.Info($"Lastest dispense date {econvertedDate} for {auto_tint_id}, it's later than {sconvertedDate} system will not convert and transfer data.");
                         }
                     }
                     
