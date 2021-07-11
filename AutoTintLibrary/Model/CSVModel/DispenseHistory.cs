@@ -14,7 +14,7 @@ namespace AutoTintLibrary
     public class DispenseHistory
     {
         [Name("DISPENSED_FORMULA_ID")]
-        public int dispensed_formula_id { get; set; }
+        public string dispensed_formula_id { get; set; }
         [Name("DISPENSED_DATE")]
         public string dispensed_date { get; set; }
         [Name("WANTED_AMOUNT")]

@@ -24,7 +24,8 @@ namespace AutoTintLibrary
         private static readonly CsvConfiguration csvConfig = new CsvConfiguration(CultureInfo.InvariantCulture)
         {
             MissingFieldFound = null,
-            HeaderValidated = null
+            HeaderValidated = null,
+            IgnoreBlankLines = true
 
         };
         public async Task StartOperation()
@@ -42,6 +43,10 @@ namespace AutoTintLibrary
                 var reader = new StreamReader(csvFile.FullName);
                 var csv = new CsvReader(reader, csvConfig);
                 var records = csv.GetRecords<DispenseHistory>().ToList();
+                //Clean the records that dispense_formular_id is empty or null
+                records.RemoveAll(x => string.IsNullOrWhiteSpace(x.dispensed_formula_id));
+
+
 
                 var dateList = new List<string>();
                 //does csv file exist?
