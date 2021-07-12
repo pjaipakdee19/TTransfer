@@ -34,10 +34,32 @@ namespace TAService
             InitializeComponent();
         }
 
-        protected override void OnStart(string[] args)
+        protected override async void OnStart(string[] args)
         {
-            
-            
+
+            var utcTime = DateTime.UtcNow;
+            var ictZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            var actualTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, ictZone);
+            bool isTodayDone = false;
+            //string programdata_path = ConfigurationManager.AppSettings.Get("programdata_log_path");
+            string programdata_path = ManageConfig.ReadConfig("programdata_log_path");
+            DirectoryInfo programdata_info = new DirectoryInfo(programdata_path);
+            foreach (var txtFile in programdata_info.GetFiles("*.txt"))
+            {
+                if (txtFile.Name.Contains(actualTime.ToString("yyyy-MM-dd")))
+                {
+                    isTodayDone = true;
+                    //Logger.Info("Today is done do nothing");
+                }
+
+            }
+            if (!isTodayDone)
+            {
+                Logger.Info("Start transfer operation when PC turn on !!!");
+                var instance = new FileOperationLibrary();
+                await instance.StartOperation();
+            }
+            Logger.Info("Start timer");
             System.Timers.Timer timScheduledTask = new System.Timers.Timer();
             timScheduledTask.Enabled = true;
             timScheduledTask.Interval = 60 * 1000;
