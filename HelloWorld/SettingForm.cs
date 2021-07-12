@@ -172,7 +172,7 @@ namespace IOTClient
                 //if (true)
                 {
                     //    //Goto download
-                    MessageBoxResult msgDownloadbox = System.Windows.MessageBox.Show($"The Database is not the latest version \n Current : {result.pos_setting_version?.id} \n Lastest : {checkVersion.id} \n System will continue Download update automatically", "", MessageBoxButton.OK);
+                    MessageBoxResult msgDownloadbox = System.Windows.MessageBox.Show($"The Database is not the latest version \n Current : {result.pos_setting_version?.number} \n Lastest : {checkVersion.number} \n System will continue Download update automatically", "", MessageBoxButton.OK);
 
                    
                     string downloadURI = $"{checkVersion.file}";
@@ -190,13 +190,15 @@ namespace IOTClient
                     ";
                     dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data);
                     //Update version after complete
+                    lblDatabaseVersionText.Text = $"{checkVersion.number}";
                 }
-                //Set version label
-                lblDatabaseVersionText.Text = (result.pos_setting_version == null) ? "No data" : $"{checkVersion.number}";
-                if (!shouldDownloadNewDB)
+                else
                 {
+                    //Set version label
+                    lblDatabaseVersionText.Text = (result.pos_setting_version == null) ? "No data" : $"{result.pos_setting_version?.number}";
                     MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Database is up to date", "Message", MessageBoxButton.OK);
                 }
+                
             }
             else
             {
@@ -324,7 +326,7 @@ namespace IOTClient
         private void Completed(object sender, AsyncCompletedEventArgs e)
         {
             progressBar1.Visible = false;
-            System.Windows.MessageBox.Show("Download completed!");
+            System.Windows.MessageBox.Show("Download completed! \nDatabase is up to date");
         }
 
         //private void Form1_Resize(object sender, System.EventArgs e)
