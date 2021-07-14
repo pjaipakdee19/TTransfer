@@ -53,17 +53,26 @@ namespace TAService
                 }
 
             }
-            if (!isTodayDone)
+            try
             {
-                Logger.Info("[AutoStart] Start transfer operation when PC turn on !!!");
-                var instance = new FileOperationLibrary();
-                await instance.StartOperation();
-                Logger.Info("[AutoStart] Transfer operation when PC turn on Finish !!!");
-            }
-            else
+                if (!isTodayDone)
+                {
+                    Logger.Info($"[AutoStart] Start transfer operation when PC turn on {actualTime} !!!");
+                    var instance = new FileOperationLibrary();
+                    await instance.StartOperation();
+                    
+                    Logger.Info($"[AutoStart] Transfer operation when PC turn on Finish on {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
+                    //logMaskAsDoneDate("[AutoStart]" + actualTime);
+                }
+                else
+                {
+                    Logger.Info("[AutoStart] Today is done transfer operation !!!");
+                }
+            }catch(Exception ex)
             {
-                Logger.Info("[AutoStart] Today is done transfer operation !!!");
+                Logger.Error(ex, "Exception on " + ex.ToString());
             }
+            
             Logger.Info("[Service] Start timer");
             System.Timers.Timer timScheduledTask = new System.Timers.Timer();
             timScheduledTask.Enabled = true;
