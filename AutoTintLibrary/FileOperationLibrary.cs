@@ -65,6 +65,14 @@ namespace AutoTintLibrary
                     //TODO: if lastest_dispense_date is 404 and lastest_dispense_data.dispensed_date > date we will not add the date to dateList
                     //DateTime econvertedDate = Convert.ToDateTime(latest_dispense_date);
                     //DateTime econvertedDate = Convert.ToDateTime();
+                    //Convert Year to C.E. if input is B.E. if compare with today and the year is more than today
+                    int year = int.Parse(date[0].Split('/')[2]);
+                    int now = DateTime.Today.Year;
+                    if (year > now)
+                    {
+                        date[0] = $"{date[0].Split('/')[1]}/{date[0].Split('/')[0]}/{year - 543}";
+                    }
+
                     bool shouldConvert = false;
                     if (latest_dispense_date_response.statusCode != 404)
                     {

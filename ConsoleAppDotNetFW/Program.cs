@@ -37,6 +37,16 @@ namespace ConsoleAppDotNetFW
 
         public static async Task Main(string[] args)
         {
+            string[] date = "21/10/2532 15:30:16".Split(' ');
+            int year = int.Parse(date[0].Split('/')[2]);
+            int now = DateTime.Today.Year;
+            if(year > now)
+            {
+                date[0] = $"{date[0].Split('/')[1]}/{date[0].Split('/')[0]}/{year-543}";
+            }
+
+
+
             //string file_path = @"E:\Tutorial\json_dispense_log\full_dispense_log_21_10_2015_p2_p2.json";
             string file_path = @"E:\Tutorial\json_dispense_log\full_dispense_log_21_10_2015_p2_test.json";
             string streamFile = File.ReadAllText(file_path);
