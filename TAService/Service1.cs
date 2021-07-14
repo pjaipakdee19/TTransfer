@@ -55,11 +55,16 @@ namespace TAService
             }
             if (!isTodayDone)
             {
-                Logger.Info("Start transfer operation when PC turn on !!!");
+                Logger.Info("[AutoStart] Start transfer operation when PC turn on !!!");
                 var instance = new FileOperationLibrary();
                 await instance.StartOperation();
+                Logger.Info("[AutoStart] Transfer operation when PC turn on Finish !!!");
             }
-            Logger.Info("Start timer");
+            else
+            {
+                Logger.Info("[AutoStart] Today is done transfer operation !!!");
+            }
+            Logger.Info("[Service] Start timer");
             System.Timers.Timer timScheduledTask = new System.Timers.Timer();
             timScheduledTask.Enabled = true;
             timScheduledTask.Interval = 60 * 1000;

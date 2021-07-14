@@ -77,6 +77,7 @@
 				</Directory>
 				</Directory>
 			</Directory>
+			<Directory Id="DesktopFolder" Name="Desktop" />
 		</Directory>
 
 		<!--<ComponentGroup Id="RegistryGroup">
@@ -107,7 +108,18 @@
 	      <File Id="IOTClient.exe.config" Name="IOTClient.exe.config" Source="$(var.HelloWorld_TargetDir)IOTClient.exe.config" />
 	    </Component>
 	    <Component Id="IOTClient.exe" Guid="8c846565-53a0-473b-b9fc-f9f24b7b7366">
-	      <File Id="IOTClient.exe" Name="IOTClient.exe" Source="$(var.HelloWorld_TargetDir)IOTClient.exe" />
+			<File Id="IOTClient.exe" Name="IOTClient.exe" Source="$(var.HelloWorld_TargetDir)IOTClient.exe">
+				<Shortcut Id="DesktopShortcut"
+                  Directory="DesktopFolder"
+                  Name="TOA IOT Setting 0.4"
+                  Description="Desktop application"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="IOTClient.exe"
+                  IconIndex="0"
+                  Advertise="yes" >
+					<Icon Id="IOTClient.exe" SourceFile="$(var.HelloWorld_TargetDir)IOTClient.exe" />
+				</Shortcut>
+			</File>
 	    </Component>
 	    <Component Id="NLog.dll" Guid="bc2b62ac-d40c-4c4e-942e-99aeae421e28">
 	      <File Id="NLog.dll" Name="NLog.dll" Source="$(var.HelloWorld_TargetDir)NLog.dll" />
@@ -156,6 +168,26 @@
 	    </Component>
 	  </ComponentGroup>
 	</Fragment>
+
+	<!--<Fragment>
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="DesktopFolder" SourceName="Desktop" />
+			<Directory Id="MergeRedirectFolder">
+				--><!--<Component Id="IOTClient.exe" Guid="8c846565-53a0-473b-b9fc-f9f24b7b7366">
+					<File Id="IOTClient.exe" Name="IOTClient.exe" Source="$(var.HelloWorld_TargetDir)IOTClient.exe" />
+				</Component>--><!--
+				<Component Id="MyExeComponent" Guid="1E2F3F8B-29D5-4715-8B4B-E897DDB09538">
+					<File Id="IOTClient" Source="$(var.HelloWorld_TargetDir)IOTClient.exe" KeyPath="yes">
+						<Shortcut
+						  Id="DesktopShortcut"
+						  Directory="DesktopFolder"
+						  Name="IOTClient Setting"
+						  WorkingDirectory="MergeRedirectFolder" />
+					</File>
+				</Component>
+			</Directory>
+		</Directory>
+	</Fragment>-->
 
 
   <Fragment>
