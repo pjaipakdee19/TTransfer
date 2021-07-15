@@ -176,12 +176,18 @@ namespace IOTClient
 
                    
                     string downloadURI = $"{checkVersion.file}";
-
+                    string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+                    string tmp_path = $"{path}\\tmp";
+                    if (!Directory.Exists(tmp_path))
+                    {
+                        Directory.CreateDirectory(tmp_path);
+                    }
                     String[] URIArray = downloadURI.Split('/');
                     WebClient webClient = new WebClient();
-                    webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(Completed);
+                    webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(downloadCompletedHandler);
                     webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                    webClient.DownloadFileAsync(new Uri(downloadURI), $"{database_path}\\{URIArray[URIArray.Length-1]}");
+                    webClient.QueryString.Add("fileName", $"{URIArray[URIArray.Length - 1]}");
+                    webClient.DownloadFileAsync(new Uri(downloadURI), $"{tmp_path}\\{URIArray[URIArray.Length - 1]}");//$"{database_path}\\{URIArray[URIArray.Length-1]}");
                     //Update to API about new version of database
                     string data = @"
                     {
@@ -334,8 +340,19 @@ namespace IOTClient
             progressBar1.Value = e.ProgressPercentage;
         }
 
-        private void Completed(object sender, AsyncCompletedEventArgs e)
+        private void downloadCompletedHandler(object sender, AsyncCompletedEventArgs e)
         {
+            //temp folder
+            string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            string tmp_path = $"{path}\\tmp";
+            //Move file to database path
+            string downLoadFileName = ((System.Net.WebClient)(sender)).QueryString["fileName"];
+            string database_path = ManageConfig.ReadGlobalConfig("database_path");
+            if (File.Exists($"{database_path}\\{downLoadFileName}"))
+            {
+                File.Delete($"{database_path}\\{downLoadFileName}");
+            }
+            File.Move($"{tmp_path}\\{downLoadFileName}", $"{database_path}\\{downLoadFileName}");
             progressBar1.Visible = false;
             System.Windows.MessageBox.Show("Download completed! \nDatabase is up to date");
         }
