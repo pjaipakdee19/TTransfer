@@ -28,14 +28,22 @@ namespace AutoTintLibrary
             IgnoreBlankLines = true
 
         };
-        public async Task StartOperation()
+        public async Task<string> StartOperation()
         {
+            
+
             //Init configuration variable
+            int statusCode = 200;
+            string responseMessage = "Succesful Tranfer";
             string csv_history_path = ManageConfig.ReadGlobalConfig("csv_history_path");
             string jsonDispenseLogPath = ManageConfig.ReadGlobalConfig("json_dispense_log_path");
             string csv_history_achive_path = ManageConfig.ReadGlobalConfig("csv_history_achive_path");
             string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
+            string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             CreateDirectoryIfNotExist($"{jsonDispenseLogPath}");
+            //Create isRunning file
+            CreateDirectoryIfNotExist($"{programdata_path}\\tmp");
+            File.Create($"{programdata_path}\\tmp\\running.tmp").Dispose();
             //find the csv in history files
             DirectoryInfo csvHistoryPathInfo = new DirectoryInfo(csv_history_path);
             foreach (var csvFile in csvHistoryPathInfo.GetFiles("*.csv"))
@@ -194,6 +202,8 @@ namespace AutoTintLibrary
                         string moveTo = $"{jsonDispenseLogPath}\\tmp\\{jsonFile.Name}.json";
                         File.Move(jsonFile.FullName, moveTo);
                         Logger.Info("Transfer to server error move json files to : " + moveTo);
+                        statusCode = 500;
+                        responseMessage = "Error dispense_history can't transfer";
                     }
                     int extensionIndex = jsonFile.Name.IndexOf(".json");
                     var export_bi_file = $"{jsonDispenseLogPath}\\{jsonFile.Name.Substring(0, extensionIndex)}_bi.json";
@@ -243,6 +253,8 @@ namespace AutoTintLibrary
                         
                         File.Move(export_bi_file, moveTo);
                         Logger.Info("Transfer to server error move json files to : " + moveTo);
+                        if (statusCode == 500) responseMessage += "\nError dispense_history_bi can't transfer";
+                        responseMessage = "Error dispense_history can't transfer";
                     }
 
                     if(retry < 4 && retry_bi < 4) //Fix this flow when normal file is not done we should not change name to _p2
@@ -275,6 +287,8 @@ namespace AutoTintLibrary
                 catch (Exception ex)
                 {
                     Logger.Error(ex, "Exception on create json _p2 : " + ex.ToString());
+                    if (statusCode == 500) responseMessage += "\nException on create json _p2";
+                    responseMessage = "Exception on create json _p2";
                 }
 
             }
@@ -286,6 +300,9 @@ namespace AutoTintLibrary
                 string moveTo = $"{jsonDispenseLogPath}\\{tmpjsonFile.Name}";
                 File.Move(tmpjsonFile.FullName, moveTo);
             }
+            //Delete is running file
+            File.Delete($"{programdata_path}\\tmp\\running.tmp");
+            return JsonConvert.SerializeObject(new { statusCode = statusCode, message = responseMessage });
         }
 
         private DispenseHistoryBI convertToBIData(string clean_date, string auto_tint_id, DispenseHistory dispenseHistory)

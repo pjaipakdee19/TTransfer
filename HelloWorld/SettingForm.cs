@@ -280,9 +280,20 @@ namespace IOTClient
             //});
 
             //progressThread.Start();
+            btnExport1.Text = "Checking ...";
+            //Check the status is running ?
+            string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            if (File.Exists($"{path}\\tmp\\running.tmp"))
+            {
+                MessageBoxResult AlertMessageBox2 = System.Windows.MessageBox.Show($"Another Tranfer process is running please wait for a while and try again", "Message", MessageBoxButton.OK);
+                btnExport1.Text = "Upload POS history";
+                return;
+            }
             btnExport1.Text = "Transfering ...";
             btnExport1.Enabled = false;
-            await instance.StartOperation();
+            var result = await instance.StartOperation();
+            APIHelperResponse res = JsonConvert.DeserializeObject<APIHelperResponse>(result);
+
             var utcTime = DateTime.UtcNow;
             var ictZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
             var actualTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, ictZone);
@@ -290,7 +301,7 @@ namespace IOTClient
 
             //progressThread.Abort();
             CheckLastestUploadDateTime();
-            MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Manual Upload Finish", "Message", MessageBoxButton.OK);
+            MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Manual Upload Finish\n{res.message}", "Message", MessageBoxButton.OK);
             btnExport1.Text = "Upload POS history";
             btnExport1.Enabled = true;
         }

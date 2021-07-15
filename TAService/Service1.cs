@@ -59,8 +59,10 @@ namespace TAService
                 {
                     Logger.Info($"[AutoStart] Start transfer operation when PC turn on {actualTime} !!!");
                     var instance = new FileOperationLibrary();
-                    await instance.StartOperation();
-                    
+                    var result = await instance.StartOperation();
+                    APIHelperResponse res = JsonConvert.DeserializeObject<APIHelperResponse>(result);
+                    if(res.statusCode == 200) Logger.Info($"[AutoStart] Start transfer status {res.statusCode} message {res.message}");
+                    if(res.statusCode == 500) Logger.Error($"[AutoStart] Start transfer status {res.statusCode} message {res.message}");
                     Logger.Info($"[AutoStart] Transfer operation when PC turn on Finish on {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
                     //logMaskAsDoneDate("[AutoStart]" + actualTime);
                 }
