@@ -18,6 +18,7 @@ using System.IO;
 using System.Threading;
 using System.Net;
 using System.Reflection;
+using IOTClient.Properties;
 
 namespace IOTClient
 {
@@ -29,7 +30,8 @@ namespace IOTClient
         private string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
         private string csv_history_path = ManageConfig.ReadGlobalConfig("csv_history_path");
         private string database_path = ManageConfig.ReadGlobalConfig("database_path");
-
+        bool minimizedToTray;
+        NotifyIcon notifyIcon;
         dynamic Jsonettings = new JsonSerializerSettings
         {
             NullValueHandling = NullValueHandling.Ignore,
@@ -43,7 +45,52 @@ namespace IOTClient
             Version version = Assembly.GetExecutingAssembly().GetName().Version;
             Text = Text + " " + version.Major + "." + version.Minor + " (build " + version.Build + ")"; //change form title
             //this.Load = SettingForm_Load;
+            //MinimizeToTray();
 
+        }
+        protected override void WndProc(ref Message message)
+        {
+            if (message.Msg == SingleInstance.WM_SHOWFIRSTINSTANCE)
+            {
+                ShowWindow();
+            }
+            base.WndProc(ref message);
+        }
+        private void btnMinToTray_Click(object sender, EventArgs e)
+        {
+            // Tie this function to a button on your main form that will minimize your
+            // application to the notification icon area (aka system tray).
+            MinimizeToTray();
+        }
+        void MinimizeToTray()
+        {
+            notifyIcon = new NotifyIcon();
+            //notifyIcon.Click += new EventHandler(NotifyIconClick);
+            notifyIcon.DoubleClick += new EventHandler(NotifyIconClick);
+            notifyIcon.Icon = Resources.SystemTrayApp;
+            notifyIcon.Text = ProgramInfo.AssemblyTitle;
+            notifyIcon.Visible = true;
+            this.WindowState = FormWindowState.Minimized;
+            this.Hide();
+            minimizedToTray = true;
+        }
+        public void ShowWindow()
+        {
+            if (minimizedToTray)
+            {
+                notifyIcon.Visible = false;
+                this.Show();
+                this.WindowState = FormWindowState.Normal;
+                minimizedToTray = false;
+            }
+            else
+            {
+                WinApi.ShowToFront(this.Handle);
+            }
+        }
+        void NotifyIconClick(Object sender, System.EventArgs e)
+        {
+            ShowWindow();
         }
 
         private async void SettingForm_Load(object sender, EventArgs e)
@@ -355,6 +402,12 @@ namespace IOTClient
             File.Move($"{tmp_path}\\{downLoadFileName}", $"{database_path}\\{downLoadFileName}");
             progressBar1.Visible = false;
             System.Windows.MessageBox.Show("Download completed! \nDatabase is up to date");
+        }
+
+        private void btnMinToTray_Click(object sender, FormClosingEventArgs e)
+        {
+            e.Cancel = true;
+            MinimizeToTray();
         }
 
         //private void Form1_Resize(object sender, System.EventArgs e)

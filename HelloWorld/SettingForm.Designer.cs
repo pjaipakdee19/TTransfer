@@ -281,6 +281,7 @@ namespace IOTClient
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "TOA IOT Setting";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.btnMinToTray_Click);
             this.Load += new System.EventHandler(this.SettingForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
