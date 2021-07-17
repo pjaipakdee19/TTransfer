@@ -181,6 +181,7 @@ namespace IOTClient
 
         private async Task UpdateAutotintVersion()
         {
+            string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
             string str_response = await APIHelper.GetAutoTintVersion(client, auto_tint_id);
 
             APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(str_response);
@@ -208,7 +209,7 @@ namespace IOTClient
                 //}
                 //else
                 //{
-                checkVersion = await APIHelper.GetDBLatestVersion(client, result.pos_setting.id);
+                checkVersion = await APIHelper.GetDBLatestVersion(client, result.pos_setting.id,auto_tint_id);
                 //}
 
 
@@ -241,7 +242,7 @@ namespace IOTClient
                     ""pos_setting_version_id"": " + checkVersion.id + @"
                     }
                     ";
-                    dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data);
+                    dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
                     //Update version after complete
                     lblDatabaseVersionText.Text = $"{checkVersion.number}";
                 }

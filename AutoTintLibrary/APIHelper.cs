@@ -27,7 +27,7 @@ namespace AutoTintLibrary
             return client;
         }
 
-        public static async Task<string> RequestGet(RestClient client, string url)
+        public static async Task<string> RequestGet(RestClient client, string url,string auto_tint_id)
         {
             IRestResponse response = new RestResponse();
             try
@@ -35,6 +35,7 @@ namespace AutoTintLibrary
                 var request = new RestRequest($"{baseURL}{url}", Method.GET);
                 var cancellationTokenSource = new CancellationTokenSource();
                 request.AddHeader("Accept", "application/json");
+                request.AddHeader("Client-Id", auto_tint_id);
                 //request.Parameters.Clear();
                 response = await client.ExecuteAsync(request, cancellationTokenSource.Token);
                 Console.WriteLine(response.Content);
@@ -57,7 +58,7 @@ namespace AutoTintLibrary
             return JsonConvert.SerializeObject(new { statusCode = response.StatusCode, message = response.Content });
         }
 
-        public static async Task<string> RequestPut(RestClient client, string url,string Jsondata)
+        public static async Task<string> RequestPut(RestClient client, string url,string Jsondata,string auto_tint_id)
         {
             IRestResponse response = new RestResponse();
             try
@@ -66,6 +67,7 @@ namespace AutoTintLibrary
                 var cancellationTokenSource = new CancellationTokenSource();
                 request.AddHeader("Accept", "application/json");
                 request.AddHeader("Content-Type", "application/json");
+                request.AddHeader("Client-Id", auto_tint_id);
                 Order order = JsonConvert.DeserializeObject<Order>(Jsondata);
 
                 request.AddJsonBody(new { pos_setting_version_id = order.pos_setting_version_id });
@@ -93,6 +95,7 @@ namespace AutoTintLibrary
                 var request = new RestRequest($"{baseURL}{url}", Method.GET).AddParameter("auto_tint_id", auto_tint_id);
                 var cancellationTokenSource = new CancellationTokenSource();
                 request.AddHeader("Accept", "application/json");
+                request.AddHeader("Client-Id", auto_tint_id);
                 response = await client.ExecuteAsync(request, cancellationTokenSource.Token);
                 Console.WriteLine(response.Content);
                 //return result.Content;
@@ -109,7 +112,7 @@ namespace AutoTintLibrary
         }
 
 
-        public static async Task<string> UploadFile(RestClient client,string method, string file_path)
+        public static async Task<string> UploadFile(RestClient client,string method, string file_path,string auto_tint_id)
         {
             IRestResponse response = new RestResponse();
             try
@@ -118,6 +121,7 @@ namespace AutoTintLibrary
                 var cancellationTokenSource = new CancellationTokenSource();
                 request.AddHeader("Accept", "application/json");
                 request.AddHeader("Content-Type", "application/json");
+                request.AddHeader("Client-Id", auto_tint_id);
                 string streamFile = File.ReadAllText(file_path);
                 request.AddParameter("data", streamFile, ParameterType.RequestBody);
                 response = await client.ExecuteAsync(request, cancellationTokenSource.Token);
@@ -141,6 +145,7 @@ namespace AutoTintLibrary
                 var request = new RestRequest(baseURL + "/auto_tint/" + auto_tint_id, Method.GET);
                 var cancellationTokenSource = new CancellationTokenSource();
                 request.AddHeader("Accept", "application/json");
+                request.AddHeader("Client-Id", auto_tint_id);
                 //request.Parameters.Clear();
                 response = await client.ExecuteAsync(request, cancellationTokenSource.Token);
                 //Console.WriteLine(result.Content);
@@ -157,7 +162,7 @@ namespace AutoTintLibrary
             return JsonConvert.SerializeObject(new { statusCode = response.StatusCode, message = response.Content });
         }
 
-        public static async Task<PrismaProLatestVersion> GetDBLatestVersion(RestClient client, int pos_setting_id)
+        public static async Task<PrismaProLatestVersion> GetDBLatestVersion(RestClient client, int pos_setting_id,string auto_tint_id)
         {
             IRestResponse response = new RestResponse();
             try
@@ -165,7 +170,8 @@ namespace AutoTintLibrary
                 var request = new RestRequest(baseURL + "/prisma_pro/" + pos_setting_id + "/latest_version", Method.GET);
                 var cancellationTokenSource = new CancellationTokenSource();
                 request.AddHeader("Accept", "application/json");
-                request.Parameters.Clear();
+                request.AddHeader("Client-Id", auto_tint_id);
+                //request.Parameters.Clear();
                 response = await client.ExecuteAsync(request, cancellationTokenSource.Token);
                 //Console.WriteLine(result.Content);
                 PrismaProLatestVersion checkVersion = JsonConvert.DeserializeObject<PrismaProLatestVersion>(response.Content);

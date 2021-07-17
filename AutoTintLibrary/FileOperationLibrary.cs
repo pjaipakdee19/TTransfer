@@ -60,7 +60,7 @@ namespace AutoTintLibrary
                 //does csv file exist?
                 //Extract the csv to json following DISPENSED_DATE
                 //(New requirement) 27/06/2021 : extract if the dispensed date from Response of API /dispense_history/last_updated/ is earlier than the date in file.
-                string latest_dispense_date = await APIHelper.RequestGet(client, $"/dispense_history/last_updated/?auto_tint_id={auto_tint_id}");
+                string latest_dispense_date = await APIHelper.RequestGet(client, $"/dispense_history/last_updated/?auto_tint_id={auto_tint_id}", auto_tint_id);
                 
                 //string latest_dispense_date = await APIHelper.RequestGet(client, $"/dispense_history/last_updated/?auto_tint_id=11016469AT01");
                 APIHelperResponse latest_dispense_date_response = JsonConvert.DeserializeObject<APIHelperResponse>(latest_dispense_date);
@@ -179,7 +179,7 @@ namespace AutoTintLibrary
                     while (retry <= 3 && isDispenseDone == false)
                     {
                         //send to dispense history api
-                        var result = await APIHelper.UploadFile(client, "dispense_history", jsonFile.FullName);
+                        var result = await APIHelper.UploadFile(client, "dispense_history", jsonFile.FullName,auto_tint_id);
                         //string[] mvFile = Directory.GetFiles(jsonFile.FullName);
                         APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(result);
                         if(response.statusCode != 201)
@@ -223,7 +223,7 @@ namespace AutoTintLibrary
 
                         
                         //send to dispense history bi api
-                        var result = await APIHelper.UploadFile(client, "dispense_history_bi", export_bi_file);
+                        var result = await APIHelper.UploadFile(client, "dispense_history_bi", export_bi_file, auto_tint_id);
                         APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(result);
                         if (response.statusCode != 201)
                         {
@@ -534,7 +534,7 @@ namespace AutoTintLibrary
                 //}
                 //else
                 //{
-                checkVersion = await APIHelper.GetDBLatestVersion(client, result.pos_setting.id);
+                checkVersion = await APIHelper.GetDBLatestVersion(client, result.pos_setting.id,auto_tint_id);
                 //}
 
 
@@ -559,7 +559,7 @@ namespace AutoTintLibrary
                     ""pos_setting_version_id"": " + checkVersion.id + @"
                     }
                     ";
-                    dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data);
+                    dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
                 }
             }
             else
