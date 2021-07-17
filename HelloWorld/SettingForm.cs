@@ -345,17 +345,27 @@ namespace IOTClient
             }
             btnExport1.Text = "Transfering ...";
             btnExport1.Enabled = false;
-            var result = await instance.StartOperation();
-            APIHelperResponse res = JsonConvert.DeserializeObject<APIHelperResponse>(result);
+            try
+            {
+                var result = await instance.StartOperation();
+                APIHelperResponse res = JsonConvert.DeserializeObject<APIHelperResponse>(result);
 
-            var utcTime = DateTime.UtcNow;
-            var ictZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            var actualTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, ictZone);
-            logMaskAsDoneDate("" + actualTime);
+                var utcTime = DateTime.UtcNow;
+                var ictZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                var actualTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, ictZone);
+                logMaskAsDoneDate("" + actualTime);
 
-            //progressThread.Abort();
-            CheckLastestUploadDateTime();
-            MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Manual Upload Finish\n{res.message}", "Message", MessageBoxButton.OK);
+                //progressThread.Abort();
+                CheckLastestUploadDateTime();
+                MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Manual Upload Finish\n{res.message}", "Message", MessageBoxButton.OK);
+            }catch(Exception ex)
+            {
+                Logger.Error(ex, "Exception on " + ex.ToString());
+                MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Internal Error please check client log file", "Exception", MessageBoxButton.OK);
+                File.Delete($"{path}\\tmp\\running.tmp");
+            }
+            
+            
             btnExport1.Text = "Upload POS history";
             btnExport1.Enabled = true;
         }

@@ -73,6 +73,7 @@ namespace TAService
             }catch(Exception ex)
             {
                 Logger.Error(ex, "Exception on " + ex.ToString());
+                File.Delete($"{programdata_path}\\tmp\\running.tmp");
             }
             
             Logger.Info("[Service] Start timer");
