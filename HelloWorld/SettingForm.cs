@@ -202,6 +202,15 @@ namespace IOTClient
         {
             button1.Enabled = false;
             button1.Text = "Checking ...";
+            //Check the status is running ?
+            string program_data_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            if (File.Exists($"{program_data_path}\\tmp\\dbupdate_running.tmp"))
+            {
+                MessageBoxResult AlertMessageBox2 = System.Windows.MessageBox.Show($"Another Database update process is running please wait for a while and try again", "Message", MessageBoxButton.OK);
+                button1.Enabled = true;
+                button1.Text = "Check for updates";
+                return;
+            }
             string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
             string str_response = await APIHelper.GetAutoTintVersion(client, auto_tint_id);
 

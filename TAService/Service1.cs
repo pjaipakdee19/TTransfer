@@ -77,6 +77,7 @@ namespace TAService
             {
                 Logger.Error(ex, "Exception on " + ex.ToString());
                 File.Delete($"{programdata_path}\\tmp\\running.tmp");
+                File.Delete($"{programdata_path}\\tmp\\dbupdate_running.tmp");
             }
             
             Logger.Info("[Service] Start timer");

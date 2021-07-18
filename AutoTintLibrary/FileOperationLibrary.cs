@@ -573,6 +573,9 @@ namespace AutoTintLibrary
         };
         public async Task UpdateAutotintVersion()
         {
+            string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            CreateDirectoryIfNotExist($"{programdata_path}\\tmp");
+            File.Create($"{programdata_path}\\tmp\\dbupdate_running.tmp").Dispose();
             string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
             string database_path = ManageConfig.ReadGlobalConfig("database_path");
             string str_response = await APIHelper.GetAutoTintVersion(client, auto_tint_id);
@@ -630,19 +633,26 @@ namespace AutoTintLibrary
                     ";
                     dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
                 }
+                else
+                {
+                    //Delete is running file
+                    File.Delete($"{programdata_path}\\tmp\\dbupdate_running.tmp");
+                }
             }
             else
             {
                 //MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Status Code : {response.statusCode} \nMessage : {response.message}", "Error", MessageBoxButton.OK);
                 Logger.Error($"Exception on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
             }
-
+            
         }
 
         private void DownloadCompleted(object sender, AsyncCompletedEventArgs e)
         {
             //Logger.Error($"Exception on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
             Logger.Info($"Download new update succesful");
+            string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            File.Delete($"{programdata_path}\\tmp\\dbupdate_running.tmp");
         }
     }
 }
