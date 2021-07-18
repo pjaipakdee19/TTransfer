@@ -45,7 +45,7 @@ namespace AutoTintLibrary
                 {
                     Logger.Error($"Internet status isConnected:{isConnected} Connection Flag : {status_code}");
                     Logger.Info($"Retrying in {interval} seconds ...");
-                    System.Threading.Thread.Sleep(interval*100);
+                    System.Threading.Thread.Sleep(interval*1000);
                 }
                 else
                 {
@@ -80,6 +80,7 @@ namespace AutoTintLibrary
             {
                 Console.WriteLine("Call logger about exception " + ex);
                 Logger.Error($"Exception when called RequestGet {url} : {ex}");
+                throw new Exception($"Exception when called RequestGet : {ex.Message}");
             }
 
             try { 
@@ -88,7 +89,7 @@ namespace AutoTintLibrary
             {
                 Console.WriteLine("Call logger about exception " + ex);
                 Logger.Error($"Exception when called JsonConvert {url} : {ex.ToString()}");
-                throw new Exception($"Exception when called RequestGet : {ex.ToString()}");
+                throw new Exception($"Exception when called RequestGet : {ex.Message}");
             }
 
             return JsonConvert.SerializeObject(new { statusCode = response.StatusCode, message = response.Content });
@@ -119,7 +120,7 @@ namespace AutoTintLibrary
                 Console.WriteLine("Call logger about exception " + ex);
                 Logger.Error($"Exception when called RequestPut {url} : {ex.ToString()}");
                 Logger.Error($"Exception when called RequestPut Data {Jsondata}");
-                throw new Exception($"Exception when called RequestPut : {ex.ToString()}");
+                throw new Exception($"Exception when called RequestPut : {ex.Message}");
 
             }
             return JsonConvert.SerializeObject(new { statusCode = response.StatusCode, message = response.Content });
@@ -145,7 +146,7 @@ namespace AutoTintLibrary
             {
                 Console.WriteLine("Call logger about exception " + ex);
                 Logger.Error($"Exception when called GetLatestDispenseRecord {url} : {ex.ToString()}");
-                throw new Exception($"Exception when called GetLatestDispenseRecord : {ex.ToString()}");
+                throw new Exception($"Exception when called GetLatestDispenseRecord : {ex.Message}");
             }
 
             return JsonConvert.SerializeObject(new { statusCode = response.StatusCode, message = response.Content });
@@ -173,7 +174,7 @@ namespace AutoTintLibrary
                 Console.WriteLine("Call logger about exception " + ex);
                 Logger.Error($"Exception when called UploadFile {method} : {ex.ToString()}");
                 Logger.Error($"Exception when called UploadFile {file_path}");
-                throw new Exception($"Exception when called UploadFile : {ex.ToString()}");
+                throw new Exception($"Exception when called UploadFile : {ex.Message}");
             }
 
             return JsonConvert.SerializeObject(new { statusCode = response.StatusCode, message = response.Content });
@@ -199,7 +200,7 @@ namespace AutoTintLibrary
             {
                 Console.WriteLine("Call logger about exception " + ex);
                 Logger.Error($"Exception when called GetAutoTintVersion of {auto_tint_id} : {ex.ToString()}");
-                throw new Exception($"Exception when called GetAutoTintVersion of {auto_tint_id} : {ex.ToString()}");
+                throw new Exception($"Exception when called GetAutoTintVersion of {auto_tint_id} : {ex.Message}");
                 //return JsonConvert.SerializeObject(new { statusCode = response.StatusCode, message = response.Content });
 
             }
@@ -227,7 +228,7 @@ namespace AutoTintLibrary
             {
                 Console.WriteLine("Call logger about exception " + ex);
                 Logger.Error($"Exception when called GetDBLatestVersion of {pos_setting_id} : {ex.ToString()}");
-                throw new Exception($"Exception when called GetDBLatestVersion of {auto_tint_id} : {ex.ToString()}");
+                throw new Exception($"Exception when called GetDBLatestVersion of {auto_tint_id} : {ex.Message}");
             }
             return JsonConvert.DeserializeObject<PrismaProLatestVersion>(response.Content);
         }

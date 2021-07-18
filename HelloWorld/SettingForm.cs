@@ -121,7 +121,7 @@ namespace IOTClient
                 await UpdateAutotintVersion();
             }catch(Exception ex)
             {
-                MessageBoxResult exInitMsgbox = System.Windows.MessageBox.Show($"{ex.ToString()}", "", MessageBoxButton.OK);
+                MessageBoxResult exInitMsgbox = System.Windows.MessageBox.Show($"{ex.Message}", "", MessageBoxButton.OK);
             }
             
 
@@ -189,7 +189,7 @@ namespace IOTClient
             }
             catch (Exception ex)
             {
-                MessageBoxResult exInitMsgbox = System.Windows.MessageBox.Show($"{ex.ToString()}", "", MessageBoxButton.OK);
+                MessageBoxResult exInitMsgbox = System.Windows.MessageBox.Show($"{ex.Message}", "", MessageBoxButton.OK);
             }
             //Below is for testing the service.
             //var instance = new FileOperationLibrary();
@@ -249,6 +249,7 @@ namespace IOTClient
                         Directory.CreateDirectory(tmp_path);
                     }
                     String[] URIArray = downloadURI.Split('/');
+                    if (!APIHelper.APIConnectionCheck(3, 30)) throw new Exception("Internet Connection Error");
                     WebClient webClient = new WebClient();
                     webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(downloadCompletedHandler);
                     webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
@@ -379,7 +380,7 @@ namespace IOTClient
             }catch(Exception ex)
             {
                 Logger.Error(ex, "Exception on " + ex.ToString());
-                MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Internal Error please check client log file", "Exception", MessageBoxButton.OK);
+                MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Internal Error {ex.Message}", "Exception", MessageBoxButton.OK);
                 File.Delete($"{path}\\tmp\\running.tmp");
             }
             
