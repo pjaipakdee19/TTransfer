@@ -43,7 +43,8 @@ namespace IOTClient
 
             InitializeComponent();
             Version version = Assembly.GetExecutingAssembly().GetName().Version;
-            Text = Text + " " + version.Major + "." + version.Minor + " (build " + version.Build + ")"; //change form title
+            //Text = Text + " " + version.Major + "." + version.Minor + " (build " + version.Build + ")"; //change form title
+            Text = $"{Text} Beta 2";
             //this.Load = SettingForm_Load;
             //MinimizeToTray();
 
