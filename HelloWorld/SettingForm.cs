@@ -118,7 +118,7 @@ namespace IOTClient
             {
                 LoadGlobalConfig();
                 CheckLastestUploadDateTime();
-                await UpdateAutotintVersion();
+                UpdateAutotintVersion();
             }catch(Exception ex)
             {
                 MessageBoxResult exInitMsgbox = System.Windows.MessageBox.Show($"{ex.Message}", "", MessageBoxButton.OK);
@@ -199,6 +199,8 @@ namespace IOTClient
 
         private async Task UpdateAutotintVersion()
         {
+            button1.Enabled = false;
+            button1.Text = "Checking ...";
             string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
             string str_response = await APIHelper.GetAutoTintVersion(client, auto_tint_id);
 
@@ -278,7 +280,8 @@ namespace IOTClient
                 MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Status Code : {response.statusCode} \nMessage : {response.message}", "Error", MessageBoxButton.OK);
                 Logger.Error($"Exception on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
             }
-            
+            button1.Enabled = true;
+            button1.Text = "Check for updates";
         }
 
         private void SaveInputData_Click(object sender, EventArgs e)
