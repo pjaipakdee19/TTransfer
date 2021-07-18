@@ -14,6 +14,7 @@ using Newtonsoft.Json.Linq;
 using UnitsNet;
 using System.Net;
 using System.ComponentModel;
+using System.Runtime.InteropServices;
 
 namespace AutoTintLibrary
 {
@@ -28,12 +29,35 @@ namespace AutoTintLibrary
             IgnoreBlankLines = true,
             PrepareHeaderForMatch = args => args.Header.Replace(" ", "")
 
-    };
+        };
+        [DllImport("wininet.dll")]
+        private extern static bool InternetGetConnectedState(out int Description, int ReservedValue);
 
-        
         public async Task<string> StartOperation()
         {
-            
+
+            //Modem = 0x1,
+            //LAN = 0x2,
+            //Proxy = 0x4,
+            //RasInstalled = 0x10,
+            //Offline = 0x20,
+            //Configured = 0x40,
+            //int status_code;
+            //int connection_retry = 1;
+            //bool isConnected = false;
+            //while (connection_retry < 5 && !isConnected)
+            //{
+            //    isConnected = InternetGetConnectedState(out status_code, 0);
+            //    Logger.Info($"Internet status isConnected: {isConnected} Connection Flag : {status_code}");
+            //    connection_retry++;
+            //    if (!isConnected)
+            //    {
+            //        Logger.Error($"Internet status isConnected:{isConnected} Connection Flag : {status_code}");
+            //        Logger.Info("Retrying in 5 seconds ...");
+            //        System.Threading.Thread.Sleep(5000);
+            //    }
+            //}
+            //if(connection_retry >= 5) return JsonConvert.SerializeObject(new { statusCode = 500, message = "No internet connection" });
 
             //Init configuration variable
             int statusCode = 200;

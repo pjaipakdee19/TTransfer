@@ -17,6 +17,9 @@ using RestSharp.Authenticators;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using UnitsNet;
+using System;
+using System.Runtime;
+using System.Runtime.InteropServices;
 
 using AutoTintLibrary;
 using System.Reflection;
@@ -32,11 +35,33 @@ namespace ConsoleAppDotNetFW
             MissingFieldFound = null,
         };
 
-
-
+        //Creating the extern function...  
+        [DllImport("wininet.dll")]
+        private extern static bool InternetGetConnectedState(out int Description, int ReservedValue);
+        [Flags]
+        enum ConnectionStates
+        {
+            Modem = 0x1,
+            LAN = 0x2,
+            Proxy = 0x4,
+            RasInstalled = 0x10,
+            Offline = 0x20,
+            Configured = 0x40,
+        }
 
         public static async Task Main(string[] args)
         {
+            int status_code;
+            int connection_retry = 1;
+            bool isConnected = false;
+            while (connection_retry < 5 && !isConnected)
+            {
+                isConnected = InternetGetConnectedState(out status_code, 0);
+                Console.WriteLine(string.Format("Is connected :{0} Flags:{1}", isConnected, status_code));
+                connection_retry++;
+                if (!isConnected) System.Threading.Thread.Sleep(5000);
+            }
+
             string[] date = "21/10/2532 15:30:16".Split(' ');
             int year = int.Parse(date[0].Split('/')[2]);
             int now = DateTime.Today.Year;

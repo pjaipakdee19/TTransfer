@@ -166,9 +166,9 @@ namespace IOTClient
             this.lblDatabaseVersionText.AutoSize = true;
             this.lblDatabaseVersionText.Location = new System.Drawing.Point(182, 324);
             this.lblDatabaseVersionText.Name = "lblDatabaseVersionText";
-            this.lblDatabaseVersionText.Size = new System.Drawing.Size(31, 13);
+            this.lblDatabaseVersionText.Size = new System.Drawing.Size(75, 13);
             this.lblDatabaseVersionText.TabIndex = 13;
-            this.lblDatabaseVersionText.Text = "0.0.1";
+            this.lblDatabaseVersionText.Text = "No information";
             // 
             // lblDatabaseTime
             // 

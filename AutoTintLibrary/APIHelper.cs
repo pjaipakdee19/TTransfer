@@ -10,6 +10,7 @@ using System.Net;
 using System.ComponentModel;
 using System.Text;
 using NLog;
+using System.Runtime.InteropServices;
 
 namespace AutoTintLibrary
 {
@@ -26,7 +27,37 @@ namespace AutoTintLibrary
             //client.AddDefaultHeader("Content-Type", "text/html;charset=gb2312");
             return client;
         }
+        //Creating the extern function...  
+        [DllImport("wininet.dll")]
+        private extern static bool InternetGetConnectedState(out int Description, int ReservedValue);
 
+        public static bool APIConnectionCheck(int retry_round,int interval)
+        {
+            int status_code;
+            int connection_retry = 1;
+            bool isConnected = false;
+            while (connection_retry <= retry_round && !isConnected)
+            {
+                isConnected = InternetGetConnectedState(out status_code, 0);
+                Logger.Info($"Internet status isConnected: {isConnected} Connection Flag : {status_code}");
+                connection_retry++;
+                if (!isConnected)
+                {
+                    Logger.Error($"Internet status isConnected:{isConnected} Connection Flag : {status_code}");
+                    Logger.Info($"Retrying in {interval} seconds ...");
+                    System.Threading.Thread.Sleep(interval*100);
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            if (connection_retry > retry_round)
+            {
+                return false;
+            }
+            return true;
+        }
         public static async Task<string> RequestGet(RestClient client, string url,string auto_tint_id)
         {
             IRestResponse response = new RestResponse();
@@ -37,8 +68,11 @@ namespace AutoTintLibrary
                 request.AddHeader("Accept", "application/json");
                 request.AddHeader("Client-Id", auto_tint_id);
                 //request.Parameters.Clear();
+
+                if (!APIConnectionCheck(3, 30)) throw new Exception("Connection error");
                 response = await client.ExecuteAsync(request, cancellationTokenSource.Token);
                 Console.WriteLine(response.Content);
+                
                 //return result.Content;
                 Logger.Info($"Param {url},{auto_tint_id}:Response Status {response.StatusCode} | Content {response.Content}");
             }
@@ -54,6 +88,7 @@ namespace AutoTintLibrary
             {
                 Console.WriteLine("Call logger about exception " + ex);
                 Logger.Error($"Exception when called JsonConvert {url} : {ex.ToString()}");
+                throw new Exception($"Exception when called RequestGet : {ex.ToString()}");
             }
 
             return JsonConvert.SerializeObject(new { statusCode = response.StatusCode, message = response.Content });
@@ -72,7 +107,7 @@ namespace AutoTintLibrary
                 Order order = JsonConvert.DeserializeObject<Order>(Jsondata);
 
                 request.AddJsonBody(new { pos_setting_version_id = order.pos_setting_version_id });
-
+                if (!APIConnectionCheck(3, 30)) throw new Exception("Connection error");
                 response = await client.ExecuteAsync(request, cancellationTokenSource.Token);
                 Console.WriteLine(response.Content);
                 Logger.Info($"Param {url}, {Jsondata}, {auto_tint_id}:Response Status {response.StatusCode} | Content {response.Content}");
@@ -84,6 +119,7 @@ namespace AutoTintLibrary
                 Console.WriteLine("Call logger about exception " + ex);
                 Logger.Error($"Exception when called RequestPut {url} : {ex.ToString()}");
                 Logger.Error($"Exception when called RequestPut Data {Jsondata}");
+                throw new Exception($"Exception when called RequestPut : {ex.ToString()}");
 
             }
             return JsonConvert.SerializeObject(new { statusCode = response.StatusCode, message = response.Content });
@@ -98,6 +134,7 @@ namespace AutoTintLibrary
                 var cancellationTokenSource = new CancellationTokenSource();
                 request.AddHeader("Accept", "application/json");
                 request.AddHeader("Client-Id", auto_tint_id);
+                if (!APIConnectionCheck(3, 30)) throw new Exception("Connection error");
                 response = await client.ExecuteAsync(request, cancellationTokenSource.Token);
                 Console.WriteLine(response.Content);
                 //return result.Content;
@@ -108,7 +145,7 @@ namespace AutoTintLibrary
             {
                 Console.WriteLine("Call logger about exception " + ex);
                 Logger.Error($"Exception when called GetLatestDispenseRecord {url} : {ex.ToString()}");
-
+                throw new Exception($"Exception when called GetLatestDispenseRecord : {ex.ToString()}");
             }
 
             return JsonConvert.SerializeObject(new { statusCode = response.StatusCode, message = response.Content });
@@ -127,6 +164,7 @@ namespace AutoTintLibrary
                 request.AddHeader("Client-Id", auto_tint_id);
                 string streamFile = File.ReadAllText(file_path);
                 request.AddParameter("data", streamFile, ParameterType.RequestBody);
+                if (!APIConnectionCheck(3, 30)) throw new Exception("Connection error");
                 response = await client.ExecuteAsync(request, cancellationTokenSource.Token);
                 Logger.Info($"Param {file_path}, {auto_tint_id}:Response Status {response.StatusCode} | Content {response.Content}");
             }
@@ -135,6 +173,7 @@ namespace AutoTintLibrary
                 Console.WriteLine("Call logger about exception " + ex);
                 Logger.Error($"Exception when called UploadFile {method} : {ex.ToString()}");
                 Logger.Error($"Exception when called UploadFile {file_path}");
+                throw new Exception($"Exception when called UploadFile : {ex.ToString()}");
             }
 
             return JsonConvert.SerializeObject(new { statusCode = response.StatusCode, message = response.Content });
@@ -150,6 +189,7 @@ namespace AutoTintLibrary
                 request.AddHeader("Accept", "application/json");
                 request.AddHeader("Client-Id", auto_tint_id);
                 //request.Parameters.Clear();
+                if (!APIConnectionCheck(3, 30)) throw new Exception("Connection error");
                 response = await client.ExecuteAsync(request, cancellationTokenSource.Token);
                 Logger.Info($"Param {auto_tint_id}:Response Status {response.StatusCode} | Content {response.Content}");
                 //Console.WriteLine(result.Content);
@@ -159,7 +199,8 @@ namespace AutoTintLibrary
             {
                 Console.WriteLine("Call logger about exception " + ex);
                 Logger.Error($"Exception when called GetAutoTintVersion of {auto_tint_id} : {ex.ToString()}");
-                return JsonConvert.SerializeObject(new { statusCode = response.StatusCode, message = response.Content });
+                throw new Exception($"Exception when called GetAutoTintVersion of {auto_tint_id} : {ex.ToString()}");
+                //return JsonConvert.SerializeObject(new { statusCode = response.StatusCode, message = response.Content });
 
             }
             //return JsonConvert.DeserializeObject<AutoTintWithId>(response.Content);
@@ -176,6 +217,7 @@ namespace AutoTintLibrary
                 request.AddHeader("Accept", "application/json");
                 request.AddHeader("Client-Id", auto_tint_id);
                 //request.Parameters.Clear();
+                if (!APIConnectionCheck(3, 30)) throw new Exception("Connection error");
                 response = await client.ExecuteAsync(request, cancellationTokenSource.Token);
                 //Console.WriteLine(result.Content);
                 PrismaProLatestVersion checkVersion = JsonConvert.DeserializeObject<PrismaProLatestVersion>(response.Content);
@@ -185,6 +227,7 @@ namespace AutoTintLibrary
             {
                 Console.WriteLine("Call logger about exception " + ex);
                 Logger.Error($"Exception when called GetDBLatestVersion of {pos_setting_id} : {ex.ToString()}");
+                throw new Exception($"Exception when called GetDBLatestVersion of {auto_tint_id} : {ex.ToString()}");
             }
             return JsonConvert.DeserializeObject<PrismaProLatestVersion>(response.Content);
         }

@@ -114,9 +114,16 @@ namespace IOTClient
             databaseLocationTextbox.Text = database_path;
             posHistoryLocationTextBox.Text = csv_history_path;
 
-            LoadGlobalConfig();
-            CheckLastestUploadDateTime();
-            await UpdateAutotintVersion();
+            try
+            {
+                LoadGlobalConfig();
+                CheckLastestUploadDateTime();
+                await UpdateAutotintVersion();
+            }catch(Exception ex)
+            {
+                MessageBoxResult exInitMsgbox = System.Windows.MessageBox.Show($"{ex.ToString()}", "", MessageBoxButton.OK);
+            }
+            
 
 
         }
@@ -176,8 +183,14 @@ namespace IOTClient
         {
             auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
             database_path = ManageConfig.ReadGlobalConfig("database_path");
-            await UpdateAutotintVersion();
-
+            try
+            {
+                await UpdateAutotintVersion();
+            }
+            catch (Exception ex)
+            {
+                MessageBoxResult exInitMsgbox = System.Windows.MessageBox.Show($"{ex.ToString()}", "", MessageBoxButton.OK);
+            }
             //Below is for testing the service.
             //var instance = new FileOperationLibrary();
             //await instance.UpdateAutotintVersion();
