@@ -155,6 +155,10 @@ namespace AutoTintLibrary
                         Logger.Info("Export log path : " + export_path);
                         File.WriteAllText(export_path, JsonConvert.SerializeObject(exportRecord),Encoding.UTF8);
                     }
+                    else
+                    {
+                        Logger.Info($"Doesn't have match dispense date in csv with cleanDate ({cleanDate[i].Replace("/", "_")})");
+                    }
                 }
 
                 //Move complete extract file into achive folder
@@ -330,40 +334,59 @@ namespace AutoTintLibrary
             foreach (dynamic detail in details)
             {
                 //Console.WriteLine(detail);
-                var export_bi = new DispenseHistoryBI();
-
                 //Do a formatted date
                 String[] dispense_date = detail["dispensed_date"].ToString().Split(' ');
-                //Append the day and month to 2 length string
-                if (dispense_date[0].Split('/')[0].Length < 2) dispense_date[0] = $"0{dispense_date[0].Split('/')[0]}/{dispense_date[0].Split('/')[1]}/{dispense_date[0].Split('/')[2]}";
-                if (dispense_date[0].Split('/')[1].Length < 2) dispense_date[0] = $"{dispense_date[0].Split('/')[0]}/0{dispense_date[0].Split('/')[1]}/{dispense_date[0].Split('/')[2]}";
                 string formattedDate = "";
-                DateTime parsedDateTime;
-                if (DateTime.TryParseExact(dispense_date[0], "dd/mm/yyyy",
-                    CultureInfo.InvariantCulture,
-                    DateTimeStyles.None,
-                    out parsedDateTime))
+                var export_bi = new DispenseHistoryBI();
+                try
                 {
-                    formattedDate = parsedDateTime.ToString("yyyymmdd");
+                    //Append the day and month to 2 length string
+                    if (dispense_date[0].Split('/')[0].Length < 2) dispense_date[0] = $"0{dispense_date[0].Split('/')[0]}/{dispense_date[0].Split('/')[1]}/{dispense_date[0].Split('/')[2]}";
+                    if (dispense_date[0].Split('/')[1].Length < 2) dispense_date[0] = $"{dispense_date[0].Split('/')[0]}/0{dispense_date[0].Split('/')[1]}/{dispense_date[0].Split('/')[2]}";
+                    
+                    DateTime parsedDateTime;
+                    if (DateTime.TryParseExact(dispense_date[0], "dd/mm/yyyy",
+                        CultureInfo.InvariantCulture,
+                        DateTimeStyles.None,
+                        out parsedDateTime))
+                    {
+                        formattedDate = parsedDateTime.ToString("yyyymmdd");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Parsing failed");
+                        Logger.Error($"BI Parsing dispense_date fail dispense_date data : {dispense_date[0]}");
+                    }
                 }
-                else
+                catch(Exception ex)
                 {
-                    Console.WriteLine("Parsing failed");
-                    Logger.Error($"Parsing dispense_date fail dispense_date data : {dispense_date[0]}");
+                    Logger.Error($"BI Parsing dispense_date fail dispense_date data : {dispense_date[0]}");
+                    throw ex;
                 }
 
+
+
                 //Do a dispenser_no,customer_key
-                String[] sp_company_code = detail["company_code"].ToString().Split(new String[] { "AT" }, StringSplitOptions.None);
-                String dispenser_no, customer_key = "";
-                if (sp_company_code.Length > 1)
-                {
-                    dispenser_no = $"{sp_company_code[1]}";
+                try { 
+                    String[] sp_company_code = detail["company_code"].ToString().Split(new String[] { "AT" }, StringSplitOptions.None);
+                    String dispenser_no, customer_key = "";
+                    if (sp_company_code.Length > 1)
+                    {
+                        dispenser_no = $"{sp_company_code[1]}";
+                    }
+                    else
+                    {
+                        dispenser_no = "01";
+                    }
+                    customer_key = sp_company_code[0];
+                    export_bi.dispenser_no = dispenser_no;
+                    export_bi.customer_key = customer_key;
                 }
-                else
+                catch(Exception ex)
                 {
-                    dispenser_no = "01";
+                    Logger.Error($"BI dispenser_no,customer_key due to {detail["company_code"]}");
+                    throw ex;
                 }
-                customer_key = sp_company_code[0];
 
                 //Do an cwlv
                 //export_bi["cw01_lv"] = "";
@@ -398,21 +421,40 @@ namespace AutoTintLibrary
                 }
 
                 //Convert a sales out qty (gl)
-                double amount = (double)detail["wanted_amount"];
-                string libUnits = detail["unit_name"].ToString().ToLower(); //Quart => UsQuart , GL,Gallon => UsGallon , Liter => Liter , ml => Milliliter
-                if (libUnits.IndexOf("quart") >= 0) libUnits = "UsQuart";
-                if (libUnits.IndexOf("gallon") >= 0) libUnits = "UsGallon";
-                if (libUnits.IndexOf("gl") >= 0) libUnits = "UsGallon";
-                if (libUnits.IndexOf("liter") >= 0) libUnits = "Liter";
-                if (libUnits.IndexOf("kg") >= 0) libUnits = "Liter";
-                if (libUnits.IndexOf("ml") >= 0) libUnits = "Milliliter";
-                string sales_out_qty_gl = UnitConverter.ConvertByName(amount, "Volume", libUnits, "UsGallon").ToString();
-                string sales_out_qty_l = UnitConverter.ConvertByName(amount, "Volume", libUnits, "Liter").ToString();
+                try
+                {
+                    double amount = (double)detail["wanted_amount"];
+                    string libUnits = detail["unit_name"].ToString().ToLower(); //Quart => UsQuart , GL,Gallon => UsGallon , Liter => Liter , ml => Milliliter
+                    if (libUnits.IndexOf("quart") >= 0) libUnits = "UsQuart";
+                    if (libUnits.IndexOf("gallon") >= 0) libUnits = "UsGallon";
+                    if (libUnits.IndexOf("gl") >= 0) libUnits = "UsGallon";
+                    if (libUnits.IndexOf("liter") >= 0) libUnits = "Liter";
+                    if (libUnits.IndexOf("kg") >= 0) libUnits = "Liter";
+                    if (libUnits.IndexOf("ml") >= 0) libUnits = "Milliliter";
+                    string sales_out_qty_gl = UnitConverter.ConvertByName(amount, "Volume", libUnits, "UsGallon").ToString();
+                    string sales_out_qty_l = UnitConverter.ConvertByName(amount, "Volume", libUnits, "Liter").ToString();
+                    export_bi.sale_out_quantity_gl = sales_out_qty_gl;
+                    export_bi.sale_out_quantity_l = sales_out_qty_l;
+                }
+                catch(Exception ex){
+                    Logger.Error($"BI Convert wanted_amount by libUnits exception for {detail["wanted_amount"]} {detail["unit_name"]}");
+                    throw ex;
+                }
+
 
                 //sale_out_amt_thb
+                try
+                {
                 double base_price = (double)detail["base_price"];
                 double colorant_price = (double)detail["colorant_price"];
                 double sale_out_amt_thb = Math.Ceiling((base_price + (base_price * 7 / 100)) + (colorant_price + (colorant_price * 7 / 100)));
+                export_bi.sale_out_amt_thb = sale_out_amt_thb.ToString();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"BI Convert sale_out_amt_thb exception from {detail["base_price"]} {detail["colorant_price"]}");
+                    throw ex;
+                }
 
                 //getSaleType
                 string saleType = "";
@@ -470,14 +512,12 @@ namespace AutoTintLibrary
                 export_bi.colorant_price = detail["colorant_price"];
                 export_bi.company_name = detail["company_name"];
                 export_bi.company_code = detail["company_code"];
-                export_bi.dispenser_no = dispenser_no;
-                export_bi.customer_key = customer_key;
+
                 export_bi.material_pf_code = detail["material_pf_code"];
                 export_bi.component_name = "";
-                export_bi.sale_out_quantity_gl = sales_out_qty_gl;
-                export_bi.sale_out_quantity_l = sales_out_qty_l;
+
                 export_bi.sale_out_quantity_ea = "1";
-                export_bi.sale_out_amt_thb = sale_out_amt_thb.ToString();
+
                 export_bi.branch_code = "";
                 export_bi.branch_name = "";
                 export_bi.type = saleType;

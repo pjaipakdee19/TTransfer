@@ -40,12 +40,12 @@ namespace AutoTintLibrary
                 response = await client.ExecuteAsync(request, cancellationTokenSource.Token);
                 Console.WriteLine(response.Content);
                 //return result.Content;
-
+                Logger.Info($"Param {url},{auto_tint_id}:Response Status {response.StatusCode} | Content {response.Content}");
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Call logger about exception " + ex);
-                Logger.Error($"Exception when called RequestGet {url} : {ex.ToString()}");
+                Logger.Error($"Exception when called RequestGet {url} : {ex}");
             }
 
             try { 
@@ -53,6 +53,7 @@ namespace AutoTintLibrary
             }catch(Exception ex)
             {
                 Console.WriteLine("Call logger about exception " + ex);
+                Logger.Error($"Exception when called JsonConvert {url} : {ex.ToString()}");
             }
 
             return JsonConvert.SerializeObject(new { statusCode = response.StatusCode, message = response.Content });
@@ -74,6 +75,7 @@ namespace AutoTintLibrary
 
                 response = await client.ExecuteAsync(request, cancellationTokenSource.Token);
                 Console.WriteLine(response.Content);
+                Logger.Info($"Param {url}, {Jsondata}, {auto_tint_id}:Response Status {response.StatusCode} | Content {response.Content}");
                 //return result.Content;
 
             }
@@ -99,6 +101,7 @@ namespace AutoTintLibrary
                 response = await client.ExecuteAsync(request, cancellationTokenSource.Token);
                 Console.WriteLine(response.Content);
                 //return result.Content;
+                Logger.Info($"Param {url}, {auto_tint_id}:Response Status {response.StatusCode} | Content {response.Content}");
 
             }
             catch (Exception ex)
@@ -125,7 +128,7 @@ namespace AutoTintLibrary
                 string streamFile = File.ReadAllText(file_path);
                 request.AddParameter("data", streamFile, ParameterType.RequestBody);
                 response = await client.ExecuteAsync(request, cancellationTokenSource.Token);
-                
+                Logger.Info($"Param {file_path}, {auto_tint_id}:Response Status {response.StatusCode} | Content {response.Content}");
             }
             catch (Exception ex)
             {
@@ -148,6 +151,7 @@ namespace AutoTintLibrary
                 request.AddHeader("Client-Id", auto_tint_id);
                 //request.Parameters.Clear();
                 response = await client.ExecuteAsync(request, cancellationTokenSource.Token);
+                Logger.Info($"Param {auto_tint_id}:Response Status {response.StatusCode} | Content {response.Content}");
                 //Console.WriteLine(result.Content);
                 //return JsonConvert.DeserializeObject<AutoTintWithId>(result.Content);
             }
@@ -175,7 +179,7 @@ namespace AutoTintLibrary
                 response = await client.ExecuteAsync(request, cancellationTokenSource.Token);
                 //Console.WriteLine(result.Content);
                 PrismaProLatestVersion checkVersion = JsonConvert.DeserializeObject<PrismaProLatestVersion>(response.Content);
-                
+                Logger.Info($"Param {pos_setting_id} , {auto_tint_id}:Response Status {response.StatusCode} | Content {response.Content}");
             }
             catch (Exception ex)
             {
