@@ -52,6 +52,57 @@ namespace IOTClient
             notifyIcon.Icon = Resources.SystemTrayApp;
             notifyIcon.Text = ProgramInfo.AssemblyTitle;
             notifyIcon.Visible = true;
+            //checkTransferButton();
+            // Running on the worker thread
+            
+            
+            //SettingForm.btnExport1.Invoke((MethodInvoker)delegate {
+            //    // Running on the UI thread
+            //    SettingForm.btnExport1.Text = newText;
+            //});
+            // Back on the worker thread
+        }
+        public void checkTransferButton()
+        {
+            btnExport1.Text = "Checking ...";
+            btnExport1.Enabled = false;
+            string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            var thread = new Thread(() =>
+            {
+
+                //Check the status is running ?
+                while (true)
+                {
+                    if (File.Exists($"{path}\\tmp\\running.tmp"))
+                    {
+                        //MessageBoxResult AlertMessageBox2 = System.Windows.MessageBox.Show($"Another Tranfer process is running please wait for a while and try again", "Message", MessageBoxButton.OK);
+                       
+                        //return;
+                        btnExportHandler(false);
+                    }
+                    else
+                    {
+                        
+                        btnExportHandler(true);
+                    }
+                }
+               
+            });
+            thread.Start();
+        }
+
+        public void btnExportHandler(bool status)
+        {
+            if (status)
+            {
+                btnExport1.Enabled = true;
+                btnExport1.Text = "Upload POS history";
+            }
+            else
+            {
+                btnExport1.Enabled = false;
+                btnExport1.Text = "Transfering";
+            }
         }
         protected override void WndProc(ref Message message)
         {

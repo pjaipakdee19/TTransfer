@@ -53,6 +53,9 @@ namespace TAService
             //    }
 
             //}
+            //Clear the tmp file 
+            File.Delete($"{programdata_path}\\tmp\\running.tmp");
+            File.Delete($"{programdata_path}\\tmp\\dbupdate_running.tmp");
             try
             {
                 if (!isTodayDone)
