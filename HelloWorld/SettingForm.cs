@@ -47,7 +47,11 @@ namespace IOTClient
             Text = $"{Text} Beta 2";
             //this.Load = SettingForm_Load;
             //MinimizeToTray();
-
+            notifyIcon = new NotifyIcon();
+            notifyIcon.DoubleClick += new EventHandler(NotifyIconClick);
+            notifyIcon.Icon = Resources.SystemTrayApp;
+            notifyIcon.Text = ProgramInfo.AssemblyTitle;
+            notifyIcon.Visible = true;
         }
         protected override void WndProc(ref Message message)
         {
@@ -65,7 +69,7 @@ namespace IOTClient
         }
         void MinimizeToTray()
         {
-            notifyIcon = new NotifyIcon();
+            //notifyIcon = new NotifyIcon();
             //notifyIcon.Click += new EventHandler(NotifyIconClick);
             notifyIcon.DoubleClick += new EventHandler(NotifyIconClick);
             notifyIcon.Icon = Resources.SystemTrayApp;
@@ -79,7 +83,7 @@ namespace IOTClient
         {
             if (minimizedToTray)
             {
-                notifyIcon.Visible = false;
+                notifyIcon.Visible = true;
                 this.Show();
                 this.WindowState = FormWindowState.Normal;
                 minimizedToTray = false;

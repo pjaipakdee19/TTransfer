@@ -44,15 +44,15 @@ namespace TAService
             //string programdata_path = ConfigurationManager.AppSettings.Get("programdata_log_path");
             string programdata_path = ManageConfig.ReadConfig("programdata_log_path");
             DirectoryInfo programdata_info = new DirectoryInfo(programdata_path);
-            foreach (var txtFile in programdata_info.GetFiles("*.txt"))
-            {
-                if (txtFile.Name.Contains(actualTime.ToString("yyyy-MM-dd")))
-                {
-                    isTodayDone = true;
-                    //Logger.Info("Today is done do nothing");
-                }
+            //foreach (var txtFile in programdata_info.GetFiles("*.txt"))
+            //{
+            //    if (txtFile.Name.Contains(actualTime.ToString("yyyy-MM-dd")))
+            //    {
+            //        isTodayDone = true;
+            //        //Logger.Info("Today is done do nothing");
+            //    }
 
-            }
+            //}
             try
             {
                 if (!isTodayDone)
