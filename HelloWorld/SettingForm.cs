@@ -87,6 +87,7 @@ namespace IOTClient
                 this.Show();
                 this.WindowState = FormWindowState.Normal;
                 minimizedToTray = false;
+                UpdateAutotintVersion();
             }
             else
             {
