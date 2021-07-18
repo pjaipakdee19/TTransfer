@@ -21,13 +21,16 @@ namespace AutoTintLibrary
     {
         private dynamic client = APIHelper.init();
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-        private static readonly CsvConfiguration csvConfig = new CsvConfiguration(CultureInfo.InvariantCulture)
+        public CsvConfiguration csvConfig = new CsvConfiguration(CultureInfo.InvariantCulture)
         {
             MissingFieldFound = null,
             HeaderValidated = null,
-            IgnoreBlankLines = true
+            IgnoreBlankLines = true,
+            PrepareHeaderForMatch = args => args.Header.Replace(" ", "")
 
-        };
+    };
+
+        
         public async Task<string> StartOperation()
         {
             
@@ -50,6 +53,7 @@ namespace AutoTintLibrary
             {
                 var reader = new StreamReader(csvFile.FullName);
                 var csv = new CsvReader(reader, csvConfig);
+                //csv.Configuration.PrepareHeaderForMatch = (string header) => header.Replace(" ", "");
                 var records = csv.GetRecords<DispenseHistory>().ToList();
                 //Clean the records that dispense_formular_id is empty or null
                 records.RemoveAll(x => string.IsNullOrWhiteSpace(x.dispensed_formula_id));
@@ -78,7 +82,8 @@ namespace AutoTintLibrary
                     int now = DateTime.Today.Year;
                     if (year > now)
                     {
-                        date[0] = $"{date[0].Split('/')[0]}/{date[0].Split('/')[1]}/{year - 543}";
+                        date[0] = $"{date[0].Split('/')[1]}/{date[0].Split('/')[0]}/{year - 543}";
+                        records[i].dispensed_date = $"{date[0]} {date[1]}";
                     }
 
                     bool shouldConvert = false;
