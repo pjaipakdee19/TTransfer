@@ -71,10 +71,10 @@ namespace IOTClient
         {
             //notifyIcon = new NotifyIcon();
             //notifyIcon.Click += new EventHandler(NotifyIconClick);
-            notifyIcon.DoubleClick += new EventHandler(NotifyIconClick);
-            notifyIcon.Icon = Resources.SystemTrayApp;
-            notifyIcon.Text = ProgramInfo.AssemblyTitle;
-            notifyIcon.Visible = true;
+            //notifyIcon.DoubleClick += new EventHandler(NotifyIconClick);
+            //notifyIcon.Icon = Resources.SystemTrayApp;
+            //notifyIcon.Text = ProgramInfo.AssemblyTitle;
+            //notifyIcon.Visible = true;
             this.WindowState = FormWindowState.Minimized;
             this.Hide();
             minimizedToTray = true;
@@ -83,7 +83,7 @@ namespace IOTClient
         {
             if (minimizedToTray)
             {
-                notifyIcon.Visible = true;
+                //notifyIcon.Visible = true;
                 this.Show();
                 this.WindowState = FormWindowState.Normal;
                 minimizedToTray = false;
