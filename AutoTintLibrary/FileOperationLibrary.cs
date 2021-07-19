@@ -35,30 +35,6 @@ namespace AutoTintLibrary
 
         public async Task<string> StartOperation()
         {
-
-            //Modem = 0x1,
-            //LAN = 0x2,
-            //Proxy = 0x4,
-            //RasInstalled = 0x10,
-            //Offline = 0x20,
-            //Configured = 0x40,
-            //int status_code;
-            //int connection_retry = 1;
-            //bool isConnected = false;
-            //while (connection_retry < 5 && !isConnected)
-            //{
-            //    isConnected = InternetGetConnectedState(out status_code, 0);
-            //    Logger.Info($"Internet status isConnected: {isConnected} Connection Flag : {status_code}");
-            //    connection_retry++;
-            //    if (!isConnected)
-            //    {
-            //        Logger.Error($"Internet status isConnected:{isConnected} Connection Flag : {status_code}");
-            //        Logger.Info("Retrying in 5 seconds ...");
-            //        System.Threading.Thread.Sleep(5000);
-            //    }
-            //}
-            //if(connection_retry >= 5) return JsonConvert.SerializeObject(new { statusCode = 500, message = "No internet connection" });
-
             //Init configuration variable
             int statusCode = 200;
             string responseMessage = "Succesful Tranfer";
@@ -142,10 +118,10 @@ namespace AutoTintLibrary
                             Logger.Info($"Lastest dispense date {econvertedDate} for {auto_tint_id}, it's later than {sconvertedDate} system will not convert and transfer data.");
                         }
                     }
-                    
-                    
-                    
-                    
+
+
+
+                    latest_dispense_date_response.statusCode = 404;
                     if ((latest_dispense_date_response.statusCode != 404)&&(shouldConvert))
                     {
                         dateList.Add(date[0]);
@@ -198,6 +174,11 @@ namespace AutoTintLibrary
 
             //N find json files in json dir, Does the files is exist ?
             DirectoryInfo jsonDispensePathInfo = new DirectoryInfo(jsonDispenseLogPath);
+            //Count .json file for calculate percentage.
+            int jsonFileTotalCounter = jsonDispensePathInfo.GetFiles("*.json").Length;
+            string file_total_log_path = $"{programdata_path}\\tmp\\lib_running_log.json";
+            var data = new ProgressCounter() { total_file= jsonFileTotalCounter, complete_counter=0,status="Transfer History" };
+            File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(data), Encoding.UTF8);
             foreach (var jsonFile in jsonDispensePathInfo.GetFiles("*.json"))
             {
                 try
@@ -213,9 +194,9 @@ namespace AutoTintLibrary
                     {
                         //send to dispense history api
                         var result = await APIHelper.UploadFile(client, "dispense_history", jsonFile.FullName,auto_tint_id);
-                        //string[] mvFile = Directory.GetFiles(jsonFile.FullName);
+                        //string result = "{ statusCode : 201, message : \"\" }";
                         APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(result);
-                        if(response.statusCode != 201)
+                        if (response.statusCode != 201)
                         {
                             retry++;
                             Logger.Error($"Error when upload file retring round {retry} filename {jsonFile.FullName}");
@@ -254,9 +235,10 @@ namespace AutoTintLibrary
                         }
                         //var export_path = $"{jsonDispenseLogPath}\\full_dispense_log_{cleanDate[i].Replace("/", "_")}.json";
 
-                        
+
                         //send to dispense history bi api
                         var result = await APIHelper.UploadFile(client, "dispense_history_bi", export_bi_file, auto_tint_id);
+                        //string result = "{ statusCode : 201, message : \"\" }";
                         APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(result);
                         if (response.statusCode != 201)
                         {
@@ -297,6 +279,10 @@ namespace AutoTintLibrary
                         File.Delete(export_bi_file);
                         Logger.Info($"Transfer to server complete delete json files name {jsonFile.FullName}");
 
+                        int jsonFileCounter = jsonDispensePathInfo.GetFiles("*.json").Length;
+                        //string file_total_log_path = $"{programdata_path}\\tmp\\lib_running_log.json";
+                        data = new ProgressCounter() { total_file = jsonFileCounter, complete_counter = (int)((jsonFileTotalCounter-jsonFileCounter) * 100)/jsonFileTotalCounter, status = "Transfering ...." };
+                        File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(data), Encoding.UTF8);
                     }
 
                     
@@ -319,9 +305,9 @@ namespace AutoTintLibrary
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error(ex, "Exception on create json _p2 : " + ex.ToString());
-                    if (statusCode == 500) responseMessage += "\nException on create json _p2";
-                    responseMessage = "Exception on create json _p2";
+                    Logger.Error(ex, "Main transfer process : " + ex.ToString());
+                    if (statusCode == 500) responseMessage += "\nException Main transfer process";
+                    responseMessage = "Exception on Main transfer process";
                 }
 
             }
@@ -335,6 +321,7 @@ namespace AutoTintLibrary
             }
             //Delete is running file
             File.Delete($"{programdata_path}\\tmp\\running.tmp");
+            File.Delete($"{programdata_path}\\tmp\\lib_running_log.json");
             return JsonConvert.SerializeObject(new { statusCode = statusCode, message = responseMessage });
         }
 
@@ -581,7 +568,9 @@ namespace AutoTintLibrary
             string str_response = await APIHelper.GetAutoTintVersion(client, auto_tint_id);
 
             APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(str_response);
-
+            string file_total_log_path = $"{programdata_path}\\tmp\\lib_running_log.json";
+            var jsonData = new ProgressCounter() { total_file = 0, complete_counter = 0, status = "Download DB File" };
+            File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(jsonData), Encoding.UTF8);
             if (response.statusCode == 200)
             {
                 AutoTintWithId result = JsonConvert.DeserializeObject<AutoTintWithId>(response.message, JsonSetting);
@@ -612,8 +601,8 @@ namespace AutoTintLibrary
 
                 Logger.Info($"Successful on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
                 var shouldDownloadNewDB = (result.pos_setting_version == null) ? true : (result.pos_setting_version.id < checkVersion.id);
-                if (shouldDownloadNewDB)
-                //if (true)
+                //if (shouldDownloadNewDB)
+                if (true)
                 {
                     //    //Goto download
 
@@ -623,7 +612,7 @@ namespace AutoTintLibrary
                     String[] URIArray = downloadURI.Split('/');
                     WebClient webClient = new WebClient();
                     webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadCompleted);
-                    //webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
+                    webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
                     webClient.DownloadFileAsync(new Uri(downloadURI), $"{database_path}\\{URIArray[URIArray.Length - 1]}");
                     //Update to API about new version of database
                     string data = @"
@@ -631,12 +620,13 @@ namespace AutoTintLibrary
                     ""pos_setting_version_id"": " + checkVersion.id + @"
                     }
                     ";
-                    dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
+                    //dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
                 }
                 else
                 {
                     //Delete is running file
                     File.Delete($"{programdata_path}\\tmp\\dbupdate_running.tmp");
+                    File.Delete($"{programdata_path}\\tmp\\lib_running_log.json");
                 }
             }
             else
@@ -653,6 +643,15 @@ namespace AutoTintLibrary
             Logger.Info($"Download new update succesful");
             string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             File.Delete($"{programdata_path}\\tmp\\dbupdate_running.tmp");
+            File.Delete($"{programdata_path}\\tmp\\lib_running_log.json");
+        }
+
+        private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        {
+            string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            string file_total_log_path = $"{programdata_path}\\tmp\\lib_running_log.json";
+            var jsonData = new ProgressCounter() { total_file = 0, complete_counter = e.ProgressPercentage, status = "Download DB File" };
+            File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(jsonData), Encoding.UTF8);
         }
     }
 }

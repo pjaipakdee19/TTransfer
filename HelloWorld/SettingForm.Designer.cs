@@ -54,6 +54,8 @@ namespace IOTClient
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.btnDownloadUpdate = new System.Windows.Forms.Button();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.staticServiceStatusLbl = new System.Windows.Forms.Label();
+            this.ServiceStatusLbl = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // btnExport1
@@ -240,7 +242,6 @@ namespace IOTClient
             this.btnDownloadUpdate.TabIndex = 20;
             this.btnDownloadUpdate.Text = "TestDownload";
             this.btnDownloadUpdate.UseVisualStyleBackColor = true;
-            this.btnDownloadUpdate.Visible = false;
             this.btnDownloadUpdate.Click += new System.EventHandler(this.btnDownloadUpdate_Click);
             // 
             // progressBar1
@@ -251,11 +252,31 @@ namespace IOTClient
             this.progressBar1.TabIndex = 21;
             this.progressBar1.Visible = false;
             // 
+            // staticServiceStatusLbl
+            // 
+            this.staticServiceStatusLbl.AutoSize = true;
+            this.staticServiceStatusLbl.Location = new System.Drawing.Point(566, 22);
+            this.staticServiceStatusLbl.Name = "staticServiceStatusLbl";
+            this.staticServiceStatusLbl.Size = new System.Drawing.Size(82, 13);
+            this.staticServiceStatusLbl.TabIndex = 22;
+            this.staticServiceStatusLbl.Text = "Service Status :";
+            // 
+            // ServiceStatusLbl
+            // 
+            this.ServiceStatusLbl.AutoSize = true;
+            this.ServiceStatusLbl.Location = new System.Drawing.Point(655, 22);
+            this.ServiceStatusLbl.Name = "ServiceStatusLbl";
+            this.ServiceStatusLbl.Size = new System.Drawing.Size(49, 13);
+            this.ServiceStatusLbl.TabIndex = 23;
+            this.ServiceStatusLbl.Text = "Stand by";
+            // 
             // SettingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.ServiceStatusLbl);
+            this.Controls.Add(this.staticServiceStatusLbl);
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.btnDownloadUpdate);
             this.Controls.Add(this.SaveInputData);
@@ -314,6 +335,8 @@ namespace IOTClient
         private System.Windows.Forms.NotifyIcon notifyIcon1;
         private System.Windows.Forms.Button btnDownloadUpdate;
         private System.Windows.Forms.ProgressBar progressBar1;
+        private System.Windows.Forms.Label staticServiceStatusLbl;
+        private System.Windows.Forms.Label ServiceStatusLbl;
     }
 }
 

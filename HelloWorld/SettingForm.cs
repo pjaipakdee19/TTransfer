@@ -30,6 +30,9 @@ namespace IOTClient
         private string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
         private string csv_history_path = ManageConfig.ReadGlobalConfig("csv_history_path");
         private string database_path = ManageConfig.ReadGlobalConfig("database_path");
+        public delegate void UpdateTransferBtn();
+        public delegate void UpdateDownloadDBBtn();
+        public delegate void UpdateProgressLbl();
         bool minimizedToTray;
         NotifyIcon notifyIcon;
         dynamic Jsonettings = new JsonSerializerSettings
@@ -52,58 +55,111 @@ namespace IOTClient
             notifyIcon.Icon = Resources.SystemTrayApp;
             notifyIcon.Text = ProgramInfo.AssemblyTitle;
             notifyIcon.Visible = true;
-            //checkTransferButton();
-            // Running on the worker thread
-            
-            
-            //SettingForm.btnExport1.Invoke((MethodInvoker)delegate {
-            //    // Running on the UI thread
-            //    SettingForm.btnExport1.Text = newText;
-            //});
-            // Back on the worker thread
+
+            var t1 = new Thread(new ThreadStart(checkTransferButton));
+            t1.Start();
+            var t2 = new Thread(new ThreadStart(checkDBButton));
+            t2.Start();
+            var t3 = new Thread(new ThreadStart(checkServiceLable));
+            t3.Start();
+
+        }
+        #region Thread_of_exportbtn_handler
+        public void disblebtnExportHandler()
+        {
+            btnExport1.Enabled = false;
+            btnExport1.Text = "Transfering";
+        }
+        public void enablebtnExportHandler()
+        {
+            btnExport1.Enabled = true;
+            btnExport1.Text = "Upload POS history";
         }
         public void checkTransferButton()
         {
-            btnExport1.Text = "Checking ...";
-            btnExport1.Enabled = false;
+
             string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
-            var thread = new Thread(() =>
+            while (true)
             {
-
-                //Check the status is running ?
-                while (true)
+                if (File.Exists($"{path}\\tmp\\running.tmp"))
                 {
-                    if (File.Exists($"{path}\\tmp\\running.tmp"))
-                    {
-                        //MessageBoxResult AlertMessageBox2 = System.Windows.MessageBox.Show($"Another Tranfer process is running please wait for a while and try again", "Message", MessageBoxButton.OK);
-                       
-                        //return;
-                        btnExportHandler(false);
-                    }
-                    else
-                    {
-                        
-                        btnExportHandler(true);
-                    }
-                }
-               
-            });
-            thread.Start();
-        }
 
-        public void btnExportHandler(bool status)
+                btnExport1.Invoke(new UpdateTransferBtn(disblebtnExportHandler));
+                }
+                else
+                {
+                btnExport1.Invoke(new UpdateTransferBtn(enablebtnExportHandler));
+
+                }
+            }
+        }
+        #endregion
+        #region Thread_of_update_db_btn_handler
+        public void disblebtnDBHandler()
         {
-            if (status)
+            button1.Enabled = false;
+            button1.Text = "In progress ...";
+        }
+        public void enablebtnDBHandler()
+        {
+            button1.Enabled = true;
+            button1.Text = "Check for Update";
+        }
+        public void checkDBButton()
+        {
+            string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            while (true)
             {
-                btnExport1.Enabled = true;
-                btnExport1.Text = "Upload POS history";
+                if (File.Exists($"{path}\\tmp\\dbupdate_running.tmp"))
+                {
+
+                    button1.Invoke(new UpdateDownloadDBBtn(disblebtnDBHandler));
+                }
+                else
+                {
+                    button1.Invoke(new UpdateDownloadDBBtn(enablebtnDBHandler));
+
+                }
+            }
+        }
+        #endregion
+        #region Thread_of_service_label_handler
+        public void updateLabelHandler()
+        {
+            string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            //var pp =  $"{path}\\tmp\\lib_running_log.json";
+            if (File.Exists($"{path}\\tmp\\lib_running_log.json")) { 
+                string jsonData = File.ReadAllText($"{path}\\tmp\\lib_running_log.json");
+                ProgressCounter pg = JsonConvert.DeserializeObject<ProgressCounter>(jsonData);
+                ServiceStatusLbl.Text = $"{pg.status} {pg.complete_counter}%";
             }
             else
             {
-                btnExport1.Enabled = false;
-                btnExport1.Text = "Transfering";
+                ServiceStatusLbl.Text = "Stand by";
             }
         }
+        public void clearLabelHandler()
+        {
+            ServiceStatusLbl.Text = "Stand by";
+        }
+        public void checkServiceLable()
+        {
+            string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            while (true)
+            {
+                if (File.Exists($"{path}\\tmp\\lib_running_log.json"))
+                {
+                    //button1.Invoke(new UpdateDownloadDBBtn(disblebtnDBHandler));
+                    ServiceStatusLbl.Invoke(new UpdateProgressLbl(updateLabelHandler));
+                }
+                else
+                {
+                    ServiceStatusLbl.Invoke(new UpdateProgressLbl(clearLabelHandler));
+
+                }
+            }
+        }
+        #endregion
         protected override void WndProc(ref Message message)
         {
             if (message.Msg == SingleInstance.WM_SHOWFIRSTINSTANCE)
@@ -473,7 +529,8 @@ namespace IOTClient
             //webClient.DownloadFileAsync(new Uri("http://49.229.21.7/files/settings/Tint_On_Shop_TuwDkNh.SDF"), @"E:\Tutorial\db_location\Tint_On_Shop_TuwDkNh.SDF");
             string path = @"E:\Tutorial\csv_history\json_log\full_dispense_log_4_11_2015.json";
             var instance = new FileOperationLibrary();
-            instance.convertToBIDataNew(path);
+            //instance.convertToBIDataNew(path);
+            instance.UpdateAutotintVersion();
         }
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
