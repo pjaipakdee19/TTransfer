@@ -47,7 +47,7 @@ namespace IOTClient
             this.lblDatabaseTime = new System.Windows.Forms.Label();
             this.lblDatabaseCheckVal = new System.Windows.Forms.Label();
             this.btnCheckShopID = new System.Windows.Forms.Button();
-            this.HistoryExportDateTime = new System.Windows.Forms.Label();
+            this.HistoryExportDateTimeLbl = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.SaveInputData = new System.Windows.Forms.Button();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
@@ -201,14 +201,14 @@ namespace IOTClient
             this.btnCheckShopID.Visible = false;
             this.btnCheckShopID.Click += new System.EventHandler(this.btnCheckShopID_Click);
             // 
-            // HistoryExportDateTime
+            // HistoryExportDateTimeLbl
             // 
-            this.HistoryExportDateTime.AutoSize = true;
-            this.HistoryExportDateTime.Location = new System.Drawing.Point(523, 349);
-            this.HistoryExportDateTime.Name = "HistoryExportDateTime";
-            this.HistoryExportDateTime.Size = new System.Drawing.Size(169, 13);
-            this.HistoryExportDateTime.TabIndex = 18;
-            this.HistoryExportDateTime.Text = "07:20 , อาทิตย์ 15 พฤษภาคม 2564";
+            this.HistoryExportDateTimeLbl.AutoSize = true;
+            this.HistoryExportDateTimeLbl.Location = new System.Drawing.Point(523, 349);
+            this.HistoryExportDateTimeLbl.Name = "HistoryExportDateTimeLbl";
+            this.HistoryExportDateTimeLbl.Size = new System.Drawing.Size(75, 13);
+            this.HistoryExportDateTimeLbl.TabIndex = 18;
+            this.HistoryExportDateTimeLbl.Text = "No information";
             // 
             // label4
             // 
@@ -280,7 +280,7 @@ namespace IOTClient
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.btnDownloadUpdate);
             this.Controls.Add(this.SaveInputData);
-            this.Controls.Add(this.HistoryExportDateTime);
+            this.Controls.Add(this.HistoryExportDateTimeLbl);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.btnCheckShopID);
             this.Controls.Add(this.lblDatabaseCheckVal);
@@ -328,7 +328,7 @@ namespace IOTClient
         private System.Windows.Forms.Label lblDatabaseTime;
         private System.Windows.Forms.Label lblDatabaseCheckVal;
         private System.Windows.Forms.Button btnCheckShopID;
-        private System.Windows.Forms.Label HistoryExportDateTime;
+        private System.Windows.Forms.Label HistoryExportDateTimeLbl;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Button SaveInputData;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;

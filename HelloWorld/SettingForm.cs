@@ -33,6 +33,7 @@ namespace IOTClient
         public delegate void UpdateTransferBtn();
         public delegate void UpdateDownloadDBBtn();
         public delegate void UpdateProgressLbl();
+        public delegate void LastestTransferLbl();
         bool minimizedToTray;
         NotifyIcon notifyIcon;
         dynamic Jsonettings = new JsonSerializerSettings
@@ -55,14 +56,18 @@ namespace IOTClient
             notifyIcon.Icon = Resources.SystemTrayApp;
             notifyIcon.Text = ProgramInfo.AssemblyTitle;
             notifyIcon.Visible = true;
-
-            var t1 = new Thread(new ThreadStart(checkTransferButton));
-            t1.Start();
-            var t2 = new Thread(new ThreadStart(checkDBButton));
-            t2.Start();
-            var t3 = new Thread(new ThreadStart(checkServiceLable));
-            t3.Start();
-
+        }
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            var transferButtonThread = new Thread(new ThreadStart(checkTransferButton));
+            transferButtonThread.Start();
+            var checkDBbuttonThread = new Thread(new ThreadStart(checkDBButton));
+            checkDBbuttonThread.Start();
+            var serviceStatusLabelThread = new Thread(new ThreadStart(checkServiceLable));
+            serviceStatusLabelThread.Start();
+            var lastestUploadLabelThread = new Thread(new ThreadStart(checkUploadDTLable));
+            lastestUploadLabelThread.Start();
         }
         #region Thread_of_exportbtn_handler
         public void disblebtnExportHandler()
@@ -75,22 +80,22 @@ namespace IOTClient
             btnExport1.Enabled = true;
             btnExport1.Text = "Upload POS history";
         }
-        public void checkTransferButton()
+        public async void checkTransferButton()
         {
 
             string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             while (true)
             {
+                var delayTask = Task.Delay(1000);
                 if (File.Exists($"{path}\\tmp\\running.tmp"))
                 {
-
-                btnExport1.Invoke(new UpdateTransferBtn(disblebtnExportHandler));
+                    btnExport1.Invoke(new UpdateTransferBtn(disblebtnExportHandler));
                 }
                 else
                 {
-                btnExport1.Invoke(new UpdateTransferBtn(enablebtnExportHandler));
-
+                    btnExport1.Invoke(new UpdateTransferBtn(enablebtnExportHandler));
                 }
+                await delayTask;
             }
         }
         #endregion
@@ -105,11 +110,12 @@ namespace IOTClient
             button1.Enabled = true;
             button1.Text = "Check for Update";
         }
-        public void checkDBButton()
+        public async void checkDBButton()
         {
             string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             while (true)
             {
+                var delayTask = Task.Delay(1000);
                 if (File.Exists($"{path}\\tmp\\dbupdate_running.tmp"))
                 {
 
@@ -120,6 +126,7 @@ namespace IOTClient
                     button1.Invoke(new UpdateDownloadDBBtn(enablebtnDBHandler));
 
                 }
+                await delayTask;
             }
         }
         #endregion
@@ -142,11 +149,12 @@ namespace IOTClient
         {
             ServiceStatusLbl.Text = "Stand by";
         }
-        public void checkServiceLable()
+        public async void checkServiceLable()
         {
             string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             while (true)
             {
+                var delayTask = Task.Delay(1000);
                 if (File.Exists($"{path}\\tmp\\lib_running_log.json"))
                 {
                     //button1.Invoke(new UpdateDownloadDBBtn(disblebtnDBHandler));
@@ -157,83 +165,35 @@ namespace IOTClient
                     ServiceStatusLbl.Invoke(new UpdateProgressLbl(clearLabelHandler));
 
                 }
+                await delayTask;
             }
         }
         #endregion
-        protected override void WndProc(ref Message message)
+        #region Thread_of_lastest_upload_datetime
+        public async void checkUploadDTLable()
         {
-            if (message.Msg == SingleInstance.WM_SHOWFIRSTINSTANCE)
+            while (true)
             {
-                ShowWindow();
-            }
-            base.WndProc(ref message);
-        }
-        private void btnMinToTray_Click(object sender, EventArgs e)
-        {
-            // Tie this function to a button on your main form that will minimize your
-            // application to the notification icon area (aka system tray).
-            MinimizeToTray();
-        }
-        void MinimizeToTray()
-        {
-            //notifyIcon = new NotifyIcon();
-            //notifyIcon.Click += new EventHandler(NotifyIconClick);
-            //notifyIcon.DoubleClick += new EventHandler(NotifyIconClick);
-            //notifyIcon.Icon = Resources.SystemTrayApp;
-            //notifyIcon.Text = ProgramInfo.AssemblyTitle;
-            //notifyIcon.Visible = true;
-            this.WindowState = FormWindowState.Minimized;
-            this.Hide();
-            minimizedToTray = true;
-        }
-        public void ShowWindow()
-        {
-            if (minimizedToTray)
-            {
-                //notifyIcon.Visible = true;
-                this.Show();
-                this.WindowState = FormWindowState.Normal;
-                minimizedToTray = false;
-                UpdateAutotintVersion();
-            }
-            else
-            {
-                WinApi.ShowToFront(this.Handle);
+                var delayTask = Task.Delay(1000);
+                HistoryExportDateTimeLbl.Invoke(new LastestTransferLbl(CheckLastestUploadDateTime));
+                await delayTask;
             }
         }
-        void NotifyIconClick(Object sender, System.EventArgs e)
-        {
-            ShowWindow();
-        }
-
+        #endregion
         private async void SettingForm_Load(object sender, EventArgs e)
         {
-            //Load configuration from json file or xml
-
-            //MessageBoxResult confirmResult = System.Windows.MessageBox.Show("Are you sure to delete this item ??", "Confirm Delete!!", MessageBoxButton.YesNo);
-            //if (confirmResult == MessageBoxResult.Yes)
-            //{
-            //    // If 'Yes', do something here.
-            //}
-            //else
-            //{
-            //    // If 'No', do something here.
-            //}
             databaseLocationTextbox.Text = database_path;
             posHistoryLocationTextBox.Text = csv_history_path;
 
             try
             {
                 LoadGlobalConfig();
-                CheckLastestUploadDateTime();
+                //CheckLastestUploadDateTime();
                 UpdateAutotintVersion();
             }catch(Exception ex)
             {
                 MessageBoxResult exInitMsgbox = System.Windows.MessageBox.Show($"{ex.Message}", "", MessageBoxButton.OK);
             }
-            
-
-
         }
 
         private void CheckLastestUploadDateTime()
@@ -266,18 +226,18 @@ namespace IOTClient
             {
                 int result = DateTime.Compare(latestFileInfo.CreationTime, latestManualFileInfo.LastWriteTime);
                 DateTime tmp = (result <= 0) ? latestManualFileInfo.LastWriteTime : latestFileInfo.CreationTime;
-                LatestExportDateTime = tmp.ToString("dddd dd MMMM yyyy HH:mm:ff", new System.Globalization.CultureInfo("en-GB"));
+                LatestExportDateTime = tmp.ToString("dddd dd MMMM yyyy HH:mm:ss", new System.Globalization.CultureInfo("en-GB"));
             }
             if(LatestExportDateTime == "" && latestFileInfo != null)
             {
-                LatestExportDateTime = latestFileInfo.CreationTime.ToString("dddd dd MMMM yyyy HH:mm:ff", new System.Globalization.CultureInfo("en-GB"));
+                LatestExportDateTime = latestFileInfo.CreationTime.ToString("dddd dd MMMM yyyy HH:mm:ss", new System.Globalization.CultureInfo("en-GB"));
             }
             if (LatestExportDateTime == "" && latestManualFileInfo != null)
             {
-                LatestExportDateTime = latestManualFileInfo.LastWriteTime.ToString("dddd dd MMMM yyyy HH:mm:ff", new System.Globalization.CultureInfo("en-GB"));
+                LatestExportDateTime = latestManualFileInfo.LastWriteTime.ToString("dddd dd MMMM yyyy HH:mm:ss", new System.Globalization.CultureInfo("en-GB"));
             }
 
-            HistoryExportDateTime.Text = $"{LatestExportDateTime}";
+            HistoryExportDateTimeLbl.Text = $"{LatestExportDateTime}";
         }
 
         private void LoadGlobalConfig()
@@ -293,16 +253,12 @@ namespace IOTClient
             database_path = ManageConfig.ReadGlobalConfig("database_path");
             try
             {
-                await UpdateAutotintVersion();
+                UpdateAutotintVersion();
             }
             catch (Exception ex)
             {
                 MessageBoxResult exInitMsgbox = System.Windows.MessageBox.Show($"{ex.Message}", "", MessageBoxButton.OK);
             }
-            //Below is for testing the service.
-            //var instance = new FileOperationLibrary();
-            //await instance.UpdateAutotintVersion();
-
         }
 
         private async Task UpdateAutotintVersion()
@@ -380,7 +336,7 @@ namespace IOTClient
                     ""pos_setting_version_id"": " + checkVersion.id + @"
                     }
                     ";
-                    dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
+                    //dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
                     //Update version after complete
                     lblDatabaseVersionText.Text = $"{checkVersion.number}";
                 }
@@ -495,7 +451,7 @@ namespace IOTClient
                 logMaskAsDoneDate("" + actualTime);
 
                 //progressThread.Abort();
-                CheckLastestUploadDateTime();
+                //CheckLastestUploadDateTime();
                 MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Manual Upload Finish\n{res.message}", "Message", MessageBoxButton.OK);
             }catch(Exception ex)
             {
@@ -534,8 +490,12 @@ namespace IOTClient
         }
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-            progressBar1.Visible = true;
-            progressBar1.Value = e.ProgressPercentage;
+            //progressBar1.Visible = true;
+            //progressBar1.Value = e.ProgressPercentage;
+            string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            string file_total_log_path = $"{programdata_path}\\tmp\\lib_running_log.json";
+            var jsonData = new ProgressCounter() { total_file = 0, complete_counter = e.ProgressPercentage, status = "Download DB File" };
+            File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(jsonData), Encoding.UTF8);
         }
 
         private void downloadCompletedHandler(object sender, AsyncCompletedEventArgs e)
@@ -553,13 +513,63 @@ namespace IOTClient
             File.Move($"{tmp_path}\\{downLoadFileName}", $"{database_path}\\{downLoadFileName}");
             progressBar1.Visible = false;
             System.Windows.MessageBox.Show("Download completed! \nDatabase is up to date");
+            Logger.Info($"Download new update succesful");
+            string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            File.Delete($"{programdata_path}\\tmp\\lib_running_log.json");
         }
 
+        #region Windows_Controller
         private void btnMinToTray_Click(object sender, FormClosingEventArgs e)
         {
             e.Cancel = true;
             MinimizeToTray();
         }
+        protected override void WndProc(ref Message message)
+        {
+            if (message.Msg == SingleInstance.WM_SHOWFIRSTINSTANCE)
+            {
+                ShowWindow();
+            }
+            base.WndProc(ref message);
+        }
+        private void btnMinToTray_Click(object sender, EventArgs e)
+        {
+            // Tie this function to a button on your main form that will minimize your
+            // application to the notification icon area (aka system tray).
+            MinimizeToTray();
+        }
+        void MinimizeToTray()
+        {
+            //notifyIcon = new NotifyIcon();
+            //notifyIcon.Click += new EventHandler(NotifyIconClick);
+            //notifyIcon.DoubleClick += new EventHandler(NotifyIconClick);
+            //notifyIcon.Icon = Resources.SystemTrayApp;
+            //notifyIcon.Text = ProgramInfo.AssemblyTitle;
+            //notifyIcon.Visible = true;
+            this.WindowState = FormWindowState.Minimized;
+            this.Hide();
+            minimizedToTray = true;
+        }
+        public void ShowWindow()
+        {
+            if (minimizedToTray)
+            {
+                //notifyIcon.Visible = true;
+                this.Show();
+                this.WindowState = FormWindowState.Normal;
+                minimizedToTray = false;
+                UpdateAutotintVersion();
+            }
+            else
+            {
+                WinApi.ShowToFront(this.Handle);
+            }
+        }
+        void NotifyIconClick(Object sender, System.EventArgs e)
+        {
+            ShowWindow();
+        }
+        #endregion
 
         //private void Form1_Resize(object sender, System.EventArgs e)
         //{

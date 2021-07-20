@@ -583,20 +583,7 @@ namespace AutoTintLibrary
 
                 PrismaProLatestVersion checkVersion = new PrismaProLatestVersion();
                 //Check the server for newer version.
-                //if (result.pos_setting?.id == null)
-                //{
-                //    //Get the latest version of db
-
-                //    dynamic prima_pro_version_response = await APIHelper.RequestGet(client, "/prisma_pro/");
-                //    var lastestJson = JObject.Parse(prima_pro_version_response)["message"];
-                //    PrismaPro prisma_pro_attr = JsonConvert.DeserializeObject<PrismaPro>(lastestJson.ToString());
-                //    checkVersion = await APIHelper.GetDBLatestVersion(client, prisma_pro_attr.results[0].id);
-
-                //}
-                //else
-                //{
                 checkVersion = await APIHelper.GetDBLatestVersion(client, result.pos_setting.id,auto_tint_id);
-                //}
 
 
                 Logger.Info($"Successful on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
@@ -608,12 +595,19 @@ namespace AutoTintLibrary
 
                     
                     string downloadURI = $"{checkVersion.file}";
-
+                    string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+                    string tmp_path = $"{path}\\tmp";
+                    if (!Directory.Exists(tmp_path))
+                    {
+                        Directory.CreateDirectory(tmp_path);
+                    }
+                    //if (!APIHelper.APIConnectionCheck(3, 30)) throw new Exception("Internet Connection Error");
                     String[] URIArray = downloadURI.Split('/');
                     WebClient webClient = new WebClient();
                     webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadCompleted);
                     webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-                    webClient.DownloadFileAsync(new Uri(downloadURI), $"{database_path}\\{URIArray[URIArray.Length - 1]}");
+                    webClient.QueryString.Add("fileName", $"{URIArray[URIArray.Length - 1]}");
+                    webClient.DownloadFileAsync(new Uri(downloadURI), $"{tmp_path}\\{URIArray[URIArray.Length - 1]}");
                     //Update to API about new version of database
                     string data = @"
                     {
@@ -640,6 +634,17 @@ namespace AutoTintLibrary
         private void DownloadCompleted(object sender, AsyncCompletedEventArgs e)
         {
             //Logger.Error($"Exception on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
+            //temp folder
+            string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            string tmp_path = $"{path}\\tmp";
+            //Move file to database path
+            string downLoadFileName = ((System.Net.WebClient)(sender)).QueryString["fileName"];
+            string database_path = ManageConfig.ReadGlobalConfig("database_path");
+            if (File.Exists($"{database_path}\\{downLoadFileName}"))
+            {
+                File.Delete($"{database_path}\\{downLoadFileName}");
+            }
+            File.Move($"{tmp_path}\\{downLoadFileName}", $"{database_path}\\{downLoadFileName}");
             Logger.Info($"Download new update succesful");
             string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             File.Delete($"{programdata_path}\\tmp\\dbupdate_running.tmp");
@@ -648,10 +653,13 @@ namespace AutoTintLibrary
 
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-            string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
-            string file_total_log_path = $"{programdata_path}\\tmp\\lib_running_log.json";
-            var jsonData = new ProgressCounter() { total_file = 0, complete_counter = e.ProgressPercentage, status = "Download DB File" };
-            File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(jsonData), Encoding.UTF8);
+            if(e.ProgressPercentage%5 == 0)
+            {
+                string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+                string file_total_log_path = $"{programdata_path}\\tmp\\lib_running_log.json";
+                var jsonData = new ProgressCounter() { total_file = 0, complete_counter = e.ProgressPercentage, status = "Download DB File" };
+                File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(jsonData), Encoding.UTF8);
+            }
         }
     }
 }
