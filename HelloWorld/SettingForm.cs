@@ -224,8 +224,8 @@ namespace IOTClient
             if (latestFileInfo == null && latestManualFileInfo == null) LatestExportDateTime = "Didn't find the transfer history";
             if (latestFileInfo != null && latestManualFileInfo != null)
             {
-                int result = DateTime.Compare(latestFileInfo.CreationTime, latestManualFileInfo.LastWriteTime);
-                DateTime tmp = (result <= 0) ? latestManualFileInfo.LastWriteTime : latestFileInfo.CreationTime;
+                int result = DateTime.Compare(latestFileInfo.LastWriteTime, latestManualFileInfo.LastWriteTime);
+                DateTime tmp = (result <= 0) ? latestManualFileInfo.LastWriteTime : latestFileInfo.LastWriteTime;
                 LatestExportDateTime = tmp.ToString("dddd dd MMMM yyyy HH:mm:ss", new System.Globalization.CultureInfo("en-GB"));
             }
             if(LatestExportDateTime == "" && latestFileInfo != null)
