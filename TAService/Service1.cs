@@ -16,6 +16,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using AutoTintLibrary;
+using System.Threading;
 
 namespace TAService
 {
@@ -28,12 +29,38 @@ namespace TAService
         };
 
         public DateTime randomStartTime = new DateTime();
+        
         public static RestClient APIclient = APIHelper.init();
         public Service1()
         {
             InitializeComponent();
         }
-
+        public async void startUpProcess()
+        {
+            var utcTime = DateTime.UtcNow;
+            var ictZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            var actualTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, ictZone);
+            string programdata_path = ManageConfig.ReadConfig("programdata_log_path");
+            Logger.Info($"[AutoStart] Start transfer operation when PC turn on {actualTime} !!!");
+            var instance = new FileOperationLibrary();
+            //Lock the manual process
+            File.Create($"{programdata_path}\\tmp\\running.tmp").Dispose();
+            File.Create($"{programdata_path}\\tmp\\dbupdate_running.tmp").Dispose();
+            var result = await instance.StartOperation();
+            APIHelperResponse res = JsonConvert.DeserializeObject<APIHelperResponse>(result);
+            if (res.statusCode == 200) Logger.Info($"[AutoStart] Start transfer status {res.statusCode} message {res.message}");
+            if (res.statusCode == 500) Logger.Error($"[AutoStart] Start transfer status {res.statusCode} message {res.message}");
+            Logger.Info($"[AutoStart] Transfer operation when PC turn on Finish on {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
+            //logMaskAsDoneDate("[AutoStart]" + actualTime);
+            Logger.Info($"[AutoStart] Start checking and updatet database at {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
+            await instance.UpdateAutotintVersion();
+            Logger.Info($"[AutoStart] Update the database done at {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
+            Logger.Info("[Service] Start timer");
+            System.Timers.Timer timScheduledTask = new System.Timers.Timer();
+            timScheduledTask.Enabled = true;
+            timScheduledTask.Interval = 60 * 1000;
+            timScheduledTask.Elapsed += new System.Timers.ElapsedEventHandler(timeScheduledTask_Elapsed);
+        }
         protected override async void OnStart(string[] args)
         {
 
@@ -60,18 +87,20 @@ namespace TAService
             {
                 if (!isTodayDone)
                 {
-                    Logger.Info($"[AutoStart] Start transfer operation when PC turn on {actualTime} !!!");
-                    var instance = new FileOperationLibrary();
-                    var result = await instance.StartOperation();
-                    APIHelperResponse res = JsonConvert.DeserializeObject<APIHelperResponse>(result);
-                    if(res.statusCode == 200) Logger.Info($"[AutoStart] Start transfer status {res.statusCode} message {res.message}");
-                    if(res.statusCode == 500) Logger.Error($"[AutoStart] Start transfer status {res.statusCode} message {res.message}");
-                    Logger.Info($"[AutoStart] Transfer operation when PC turn on Finish on {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
-                    //logMaskAsDoneDate("[AutoStart]" + actualTime);
-                    Logger.Info($"[AutoStart] Start checking and updatet database at {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
-                    await instance.UpdateAutotintVersion();
-                    Logger.Info($"[AutoStart] Update the database done at {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
-                }
+                    //Logger.Info($"[AutoStart] Start transfer operation when PC turn on {actualTime} !!!");
+                    //var instance = new FileOperationLibrary();
+                    //var result = await instance.StartOperation();
+                    //APIHelperResponse res = JsonConvert.DeserializeObject<APIHelperResponse>(result);
+                    //if(res.statusCode == 200) Logger.Info($"[AutoStart] Start transfer status {res.statusCode} message {res.message}");
+                    //if(res.statusCode == 500) Logger.Error($"[AutoStart] Start transfer status {res.statusCode} message {res.message}");
+                    //Logger.Info($"[AutoStart] Transfer operation when PC turn on Finish on {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
+                    ////logMaskAsDoneDate("[AutoStart]" + actualTime);
+                    //Logger.Info($"[AutoStart] Start checking and updatet database at {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
+                    //await instance.UpdateAutotintVersion();
+                    //Logger.Info($"[AutoStart] Update the database done at {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
+                    Thread startupThread = new Thread(new ThreadStart(startUpProcess));
+                    startupThread.Start();
+                }   
                 else
                 {
                     Logger.Info("[AutoStart] Today is done transfer operation !!!");
@@ -82,13 +111,6 @@ namespace TAService
                 File.Delete($"{programdata_path}\\tmp\\running.tmp");
                 File.Delete($"{programdata_path}\\tmp\\dbupdate_running.tmp");
             }
-            
-            Logger.Info("[Service] Start timer");
-            System.Timers.Timer timScheduledTask = new System.Timers.Timer();
-            timScheduledTask.Enabled = true;
-            timScheduledTask.Interval = 60 * 1000;
-            timScheduledTask.Elapsed += new System.Timers.ElapsedEventHandler(timeScheduledTask_Elapsed);
-
         }
 
         protected override void OnStop()

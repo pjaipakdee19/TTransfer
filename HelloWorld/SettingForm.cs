@@ -189,7 +189,7 @@ namespace IOTClient
             {
                 LoadGlobalConfig();
                 //CheckLastestUploadDateTime();
-                UpdateAutotintVersion();
+                //UpdateAutotintVersion();
             }catch(Exception ex)
             {
                 MessageBoxResult exInitMsgbox = System.Windows.MessageBox.Show($"{ex.Message}", "", MessageBoxButton.OK);
