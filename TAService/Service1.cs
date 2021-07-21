@@ -36,7 +36,7 @@ namespace TAService
             InitializeComponent();
         }
 
-        protected override async void OnStart(string[] args)
+        protected override void OnStart(string[] args)
         {
 
             var utcTime = DateTime.UtcNow;
@@ -58,6 +58,7 @@ namespace TAService
             //Clear the tmp file 
             File.Delete($"{programdata_path}\\tmp\\running.tmp");
             File.Delete($"{programdata_path}\\tmp\\dbupdate_running.tmp");
+            File.Delete($"{programdata_path}\\tmp\\checkdbVersion.tmp");
             Thread startupThread = new Thread(new ThreadStart(startUpProcess));
             try
             {
@@ -95,7 +96,7 @@ namespace TAService
             //{
             //    Logger.Info("[AutoStart] Operation is running ...");
             //}
-            _countdown.Wait();
+            //_countdown.Wait();
             Logger.Info("[Service] Start timer");
             System.Timers.Timer timScheduledTask = new System.Timers.Timer();
             timScheduledTask.Enabled = true;
@@ -124,7 +125,11 @@ namespace TAService
             Logger.Info($"[AutoStart] Start checking and updatet database at {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
             await instance.UpdateAutotintVersion();
             Logger.Info($"[AutoStart] Update the database done at {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
-            _countdown.Signal();
+            //Logger.Info("[Service] Start timer");
+            //System.Timers.Timer timScheduledTask = new System.Timers.Timer();
+            //timScheduledTask.Enabled = true;
+            //timScheduledTask.Interval = 60 * 1000;
+            //timScheduledTask.Elapsed += new System.Timers.ElapsedEventHandler(timeScheduledTask_Elapsed);
         }
         protected override void OnStop()
         {

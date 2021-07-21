@@ -34,6 +34,7 @@ namespace IOTClient
         public delegate void UpdateDownloadDBBtn();
         public delegate void UpdateProgressLbl();
         public delegate void LastestTransferLbl();
+        public delegate void LastestDBinfoLbl();
         bool minimizedToTray;
         NotifyIcon notifyIcon;
         dynamic Jsonettings = new JsonSerializerSettings
@@ -60,14 +61,23 @@ namespace IOTClient
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
-            var transferButtonThread = new Thread(new ThreadStart(checkTransferButton));
-            transferButtonThread.Start();
-            var checkDBbuttonThread = new Thread(new ThreadStart(checkDBButton));
-            checkDBbuttonThread.Start();
-            var serviceStatusLabelThread = new Thread(new ThreadStart(checkServiceLable));
-            serviceStatusLabelThread.Start();
-            var lastestUploadLabelThread = new Thread(new ThreadStart(checkUploadDTLable));
-            lastestUploadLabelThread.Start();
+            try
+            {
+                var transferButtonThread = new Thread(new ThreadStart(checkTransferButton));
+                transferButtonThread.Start();
+                var checkDBbuttonThread = new Thread(new ThreadStart(checkDBButton));
+                checkDBbuttonThread.Start();
+                var serviceStatusLabelThread = new Thread(new ThreadStart(checkServiceLable));
+                serviceStatusLabelThread.Start();
+                //var lastestUploadLabelThread = new Thread(new ThreadStart(checkUploadDTLable));
+                //lastestUploadLabelThread.Start();
+                //var lastestDBLabelThread = new Thread(new ThreadStart(checkDBFlagLable));
+                //lastestDBLabelThread.Start();
+            }catch(Exception ex)
+            {
+                Logger.Error("Thread got exception "+ ex.Message);
+            }
+            
         }
         #region Thread_of_exportbtn_handler
         public void disblebtnExportHandler()
@@ -82,20 +92,26 @@ namespace IOTClient
         }
         public async void checkTransferButton()
         {
-
-            string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
-            while (true)
+            try
             {
-                var delayTask = Task.Delay(1000);
-                if (File.Exists($"{path}\\tmp\\running.tmp"))
+                string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+                while (true)
                 {
-                    btnExport1.Invoke(new UpdateTransferBtn(disblebtnExportHandler));
+                    var delayTask = Task.Delay(100);
+                    if (File.Exists($"{path}\\tmp\\running.tmp"))
+                    {
+                        btnExport1.Invoke(new UpdateTransferBtn(disblebtnExportHandler));
+                    }
+                    else
+                    {
+                        btnExport1.Invoke(new UpdateTransferBtn(enablebtnExportHandler));
+                    }
+                    await delayTask;
                 }
-                else
-                {
-                    btnExport1.Invoke(new UpdateTransferBtn(enablebtnExportHandler));
-                }
-                await delayTask;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Thread got exception " + ex.Message);
             }
         }
         #endregion
@@ -113,20 +129,27 @@ namespace IOTClient
         public async void checkDBButton()
         {
             string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
-            while (true)
+            try
             {
-                var delayTask = Task.Delay(1000);
-                if (File.Exists($"{path}\\tmp\\dbupdate_running.tmp"))
+                while (true)
                 {
+                    var delayTask = Task.Delay(100);
+                    if (File.Exists($"{path}\\tmp\\dbupdate_running.tmp"))
+                    {
 
-                    button1.Invoke(new UpdateDownloadDBBtn(disblebtnDBHandler));
-                }
-                else
-                {
-                    button1.Invoke(new UpdateDownloadDBBtn(enablebtnDBHandler));
+                        button1.Invoke(new UpdateDownloadDBBtn(disblebtnDBHandler));
+                    }
+                    else
+                    {
+                        button1.Invoke(new UpdateDownloadDBBtn(enablebtnDBHandler));
 
+                    }
+                    await delayTask;
                 }
-                await delayTask;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Thread got exception " + ex.Message);
             }
         }
         #endregion
@@ -135,48 +158,152 @@ namespace IOTClient
         {
             string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             //var pp =  $"{path}\\tmp\\lib_running_log.json";
-            if (File.Exists($"{path}\\tmp\\lib_running_log.json")) { 
-                string jsonData = File.ReadAllText($"{path}\\tmp\\lib_running_log.json");
-                ProgressCounter pg = JsonConvert.DeserializeObject<ProgressCounter>(jsonData);
-                ServiceStatusLbl.Text = $"{pg.status} {pg.complete_counter}%";
-            }
-            else
+            try
             {
-                ServiceStatusLbl.Text = "Stand by";
+                if (File.Exists($"{path}\\tmp\\lib_running_log.json"))
+                {
+                    string jsonData = File.ReadAllText($"{path}\\tmp\\lib_running_log.json");
+                    ProgressCounter pg = JsonConvert.DeserializeObject<ProgressCounter>(jsonData);
+                    ServiceStatusLbl.Text = $"{pg.status} {pg.complete_counter}%";
+                }
+                else
+                {
+                    ServiceStatusLbl.Text = "Stand by";
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Maybe file is deleted "+ ex.Message);
+                if (File.Exists($"{path}\\tmp\\lib_running_log.json"))
+                {
+                    string jsonData = File.ReadAllText($"{path}\\tmp\\lib_running_log.json");
+                    ProgressCounter pg = JsonConvert.DeserializeObject<ProgressCounter>(jsonData);
+                    ServiceStatusLbl.Text = $"{pg.status} {pg.complete_counter}%";
+                }
+                else
+                {
+                    ServiceStatusLbl.Text = "Complete";
+                    ServiceStatusLbl.Text = "Stand by";
+                }
+
             }
         }
         public void clearLabelHandler()
         {
             ServiceStatusLbl.Text = "Stand by";
         }
-        public async void checkServiceLable()
+        public void updateLabelHandlerV2()
         {
             string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
-            while (true)
+            try
             {
-                var delayTask = Task.Delay(1000);
                 if (File.Exists($"{path}\\tmp\\lib_running_log.json"))
                 {
-                    //button1.Invoke(new UpdateDownloadDBBtn(disblebtnDBHandler));
-                    ServiceStatusLbl.Invoke(new UpdateProgressLbl(updateLabelHandler));
+                    string jsonData = File.ReadAllText($"{path}\\tmp\\lib_running_log.json");
+                    ProgressCounter pg = JsonConvert.DeserializeObject<ProgressCounter>(jsonData);
+                    ServiceStatusLbl.Text = $"{pg.status} {pg.complete_counter}%";
                 }
-                else
+                
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("File json exception" + ex.Message);
+                ServiceStatusLbl.Text = "Exception !!!!";
+            }
+        }
+        public async void checkServiceLable()
+        {
+            try
+            {
+                //string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+                while (true)
                 {
-                    ServiceStatusLbl.Invoke(new UpdateProgressLbl(clearLabelHandler));
+                    var delayTask = Task.Delay(10);
+                    //if (File.Exists($"{path}\\tmp\\lib_running_log.json"))
+                    //{
+                    //    //button1.Invoke(new UpdateDownloadDBBtn(disblebtnDBHandler));
+                    //    ServiceStatusLbl.Invoke(new UpdateProgressLbl(updateLabelHandler));
+                    //}
+                    //else
+                    //{
+                    //    ServiceStatusLbl.Invoke(new UpdateProgressLbl(clearLabelHandler));
 
+                    //}
+                    ServiceStatusLbl.begin(new UpdateProgressLbl(updateLabelHandlerV2));
+                    await delayTask;
                 }
-                await delayTask;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("checkServiceLable Thread got exception " + ex.Message);
             }
         }
         #endregion
         #region Thread_of_lastest_upload_datetime
         public async void checkUploadDTLable()
         {
-            while (true)
+            try
             {
-                var delayTask = Task.Delay(1000);
-                HistoryExportDateTimeLbl.Invoke(new LastestTransferLbl(CheckLastestUploadDateTime));
-                await delayTask;
+                while (true)
+                {
+                    var delayTask = Task.Delay(100);
+                    HistoryExportDateTimeLbl.Invoke(new LastestTransferLbl(CheckLastestUploadDateTime));
+                    await delayTask;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Thread got exception " + ex.Message);
+            }
+        }
+        #endregion
+        #region Thread_of_lastest_db_info
+
+        public async void verifyDBinfoflagAsync()
+        {
+            //มีไฟล์ execute version check
+            await updateDBversionfile();
+        }
+        public void readDBinfo()
+        {
+            string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            //var pp =  $"{path}\\tmp\\lib_running_log.json";
+            if (File.Exists($"{path}\\db_version.json"))
+            {
+                string jsonData = File.ReadAllText($"{path}\\db_version.json");
+                DBversionHandler pg = JsonConvert.DeserializeObject<DBversionHandler>(jsonData);
+                //ServiceStatusLbl.Text = $"{pg.status} {pg.complete_counter}%";
+                lblDatabaseVersionText.Text = $"{pg.version}";
+                lblDatabaseCheckVal.Text = $"{pg.datetime}";
+            }
+            else
+            {
+                lblDatabaseVersionText.Text = "No Information";
+                lblDatabaseCheckVal.Text = "No Information";
+            }
+        }
+        public async void checkDBFlagLable()
+        {
+            string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            try
+            {
+                while (true)
+                {
+                    var delayTask = Task.Delay(100);
+                    if (File.Exists($"{path}\\tmp\\checkdbVersion.tmp"))
+                    {
+                        lblDatabaseVersionText.Invoke(new LastestTransferLbl(verifyDBinfoflagAsync));
+                    }
+                    else
+                    {
+                        lblDatabaseVersionText.Invoke(new LastestTransferLbl(readDBinfo));
+                    }
+                    await delayTask;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Thread got exception " + ex.Message);
             }
         }
         #endregion
@@ -195,7 +322,86 @@ namespace IOTClient
                 MessageBoxResult exInitMsgbox = System.Windows.MessageBox.Show($"{ex.Message}", "", MessageBoxButton.OK);
             }
         }
+        private async Task updateDBversionfile()
+        {
+            string program_data_log_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            File.SetAttributes($"{program_data_log_path}\\tmp\\checkdbVersion.tmp", FileAttributes.Normal);
+            File.Delete($"{program_data_log_path}\\tmp\\checkdbVersion.tmp");
+            button1.Enabled = false;
+            button1.Text = "Checking ...";
+            button1.Text = "Running ...";
+            string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
+            string str_response = await APIHelper.GetAutoTintVersion(client, auto_tint_id);
+            //Current version from server.
+            APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(str_response);
+            DateTime startTimeFormate = DateTime.UtcNow;
+            TimeZoneInfo systemTimeZone = TimeZoneInfo.Local;
+            DateTime localDateTime = TimeZoneInfo.ConvertTimeFromUtc(startTimeFormate, systemTimeZone);
+            string ICTDateTimeText = localDateTime.ToString("dddd dd MMMM yyyy HH:mm:ss", new System.Globalization.CultureInfo("en-GB"));
+            if (response.statusCode == 200)
+            {
+                AutoTintWithId result = JsonConvert.DeserializeObject<AutoTintWithId>(response.message, Jsonettings);
+                
+                //lblDatabaseCheckVal.Text = ICTDateTimeText;
+                PrismaProLatestVersion checkVersion = new PrismaProLatestVersion();
+                //Check the server for newer version.
+                checkVersion = await APIHelper.GetDBLatestVersion(client, result.pos_setting.id, auto_tint_id);
 
+
+                Logger.Info($"Successful on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
+
+                var shouldDownloadNewDB = (result.pos_setting_version == null) ? true : (result.pos_setting_version.id < checkVersion.id);
+                //if (shouldDownloadNewDB)
+                if (false)
+                {
+                    //    //Goto download
+                    MessageBoxResult msgDownloadbox = System.Windows.MessageBox.Show($"The Database is not the latest version \n Current : {result.pos_setting_version?.number} \n Lastest : {checkVersion.number} \n System will continue Download update automatically", "", MessageBoxButton.OK);
+
+
+                    string downloadURI = $"{checkVersion.file}";
+                    string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+                    string tmp_path = $"{path}\\tmp";
+                    if (!Directory.Exists(tmp_path))
+                    {
+                        Directory.CreateDirectory(tmp_path);
+                    }
+                    String[] URIArray = downloadURI.Split('/');
+                    if (!APIHelper.APIConnectionCheck(3, 30)) throw new Exception("Internet Connection Error");
+                    WebClient webClient = new WebClient();
+                    webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(downloadCompletedHandler);
+                    webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
+                    webClient.QueryString.Add("fileName", $"{URIArray[URIArray.Length - 1]}");
+                    webClient.DownloadFileAsync(new Uri(downloadURI), $"{tmp_path}\\{URIArray[URIArray.Length - 1]}");//$"{database_path}\\{URIArray[URIArray.Length-1]}");
+                    //Update to API about new version of database
+                    string data = @"
+                    {
+                    ""pos_setting_version_id"": " + checkVersion.id + @"
+                    }
+                    ";
+                    //dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
+
+                    //Update version after complete
+                    //Save version file
+                    DBversionHandler jsonData = new DBversionHandler() { version = $"{checkVersion.number}", datetime = $"{ICTDateTimeText}", filename = $"{URIArray[URIArray.Length - 1]}", auto_tint_id = $"{auto_tint_id}" };
+                    File.WriteAllText($"{program_data_log_path}\\db_version.json", JsonConvert.SerializeObject(jsonData), Encoding.UTF8);
+                }
+                else
+                {
+                    //Write lastest version label
+                    AutoTintWithId result2 = JsonConvert.DeserializeObject<AutoTintWithId>(response.message, Jsonettings);
+                    string[] fileName = result2.pos_setting_version.file.Split('/');
+                    DBversionHandler jsonData2 = new DBversionHandler() { version = $"{result2.pos_setting_version.number}", datetime = $"{ICTDateTimeText}", filename = $"{fileName[fileName.Length-1]}", auto_tint_id = $"{auto_tint_id}" };
+                    File.WriteAllText($"{program_data_log_path}\\db_version.json", JsonConvert.SerializeObject(jsonData2), Encoding.UTF8);
+                }
+            }
+            else
+            {
+                MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Status Code : {response.statusCode} \nMessage : {response.message}", "Error", MessageBoxButton.OK);
+                Logger.Error($"Exception on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
+            }
+            button1.Enabled = true;
+            button1.Text = "Check for updates";
+        }
         private void CheckLastestUploadDateTime()
         {
             string LatestExportDateTime = "";
@@ -269,11 +475,12 @@ namespace IOTClient
             string program_data_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             if (File.Exists($"{program_data_path}\\tmp\\dbupdate_running.tmp"))
             {
-                MessageBoxResult AlertMessageBox2 = System.Windows.MessageBox.Show($"Another Database update process is running please wait for a while and try again", "Message", MessageBoxButton.OK);
+                //MessageBoxResult AlertMessageBox2 = System.Windows.MessageBox.Show($"Another Database update process is running please wait for a while and try again", "Message", MessageBoxButton.OK);
                 button1.Enabled = true;
                 button1.Text = "Check for updates";
                 return;
             }
+            button1.Text = "Running ...";
             string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
             string str_response = await APIHelper.GetAutoTintVersion(client, auto_tint_id);
 
@@ -286,24 +493,11 @@ namespace IOTClient
                 TimeZoneInfo systemTimeZone = TimeZoneInfo.Local;
                 DateTime localDateTime = TimeZoneInfo.ConvertTimeFromUtc(startTimeFormate, systemTimeZone);
                 //string ICTDateTimeText = localDateTime.ToString("dddd dd MMMM yyyy HH:mm:ff", new System.Globalization.CultureInfo("th-TH"));
-                string ICTDateTimeText = localDateTime.ToString("dddd dd MMMM yyyy HH:mm:ff", new System.Globalization.CultureInfo("en-GB"));
+                string ICTDateTimeText = localDateTime.ToString("dddd dd MMMM yyyy HH:mm:ss", new System.Globalization.CultureInfo("en-GB"));
                 lblDatabaseCheckVal.Text = ICTDateTimeText;
                 PrismaProLatestVersion checkVersion = new PrismaProLatestVersion();
                 //Check the server for newer version.
-                //if (result.pos_setting?.id == null)
-                //{
-                //    //Get the latest version of db
-
-                //    dynamic prima_pro_version_response = await APIHelper.RequestGet(client, "/prisma_pro/");
-                //    var lastestJson = JObject.Parse(prima_pro_version_response)["message"];
-                //    PrismaPro prisma_pro_attr = JsonConvert.DeserializeObject<PrismaPro>(lastestJson.ToString());
-                //    checkVersion = await APIHelper.GetDBLatestVersion(client, prisma_pro_attr.results[0].id);
-
-                //}
-                //else
-                //{
                 checkVersion = await APIHelper.GetDBLatestVersion(client, result.pos_setting.id,auto_tint_id);
-                //}
 
 
                 Logger.Info($"Successful on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
@@ -515,7 +709,9 @@ namespace IOTClient
             System.Windows.MessageBox.Show("Download completed! \nDatabase is up to date");
             Logger.Info($"Download new update succesful");
             string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
-            File.Delete($"{programdata_path}\\tmp\\lib_running_log.json");
+            //File.Delete($"{programdata_path}\\tmp\\lib_running_log.json");
+            var jsonDataComp = new ProgressCounter() { total_file = 0, complete_counter = 0, status = "Stand by" };
+            File.WriteAllText($"{programdata_path}\\tmp\\lib_running_log.json", JsonConvert.SerializeObject(jsonDataComp), Encoding.UTF8);
         }
 
         #region Windows_Controller

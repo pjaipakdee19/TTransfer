@@ -281,27 +281,12 @@ namespace AutoTintLibrary
 
                         int jsonFileCounter = jsonDispensePathInfo.GetFiles("*.json").Length;
                         //string file_total_log_path = $"{programdata_path}\\tmp\\lib_running_log.json";
-                        data = new ProgressCounter() { total_file = jsonFileCounter, complete_counter = (int)((jsonFileTotalCounter-jsonFileCounter) * 100)/jsonFileTotalCounter, status = "Transfering ...." };
+                        int completePercentage = (int)((jsonFileTotalCounter - jsonFileCounter) * 100) / jsonFileTotalCounter;
+                        Logger.Info($"Log the percentage to file {completePercentage}");
+                        data = new ProgressCounter() { total_file = jsonFileCounter, complete_counter = completePercentage, status = "Transfering ...." };
                         File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(data), Encoding.UTF8);
-                    }
 
-                    
-
-                    //if(retry_bi > 4)
-                    //{
-                    //    //change file name to xxx_p2 after unsucessful transfer
-                    //    int extensionIndex = jsonFile.Name.IndexOf(".json");
-                    //    //create tmp directory
-                    //    CreateDirectoryIfNotExist($"{jsonDispenseLogPath}\\tmp");
-                    //    string moveTo = $"{jsonDispenseLogPath}\\tmp\\{jsonFile.Name.Substring(0, extensionIndex)}_p2.json";
-                    //    File.Move(jsonFile.FullName, moveTo);
-                    //    Logger.Info("Transfer to server error move json files to : " + moveTo);
-                        
-                    //}
-                //}
-
-
-                    
+                    }       
                 }
                 catch (Exception ex)
                 {
@@ -321,7 +306,9 @@ namespace AutoTintLibrary
             }
             //Delete is running file
             File.Delete($"{programdata_path}\\tmp\\running.tmp");
-            File.Delete($"{programdata_path}\\tmp\\lib_running_log.json");
+            //File.Delete($"{programdata_path}\\tmp\\lib_running_log.json");
+            var jsonData = new ProgressCounter() { total_file = 0, complete_counter = 0, status = "Stand by" };
+            File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(jsonData), Encoding.UTF8);
             return JsonConvert.SerializeObject(new { statusCode = statusCode, message = responseMessage });
         }
 
@@ -569,7 +556,7 @@ namespace AutoTintLibrary
 
             APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(str_response);
             string file_total_log_path = $"{programdata_path}\\tmp\\lib_running_log.json";
-            var jsonData = new ProgressCounter() { total_file = 0, complete_counter = 0, status = "Download DB File" };
+            var jsonData = new ProgressCounter() { total_file = 1, complete_counter = 0, status = "Download DB File" };
             File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(jsonData), Encoding.UTF8);
             if (response.statusCode == 200)
             {
@@ -612,12 +599,24 @@ namespace AutoTintLibrary
                     }
                     ";
                     //dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
+                    DBversionHandler jsonData2 = new DBversionHandler() { version = $"{checkVersion.number}", datetime = $"{ICTDateTimeText}", filename = $"{URIArray[URIArray.Length - 1]}", auto_tint_id = $"{auto_tint_id}" };
+                    File.WriteAllText($"{programdata_path}\\db_version.json", JsonConvert.SerializeObject(jsonData2), Encoding.UTF8);
                 }
                 else
                 {
                     //Delete is running file
                     File.Delete($"{programdata_path}\\tmp\\dbupdate_running.tmp");
-                    File.Delete($"{programdata_path}\\tmp\\lib_running_log.json");
+                    //File.Delete($"{programdata_path}\\tmp\\lib_running_log.json");
+                    var jsonDataElse = new ProgressCounter() { total_file = 0, complete_counter = 0, status = "Stand by" };
+                    File.WriteAllText($"{programdata_path}\\tmp\\lib_running_log.json", JsonConvert.SerializeObject(jsonDataElse), Encoding.UTF8);
+                    AutoTintWithId result2 = JsonConvert.DeserializeObject<AutoTintWithId>(response.message, JsonSetting);
+                    string[] fileName = result2.pos_setting_version.file.Split('/');
+                    DBversionHandler jsonData3 = new DBversionHandler() { version = $"{result2.pos_setting_version.number}", datetime = $"{ICTDateTimeText}", filename = $"{fileName[fileName.Length - 1]}", auto_tint_id = $"{auto_tint_id}" };
+                    File.WriteAllText($"{programdata_path}\\db_version.json", JsonConvert.SerializeObject(jsonData3), Encoding.UTF8);
+                    //DirectoryInfo dInfo = new DirectoryInfo($"{programdata_path}\\tmp\\checkdbVersion.tmp");
+                    //DirectorySecurity dSecurity = dInfo.GetAccessControl();
+                    //dSecurity.AddAccessRule(new FileSystemAccessRule("everyone", FileSystemRights.FullControl, InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit, PropagationFlags.InheritOnly, AccessControlType.Allow));
+                    //dInfo.SetAccessControl(dSecurity);
                 }
             }
             else
@@ -645,18 +644,21 @@ namespace AutoTintLibrary
             Logger.Info($"Download new update succesful");
             string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             File.Delete($"{programdata_path}\\tmp\\dbupdate_running.tmp");
-            File.Delete($"{programdata_path}\\tmp\\lib_running_log.json");
+            //File.Delete($"{programdata_path}\\tmp\\lib_running_log.json");
+            var jsonDataComp = new ProgressCounter() { total_file = 0, complete_counter = 0, status = "Stand by" };
+            File.WriteAllText($"{programdata_path}\\tmp\\lib_running_log.json", JsonConvert.SerializeObject(jsonDataComp), Encoding.UTF8);
         }
 
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
             try
             {
+                string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+                string file_total_log_path = $"{programdata_path}\\tmp\\lib_running_log.json";
                 if (e.ProgressPercentage % 5 == 0)
                 {
-                    string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
-                    string file_total_log_path = $"{programdata_path}\\tmp\\lib_running_log.json";
-                    var jsonData = new ProgressCounter() { total_file = 0, complete_counter = e.ProgressPercentage, status = "Download DB File" };
+                    Logger.Info($"ProgressChanged  : {e.ProgressPercentage}");
+                    var jsonData = new ProgressCounter() { total_file = 1, complete_counter = e.ProgressPercentage, status = "Download DB File" };
                     File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(jsonData), Encoding.UTF8);
                 }
             }catch(Exception ex)
