@@ -189,7 +189,7 @@ namespace IOTClient
             {
                 LoadGlobalConfig();
                 //CheckLastestUploadDateTime();
-                UpdateAutotintVersion();
+                //UpdateAutotintVersion();
             }catch(Exception ex)
             {
                 MessageBoxResult exInitMsgbox = System.Windows.MessageBox.Show($"{ex.Message}", "", MessageBoxButton.OK);
@@ -309,8 +309,8 @@ namespace IOTClient
                 Logger.Info($"Successful on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
                 
                 var shouldDownloadNewDB = (result.pos_setting_version == null) ? true : (result.pos_setting_version.id < checkVersion.id);
-                if (shouldDownloadNewDB)
-                //if (false)
+                //if (shouldDownloadNewDB)
+                if (true)
                 {
                     //    //Goto download
                     MessageBoxResult msgDownloadbox = System.Windows.MessageBox.Show($"The Database is not the latest version \n Current : {result.pos_setting_version?.number} \n Lastest : {checkVersion.number} \n System will continue Download update automatically", "", MessageBoxButton.OK);
@@ -558,7 +558,7 @@ namespace IOTClient
                 this.Show();
                 this.WindowState = FormWindowState.Normal;
                 minimizedToTray = false;
-                UpdateAutotintVersion();
+                //UpdateAutotintVersion();
             }
             else
             {

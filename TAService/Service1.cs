@@ -30,6 +30,7 @@ namespace TAService
 
         public DateTime randomStartTime = new DateTime();
         public static RestClient APIclient = APIHelper.init();
+        static CountdownEvent _countdown = new CountdownEvent(1);
         public Service1()
         {
             InitializeComponent();
@@ -57,6 +58,7 @@ namespace TAService
             //Clear the tmp file 
             File.Delete($"{programdata_path}\\tmp\\running.tmp");
             File.Delete($"{programdata_path}\\tmp\\dbupdate_running.tmp");
+            Thread startupThread = new Thread(new ThreadStart(startUpProcess));
             try
             {
                 if (!isTodayDone)
@@ -75,8 +77,8 @@ namespace TAService
                     //Logger.Info($"[AutoStart] Start checking and updatet database at {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
                     //await instance.UpdateAutotintVersion();
                     //Logger.Info($"[AutoStart] Update the database done at {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
-                    Thread t = new Thread(new ThreadStart(startUpProcess));
-                    t.Start();
+
+                    startupThread.Start();
                 }
                 else
                 {
@@ -88,12 +90,18 @@ namespace TAService
                 File.Delete($"{programdata_path}\\tmp\\running.tmp");
                 File.Delete($"{programdata_path}\\tmp\\dbupdate_running.tmp");
             }
-            
+
+            //while (startupThread.IsAlive)
+            //{
+            //    Logger.Info("[AutoStart] Operation is running ...");
+            //}
+            _countdown.Wait();
             Logger.Info("[Service] Start timer");
             System.Timers.Timer timScheduledTask = new System.Timers.Timer();
             timScheduledTask.Enabled = true;
             timScheduledTask.Interval = 60 * 1000;
             timScheduledTask.Elapsed += new System.Timers.ElapsedEventHandler(timeScheduledTask_Elapsed);
+
 
         }
         public async void startUpProcess()
@@ -116,6 +124,7 @@ namespace TAService
             Logger.Info($"[AutoStart] Start checking and updatet database at {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
             await instance.UpdateAutotintVersion();
             Logger.Info($"[AutoStart] Update the database done at {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
+            _countdown.Signal();
         }
         protected override void OnStop()
         {
