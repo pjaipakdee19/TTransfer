@@ -591,9 +591,6 @@ namespace AutoTintLibrary
                 //if (shouldDownloadNewDB)
                 if (true)
                 {
-                    //    //Goto download
-
-                    
                     string downloadURI = $"{checkVersion.file}";
                     string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
                     string tmp_path = $"{path}\\tmp";

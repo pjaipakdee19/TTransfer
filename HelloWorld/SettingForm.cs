@@ -253,7 +253,7 @@ namespace IOTClient
             database_path = ManageConfig.ReadGlobalConfig("database_path");
             try
             {
-                UpdateAutotintVersion();
+                await UpdateAutotintVersion();
             }
             catch (Exception ex)
             {
