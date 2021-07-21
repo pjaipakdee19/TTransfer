@@ -653,12 +653,15 @@ namespace AutoTintLibrary
 
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-            if(e.ProgressPercentage%5 == 0)
+            string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            if (File.Exists($"{programdata_path}\\tmp\\lib_running_log.json"))
             {
-                string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
-                string file_total_log_path = $"{programdata_path}\\tmp\\lib_running_log.json";
-                var jsonData = new ProgressCounter() { total_file = 0, complete_counter = e.ProgressPercentage, status = "Download DB File" };
-                File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(jsonData), Encoding.UTF8);
+                if (e.ProgressPercentage % 5 == 0)
+                {
+                    string file_total_log_path = $"{programdata_path}\\tmp\\lib_running_log.json";
+                    var jsonData = new ProgressCounter() { total_file = 0, complete_counter = e.ProgressPercentage, status = "Download DB File" };
+                    File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(jsonData), Encoding.UTF8);
+                }
             }
         }
     }
