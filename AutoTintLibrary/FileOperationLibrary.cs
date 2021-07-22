@@ -124,7 +124,7 @@ namespace AutoTintLibrary
 
 
 
-                    latest_dispense_date_response.statusCode = 404;
+                    //latest_dispense_date_response.statusCode = 404;
                     if ((latest_dispense_date_response.statusCode != 404)&&(shouldConvert))
                     {
                         dateList.Add(date[0]);
@@ -591,8 +591,8 @@ namespace AutoTintLibrary
 
                 Logger.Info($"Successful on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
                 var shouldDownloadNewDB = (result.pos_setting_version == null) ? true : (result.pos_setting_version.id < checkVersion.id);
-                //if (shouldDownloadNewDB)
-                if (true)
+                if (shouldDownloadNewDB)
+                //if (true)
                 {
                     //    //Goto download
 
@@ -617,7 +617,7 @@ namespace AutoTintLibrary
                     ""pos_setting_version_id"": " + checkVersion.id + @"
                     }
                     ";
-                    //dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
+                    dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
                 }
                 else
                 {
