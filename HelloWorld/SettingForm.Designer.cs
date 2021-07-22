@@ -56,6 +56,8 @@ namespace IOTClient
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.staticServiceStatusLbl = new System.Windows.Forms.Label();
             this.ServiceStatusLbl = new System.Windows.Forms.Label();
+            this.fileSystemWatcher1 = new System.IO.FileSystemWatcher();
+            ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.SuspendLayout();
             // 
             // btnExport1
@@ -270,6 +272,11 @@ namespace IOTClient
             this.ServiceStatusLbl.TabIndex = 23;
             this.ServiceStatusLbl.Text = "Stand by";
             // 
+            // fileSystemWatcher1
+            // 
+            this.fileSystemWatcher1.EnableRaisingEvents = true;
+            this.fileSystemWatcher1.SynchronizingObject = this;
+            // 
             // SettingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -304,6 +311,7 @@ namespace IOTClient
             this.Text = "TOA IOT Setting";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.btnMinToTray_Click);
             this.Load += new System.EventHandler(this.SettingForm_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -337,6 +345,7 @@ namespace IOTClient
         private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.Label staticServiceStatusLbl;
         private System.Windows.Forms.Label ServiceStatusLbl;
+        private System.IO.FileSystemWatcher fileSystemWatcher1;
     }
 }
 
