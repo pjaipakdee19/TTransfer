@@ -188,9 +188,9 @@ namespace IOTClient
             this.lblDatabaseCheckVal.AutoSize = true;
             this.lblDatabaseCheckVal.Location = new System.Drawing.Point(161, 349);
             this.lblDatabaseCheckVal.Name = "lblDatabaseCheckVal";
-            this.lblDatabaseCheckVal.Size = new System.Drawing.Size(133, 13);
+            this.lblDatabaseCheckVal.Size = new System.Drawing.Size(75, 13);
             this.lblDatabaseCheckVal.TabIndex = 15;
-            this.lblDatabaseCheckVal.Text = "อาทิตย์ 15 พฤษภาคม 2564";
+            this.lblDatabaseCheckVal.Text = "No information";
             // 
             // btnCheckShopID
             // 

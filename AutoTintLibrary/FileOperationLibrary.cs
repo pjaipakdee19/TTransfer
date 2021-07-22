@@ -624,6 +624,7 @@ namespace AutoTintLibrary
                     //Delete is running file
                     File.Delete($"{programdata_path}\\tmp\\dbupdate_running.tmp");
                     File.Delete($"{programdata_path}\\tmp\\lib_running_log.json");
+                    File.Create($"{programdata_path}\\tmp\\dbupdate_version_check.tmp").Dispose();
                 }
             }
             else
@@ -652,6 +653,7 @@ namespace AutoTintLibrary
             string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             File.Delete($"{programdata_path}\\tmp\\dbupdate_running.tmp");
             File.Delete($"{programdata_path}\\tmp\\lib_running_log.json");
+            File.Create($"{programdata_path}\\tmp\\dbupdate_version_check.tmp").Dispose();
         }
 
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)

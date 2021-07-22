@@ -83,6 +83,8 @@ namespace TAService
             //Clear the tmp file 
             File.Delete($"{programdata_path}\\tmp\\running.tmp");
             File.Delete($"{programdata_path}\\tmp\\dbupdate_running.tmp");
+            File.Delete($"{programdata_path}\\tmp\\dbupdate_version_check.tmp");
+            File.Delete($"{programdata_path}\\tmp\\dbupdate_client_checked.tmp");
             try
             {
                 if (!isTodayDone)
