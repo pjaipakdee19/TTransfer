@@ -229,7 +229,7 @@ namespace IOTClient
             {
                 LoadGlobalConfig();
                 //CheckLastestUploadDateTime();
-                UpdateAutotintVersion();
+                //UpdateAutotintVersion();
             }
             catch(Exception ex)
             {
@@ -360,6 +360,7 @@ namespace IOTClient
                     WebClient webClient = new WebClient();
                     webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(downloadCompletedHandler);
                     webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
+                    //webClient.DownloadStringCompleted += new DownloadStringCompletedEventHandler(DownloadStringCompletedHandler);
                     webClient.QueryString.Add("fileName", $"{URIArray[URIArray.Length - 1]}");
                     webClient.DownloadFileAsync(new Uri(downloadURI), $"{tmp_path}\\{URIArray[URIArray.Length - 1]}");//$"{database_path}\\{URIArray[URIArray.Length-1]}");
                     //Update to API about new version of database
@@ -514,13 +515,27 @@ namespace IOTClient
         private void btnDownloadUpdate_Click(object sender, EventArgs e)
         {
             //WebClient webClient = new WebClient();
-            //webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(Completed);
+            //webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(downloadCompletedHandler);
             //webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
             //webClient.DownloadFileAsync(new Uri("http://49.229.21.7/files/settings/Tint_On_Shop_TuwDkNh.SDF"), @"E:\Tutorial\db_location\Tint_On_Shop_TuwDkNh.SDF");
-            string path = @"E:\Tutorial\csv_history\json_log\full_dispense_log_4_11_2015.json";
-            var instance = new FileOperationLibrary();
-            //instance.convertToBIDataNew(path);
-            instance.UpdateAutotintVersion();
+            //string path = @"E:\Tutorial\csv_history\json_log\full_dispense_log_4_11_2015.json";
+            //var instance = new FileOperationLibrary();
+            ////instance.convertToBIDataNew(path);
+            //instance.UpdateAutotintVersion();
+            try
+            {
+                string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+                string tmp_path = $"{path}\\tmp";
+                DownloadHelper downloadHelper = new DownloadHelper("http://49.229.21.7/files/settings/Tint_On_Shop_TuwDkNh.SDF",
+                    @"E:\Tutorial\db_location",
+                    @"C:\TOA\Temp");
+                //$"{path}\\tmp");
+                downloadHelper.StartDownload();
+            }catch(Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            
         }
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
@@ -531,10 +546,9 @@ namespace IOTClient
             var jsonData = new ProgressCounter() { total_file = 0, complete_counter = e.ProgressPercentage, status = "Download DB File" };
             File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(jsonData), Encoding.UTF8);
         }
-
+        private int _retryCount = 0;
         private void downloadCompletedHandler(object sender, AsyncCompletedEventArgs e)
         {
-            
             //temp folder
             string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             string tmp_path = $"{path}\\tmp";
@@ -550,9 +564,10 @@ namespace IOTClient
             progressBar1.Visible = false;
             System.Windows.MessageBox.Show("Download completed! \nDatabase is up to date");
             Logger.Info($"Download new update succesful");
-            
+
             File.Delete($"{path}\\tmp\\lib_running_log.json");
             File.Create($"{path}\\tmp\\dbupdate_client_checked.tmp").Dispose();
+            
         }
 
         #region Windows_Controller
@@ -595,7 +610,7 @@ namespace IOTClient
                 this.Show();
                 this.WindowState = FormWindowState.Normal;
                 minimizedToTray = false;
-                UpdateAutotintVersion();
+                //UpdateAutotintVersion();
             }
             else
             {
