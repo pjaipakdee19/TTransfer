@@ -15,6 +15,8 @@ Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "SetupProject", "SetupProjec
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PropertySetupAction", "PropertySetupAction\PropertySetupAction.csproj", "{FDBA7C5B-E23F-4F5B-AD56-8B6F5AAC12A9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StandaloneConverterApp", "StandaloneConverterApp\StandaloneConverterApp.csproj", "{764C4916-9C93-41D8-AB68-779DEDFD91AE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,6 +69,14 @@ Global
 		{FDBA7C5B-E23F-4F5B-AD56-8B6F5AAC12A9}.Release|Any CPU.ActiveCfg = Release|x86
 		{FDBA7C5B-E23F-4F5B-AD56-8B6F5AAC12A9}.Release|x86.ActiveCfg = Release|x86
 		{FDBA7C5B-E23F-4F5B-AD56-8B6F5AAC12A9}.Release|x86.Build.0 = Release|x86
+		{764C4916-9C93-41D8-AB68-779DEDFD91AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{764C4916-9C93-41D8-AB68-779DEDFD91AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{764C4916-9C93-41D8-AB68-779DEDFD91AE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{764C4916-9C93-41D8-AB68-779DEDFD91AE}.Debug|x86.Build.0 = Debug|Any CPU
+		{764C4916-9C93-41D8-AB68-779DEDFD91AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{764C4916-9C93-41D8-AB68-779DEDFD91AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{764C4916-9C93-41D8-AB68-779DEDFD91AE}.Release|x86.ActiveCfg = Release|Any CPU
+		{764C4916-9C93-41D8-AB68-779DEDFD91AE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
