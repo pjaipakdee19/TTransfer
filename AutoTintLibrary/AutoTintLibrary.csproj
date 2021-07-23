@@ -106,6 +106,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="APIHelper.cs" />
+    <Compile Include="DownloadHelper.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="FileOperationLibrary.cs" />
     <Compile Include="ManageConfig.cs" />
     <Compile Include="Model\APIModel\APIHelperResponse.cs" />

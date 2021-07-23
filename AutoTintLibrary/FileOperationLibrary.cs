@@ -43,6 +43,7 @@ namespace AutoTintLibrary
             string csv_history_achive_path = ManageConfig.ReadGlobalConfig("csv_history_achive_path");
             string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
             string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            string file_total_log_path = $"{programdata_path}\\tmp\\lib_running_log.json";
             CreateDirectoryIfNotExist($"{jsonDispenseLogPath}");
             //Create isRunning file
             CreateDirectoryIfNotExist($"{programdata_path}\\tmp");
@@ -68,6 +69,8 @@ namespace AutoTintLibrary
                 
                 //string latest_dispense_date = await APIHelper.RequestGet(client, $"/dispense_history/last_updated/?auto_tint_id=11016469AT01");
                 APIHelperResponse latest_dispense_date_response = JsonConvert.DeserializeObject<APIHelperResponse>(latest_dispense_date);
+                //ProgressCounter data = 
+                File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(new ProgressCounter() { total_file = 0, complete_counter = 0, status = "Converting ..." }), Encoding.UTF8);
                 //Get all date in csv 
                 for (int i = 0; i < records.Count(); i++)
                 {
@@ -121,7 +124,7 @@ namespace AutoTintLibrary
 
 
 
-                    latest_dispense_date_response.statusCode = 404;
+                    //latest_dispense_date_response.statusCode = 404;
                     if ((latest_dispense_date_response.statusCode != 404)&&(shouldConvert))
                     {
                         dateList.Add(date[0]);
@@ -176,7 +179,7 @@ namespace AutoTintLibrary
             DirectoryInfo jsonDispensePathInfo = new DirectoryInfo(jsonDispenseLogPath);
             //Count .json file for calculate percentage.
             int jsonFileTotalCounter = jsonDispensePathInfo.GetFiles("*.json").Length;
-            string file_total_log_path = $"{programdata_path}\\tmp\\lib_running_log.json";
+            
             var data = new ProgressCounter() { total_file= jsonFileTotalCounter, complete_counter=0,status="Transfer History" };
             File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(data), Encoding.UTF8);
             foreach (var jsonFile in jsonDispensePathInfo.GetFiles("*.json"))
@@ -575,8 +578,8 @@ namespace AutoTintLibrary
 
                 Logger.Info($"Successful on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
                 var shouldDownloadNewDB = (result.pos_setting_version == null) ? true : (result.pos_setting_version.id < checkVersion.id);
-                //if (shouldDownloadNewDB)
-                if (true)
+                if (shouldDownloadNewDB)
+                //if (true)
                 {
                     string downloadURI = $"{checkVersion.file}";
                     string path = ManageConfig.ReadGlobalConfig("programdata_log_path");

@@ -307,6 +307,30 @@ namespace IOTClient
             }
         }
         #endregion
+        public async void checkDBservicecomleteFlag()
+        {
+            while (true)
+            {
+                var delayTask = Task.Delay(1000);
+                lblDatabaseVersionText.Invoke(new LastestDBinfoLbl(IsCheckDBversionFlagFileExist));
+                await delayTask;
+            }
+        }
+        public async void IsCheckDBversionFlagFileExist()
+        {
+            string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            
+            if ((!File.Exists($"{path}\\tmp\\dbupdate_running.tmp")) && (File.Exists($"{path}\\tmp\\dbupdate_version_check.tmp")) && (!File.Exists($"{path}\\tmp\\dbupdate_client_checked.tmp")))
+            {
+                await UpdateAutotintVersion();
+                //lblDatabaseVersionText.Text = "Check";
+                //lblDatabaseCheckVal.Text = "DMMMM";
+            }
+            
+        }
+        private async Task checkversion()
+        {
+        }
         private async void SettingForm_Load(object sender, EventArgs e)
         {
             databaseLocationTextbox.Text = database_path;
@@ -430,8 +454,8 @@ namespace IOTClient
             if (latestFileInfo == null && latestManualFileInfo == null) LatestExportDateTime = "Didn't find the transfer history";
             if (latestFileInfo != null && latestManualFileInfo != null)
             {
-                int result = DateTime.Compare(latestFileInfo.CreationTime, latestManualFileInfo.LastWriteTime);
-                DateTime tmp = (result <= 0) ? latestManualFileInfo.LastWriteTime : latestFileInfo.CreationTime;
+                int result = DateTime.Compare(latestFileInfo.LastWriteTime, latestManualFileInfo.LastWriteTime);
+                DateTime tmp = (result <= 0) ? latestManualFileInfo.LastWriteTime : latestFileInfo.LastWriteTime;
                 LatestExportDateTime = tmp.ToString("dddd dd MMMM yyyy HH:mm:ss", new System.Globalization.CultureInfo("en-GB"));
             }
             if(LatestExportDateTime == "" && latestFileInfo != null)
@@ -471,19 +495,22 @@ namespace IOTClient
         {
             button1.Enabled = false;
             button1.Text = "Checking ...";
+            
             //Check the status is running ?
             string program_data_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            File.Create($"{program_data_path}\\tmp\\dbupdate_client_checked.tmp").Dispose();
             if (File.Exists($"{program_data_path}\\tmp\\dbupdate_running.tmp"))
             {
                 //MessageBoxResult AlertMessageBox2 = System.Windows.MessageBox.Show($"Another Database update process is running please wait for a while and try again", "Message", MessageBoxButton.OK);
                 button1.Enabled = true;
                 button1.Text = "Check for updates";
+                File.Delete($"{program_data_path}\\tmp\\dbupdate_client_checked.tmp");
                 return;
             }
             button1.Text = "Running ...";
             string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
             string str_response = await APIHelper.GetAutoTintVersion(client, auto_tint_id);
-
+            File.Create($"{program_data_path}\\tmp\\dbupdate_running.tmp").Dispose();
             APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(str_response);
 
             if (response.statusCode == 200)
@@ -501,7 +528,7 @@ namespace IOTClient
 
 
                 Logger.Info($"Successful on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
-                
+
                 var shouldDownloadNewDB = (result.pos_setting_version == null) ? true : (result.pos_setting_version.id < checkVersion.id);
                 //if (shouldDownloadNewDB)
                 if (true)
@@ -509,7 +536,7 @@ namespace IOTClient
                     //    //Goto download
                     MessageBoxResult msgDownloadbox = System.Windows.MessageBox.Show($"The Database is not the latest version \n Current : {result.pos_setting_version?.number} \n Lastest : {checkVersion.number} \n System will continue Download update automatically", "", MessageBoxButton.OK);
 
-                   
+
                     string downloadURI = $"{checkVersion.file}";
                     string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
                     string tmp_path = $"{path}\\tmp";
@@ -522,6 +549,7 @@ namespace IOTClient
                     WebClient webClient = new WebClient();
                     webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(downloadCompletedHandler);
                     webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
+                    //webClient.DownloadStringCompleted += new DownloadStringCompletedEventHandler(DownloadStringCompletedHandler);
                     webClient.QueryString.Add("fileName", $"{URIArray[URIArray.Length - 1]}");
                     webClient.DownloadFileAsync(new Uri(downloadURI), $"{tmp_path}\\{URIArray[URIArray.Length - 1]}");//$"{database_path}\\{URIArray[URIArray.Length-1]}");
                     //Update to API about new version of database
@@ -530,7 +558,7 @@ namespace IOTClient
                     ""pos_setting_version_id"": " + checkVersion.id + @"
                     }
                     ";
-                    //dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
+                    dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
                     //Update version after complete
                     lblDatabaseVersionText.Text = $"{checkVersion.number}";
                 }
@@ -539,13 +567,15 @@ namespace IOTClient
                     //Set version label
                     lblDatabaseVersionText.Text = (result.pos_setting_version == null) ? "No data" : $"{result.pos_setting_version?.number}";
                     MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Database is up to date", "Message", MessageBoxButton.OK);
+                    File.Delete($"{program_data_path}\\tmp\\dbupdate_running.tmp");
                 }
-                
+
             }
             else
             {
                 MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Status Code : {response.statusCode} \nMessage : {response.message}", "Error", MessageBoxButton.OK);
                 Logger.Error($"Exception on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
+                File.Delete($"{program_data_path}\\tmp\\dbupdate_running.tmp");
             }
             button1.Enabled = true;
             button1.Text = "Check for updates";
@@ -674,13 +704,27 @@ namespace IOTClient
         private void btnDownloadUpdate_Click(object sender, EventArgs e)
         {
             //WebClient webClient = new WebClient();
-            //webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(Completed);
+            //webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(downloadCompletedHandler);
             //webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
             //webClient.DownloadFileAsync(new Uri("http://49.229.21.7/files/settings/Tint_On_Shop_TuwDkNh.SDF"), @"E:\Tutorial\db_location\Tint_On_Shop_TuwDkNh.SDF");
-            string path = @"E:\Tutorial\csv_history\json_log\full_dispense_log_4_11_2015.json";
-            var instance = new FileOperationLibrary();
-            //instance.convertToBIDataNew(path);
-            instance.UpdateAutotintVersion();
+            //string path = @"E:\Tutorial\csv_history\json_log\full_dispense_log_4_11_2015.json";
+            //var instance = new FileOperationLibrary();
+            ////instance.convertToBIDataNew(path);
+            //instance.UpdateAutotintVersion();
+            try
+            {
+                string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+                string tmp_path = $"{path}\\tmp";
+                DownloadHelper downloadHelper = new DownloadHelper("http://49.229.21.7/files/settings/Tint_On_Shop_TuwDkNh.SDF",
+                    @"E:\Tutorial\db_location",
+                    @"C:\TOA\Temp");
+                //$"{path}\\tmp");
+                downloadHelper.StartDownload();
+            }catch(Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            
         }
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
@@ -691,12 +735,13 @@ namespace IOTClient
             var jsonData = new ProgressCounter() { total_file = 0, complete_counter = e.ProgressPercentage, status = "Download DB File" };
             File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(jsonData), Encoding.UTF8);
         }
-
+        private int _retryCount = 0;
         private void downloadCompletedHandler(object sender, AsyncCompletedEventArgs e)
         {
             //temp folder
             string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             string tmp_path = $"{path}\\tmp";
+            File.Delete($"{path}\\tmp\\dbupdate_running.tmp");
             //Move file to database path
             string downLoadFileName = ((System.Net.WebClient)(sender)).QueryString["fileName"];
             string database_path = ManageConfig.ReadGlobalConfig("database_path");

@@ -29,6 +29,7 @@ namespace TAService
         };
 
         public DateTime randomStartTime = new DateTime();
+        
         public static RestClient APIclient = APIHelper.init();
         static CountdownEvent _countdown = new CountdownEvent(1);
         public Service1()
