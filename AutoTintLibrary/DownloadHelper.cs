@@ -14,7 +14,7 @@ namespace AutoTintLibrary
     {
         public int Timeout { get; set; }
 
-        public WebClientUtility() : this(5000) { }
+        public WebClientUtility() : this(60000) { }
 
         public WebClientUtility(int timeout)
         {
