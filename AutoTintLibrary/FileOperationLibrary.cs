@@ -202,7 +202,7 @@ namespace AutoTintLibrary
                         if (response.statusCode != 201)
                         {
                             retry++;
-                            Logger.Error($"Error when upload file retring round {retry} filename {jsonFile.FullName}");
+                            Logger.Error($"Error when upload file retiring round {retry} filename {jsonFile.FullName}");
                             Logger.Error($"Service response statusCode : {response.statusCode}");
                             Logger.Error($"Service response message :  {response.message}");
                         }
