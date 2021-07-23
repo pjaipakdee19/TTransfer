@@ -15,6 +15,8 @@ using CsvHelper.Configuration;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Newtonsoft.Json;
 using AutoTintLibrary;
+using System.Diagnostics;
+using System.Threading;
 
 namespace StandaloneConverterApp
 {
@@ -69,14 +71,26 @@ namespace StandaloneConverterApp
             if (String.IsNullOrEmpty(csv_filepath)) { MessageBox.Show($"Please select he csv file", "Error", MessageBoxButtons.OK); return; }
             if (String.IsNullOrEmpty(save_location)) { MessageBox.Show($"Please select the output location", "Error", MessageBoxButtons.OK); return; }
             //Read the contents of the file into a stream
-            MessageBox.Show($"File path : {csv_filepath} | Export path : {save_location}", "File Content at path: " + csv_filepath, MessageBoxButtons.OK);
+            //MessageBox.Show($"File path : {csv_filepath} | Export path : {save_location}", "File Content at path: " + csv_filepath, MessageBoxButtons.OK);
+            fileNameLbl.Text = $"{csv_filepath}";
+            savePathLbl.Text = $"{save_location}";
             Logger.Info($"Test Log File path : {csv_filepath} | Export path : {save_location}");
+            
+            var workingThread = new Thread(new ThreadStart(converter));
+            workingThread.Start();
+        }
+        public void converter()
+        {
+            statusLbl.Invoke((MethodInvoker)(() =>
+            {
+                statusLbl.Text = "Running ...";
+            }));
             string result = convertCSV(csv_filepath, save_location);
             APIHelperResponse res = JsonConvert.DeserializeObject<APIHelperResponse>(result);
-            if(res.statusCode == 500)
+            if (res.statusCode == 500)
             {
                 Logger.Error($"Error {res.statusCode} Message : {res.message}");
-                MessageBox.Show($"Error to convert {csv_filepath} to location {save_location}\nErrorCode: {res.statusCode}\nMessage : {res.message}","Error", MessageBoxButtons.OK);
+                MessageBox.Show($"Error to convert {csv_filepath} to location {save_location}\nErrorCode: {res.statusCode}\nMessage : {res.message}", "Error", MessageBoxButtons.OK);
                 return;
             }
             try
@@ -92,6 +106,11 @@ namespace StandaloneConverterApp
                     File.WriteAllText(export_bi_file, JsonConvert.SerializeObject(test), Encoding.UTF8);
                 }
                 MessageBox.Show($"Operation Done | Export path : {save_location}", "File Content at path: " + csv_filepath, MessageBoxButtons.OK);
+                statusLbl.Invoke((MethodInvoker)(() =>
+                {
+                    statusLbl.Text = "Complete";
+                }));
+                Process.Start($"{save_location}");
             }
             catch (Exception ex)
             {
@@ -102,6 +121,10 @@ namespace StandaloneConverterApp
 
         public string convertCSV(string input_path,string save_location)
         {
+            statusLbl.Invoke((MethodInvoker)(() =>
+            {
+                statusLbl.Text = "Converting ...";
+            }));
             int statusCode = 200;
             string responseMessage = string.Empty;
             try

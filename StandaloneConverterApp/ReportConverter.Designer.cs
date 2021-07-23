@@ -36,6 +36,9 @@ namespace StandaloneConverterApp
             this.staticFilenameLbl = new System.Windows.Forms.Label();
             this.fileNameLbl = new System.Windows.Forms.Label();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+            this.staticSavePathLbl = new System.Windows.Forms.Label();
+            this.savePathLbl = new System.Windows.Forms.Label();
+            this.statusLbl = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // OpenFileDialog
@@ -58,6 +61,7 @@ namespace StandaloneConverterApp
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(255, 23);
             this.progressBar1.TabIndex = 1;
+            this.progressBar1.Visible = false;
             // 
             // staticFilenameLbl
             // 
@@ -71,11 +75,38 @@ namespace StandaloneConverterApp
             // fileNameLbl
             // 
             this.fileNameLbl.AutoSize = true;
-            this.fileNameLbl.Location = new System.Drawing.Point(166, 86);
+            this.fileNameLbl.Location = new System.Drawing.Point(181, 87);
             this.fileNameLbl.Name = "fileNameLbl";
             this.fileNameLbl.Size = new System.Drawing.Size(33, 13);
             this.fileNameLbl.TabIndex = 3;
             this.fileNameLbl.Text = "None";
+            // 
+            // staticSavePathLbl
+            // 
+            this.staticSavePathLbl.AutoSize = true;
+            this.staticSavePathLbl.Location = new System.Drawing.Point(104, 113);
+            this.staticSavePathLbl.Name = "staticSavePathLbl";
+            this.staticSavePathLbl.Size = new System.Drawing.Size(68, 13);
+            this.staticSavePathLbl.TabIndex = 4;
+            this.staticSavePathLbl.Text = "Export Path :";
+            // 
+            // savePathLbl
+            // 
+            this.savePathLbl.AutoSize = true;
+            this.savePathLbl.Location = new System.Drawing.Point(181, 113);
+            this.savePathLbl.Name = "savePathLbl";
+            this.savePathLbl.Size = new System.Drawing.Size(33, 13);
+            this.savePathLbl.TabIndex = 5;
+            this.savePathLbl.Text = "None";
+            // 
+            // statusLbl
+            // 
+            this.statusLbl.AutoSize = true;
+            this.statusLbl.Location = new System.Drawing.Point(226, 146);
+            this.statusLbl.Name = "statusLbl";
+            this.statusLbl.Size = new System.Drawing.Size(50, 13);
+            this.statusLbl.TabIndex = 6;
+            this.statusLbl.Text = "Stand By";
             // 
             // ReportConverter
             // 
@@ -83,6 +114,9 @@ namespace StandaloneConverterApp
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(510, 385);
+            this.Controls.Add(this.statusLbl);
+            this.Controls.Add(this.savePathLbl);
+            this.Controls.Add(this.staticSavePathLbl);
             this.Controls.Add(this.fileNameLbl);
             this.Controls.Add(this.staticFilenameLbl);
             this.Controls.Add(this.progressBar1);
@@ -104,6 +138,9 @@ namespace StandaloneConverterApp
         private System.Windows.Forms.Label staticFilenameLbl;
         private System.Windows.Forms.Label fileNameLbl;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
+        private System.Windows.Forms.Label staticSavePathLbl;
+        private System.Windows.Forms.Label savePathLbl;
+        private System.Windows.Forms.Label statusLbl;
     }
 }
 
