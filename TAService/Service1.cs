@@ -51,7 +51,7 @@ namespace TAService
             if (res.statusCode == 200) Logger.Info($"[AutoStart] Start transfer status {res.statusCode} message {res.message}");
             if (res.statusCode == 500) Logger.Error($"[AutoStart] Start transfer status {res.statusCode} message {res.message}");
             Logger.Info($"[AutoStart] Transfer operation when PC turn on Finish on {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
-            logMaskAsDoneDate("[AutoStart]" + actualTime);
+            //logMaskAsDoneDate("[AutoStart]" + actualTime);
             Logger.Info($"[AutoStart] Start checking and updatet database at {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
             await instance.UpdateAutotintVersion();
             Logger.Info($"[AutoStart] Update the database done at {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
