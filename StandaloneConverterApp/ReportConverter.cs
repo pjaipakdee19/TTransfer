@@ -71,11 +71,38 @@ namespace StandaloneConverterApp
             //Read the contents of the file into a stream
             MessageBox.Show($"File path : {csv_filepath} | Export path : {save_location}", "File Content at path: " + csv_filepath, MessageBoxButtons.OK);
             Logger.Info($"Test Log File path : {csv_filepath} | Export path : {save_location}");
+            string result = convertCSV(csv_filepath, save_location);
+            APIHelperResponse res = JsonConvert.DeserializeObject<APIHelperResponse>(result);
+            if(res.statusCode == 500)
+            {
+                Logger.Error($"Error {res.statusCode} Message : {res.message}");
+                MessageBox.Show($"Error to convert {csv_filepath} to location {save_location}\nErrorCode: {res.statusCode}\nMessage : {res.message}","Error", MessageBoxButtons.OK);
+                return;
+            }
+            try
+            {
+                FileOperationLibrary fo = new FileOperationLibrary();
+                DirectoryInfo jsonTempPath = new DirectoryInfo($"{save_location}\\tmp\\");
+                foreach (var jsonFile in jsonTempPath.GetFiles("*.json"))
+                {
+                    List<DispenseHistoryBI> test = fo.convertToBIDataNew(jsonFile.FullName);//AutoTintLibrary.convertToBIDataNew(jsonFile.FullName);
+                    int extensionIndex = jsonFile.Name.IndexOf(".json");
+                    var export_bi_file = $"{save_location}\\{jsonFile.Name.Substring(0, extensionIndex)}_bi.json";
+                    Logger.Info($"Test Log File path : {csv_filepath} | Export path : {save_location}");
+                    File.WriteAllText(export_bi_file, JsonConvert.SerializeObject(test), Encoding.UTF8);
+                }
+                MessageBox.Show($"Operation Done | Export path : {save_location}", "File Content at path: " + csv_filepath, MessageBoxButtons.OK);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception " + ex.ToString());
+                Logger.Error("Exception on create json _bi : " + ex.ToString());
+            }
         }
 
-        public async Task<string> convertCSV(string input_path)
+        public string convertCSV(string input_path,string save_location)
         {
-            string statusCode = string.Empty;
+            int statusCode = 200;
             string responseMessage = string.Empty;
             try
             {
@@ -92,16 +119,15 @@ namespace StandaloneConverterApp
                     if (year > now)
                     {
                         date[0] = $"{date[0].Split('/')[1]}/{date[0].Split('/')[0]}/{year - 543}";
-                        records[i].dispensed_date = $"{date[0]} {date[1]}";
-                        dateList.Add(date[0]);
+                        records[i].dispensed_date = $"{date[0]} {date[1]}"; 
                     }
+                    dateList.Add(date[0]);
                 }
                 string[] cleanDate = RemoveDuplicates(dateList);
                 //save the dispenselog to file.json following date
                 for (int i = 0; i < cleanDate.Count(); i++)
                 {
                     var exportRecord = new List<DispenseHistory>();
-                    var exportRecordBI = new List<DispenseHistoryBI>();
                     for (int j = 0; j < records.Count(); j++)
                     {
 
@@ -113,7 +139,8 @@ namespace StandaloneConverterApp
                     }
                     if (exportRecord.Count > 0)
                     {
-                        var export_path = $"{save_location}\\full_dispense_log_{cleanDate[i].Replace("/", "_")}.json";
+                        CreateDirectoryIfNotExist($"{save_location}\\tmp\\");
+                        var export_path = $"{save_location}\\tmp\\full_dispense_log_{cleanDate[i].Replace("/", "_")}.json";
                         Logger.Info("Export log path : " + export_path);
                         File.WriteAllText(export_path, JsonConvert.SerializeObject(exportRecord), Encoding.UTF8);
                     }
@@ -122,13 +149,14 @@ namespace StandaloneConverterApp
                         Logger.Info($"Doesn't have match dispense date in csv with cleanDate ({cleanDate[i].Replace("/", "_")})");
                     }
                 }
+                
+                reader.Close();
 
-                return JsonConvert.SerializeObject(new { statusCode = statusCode, message = responseMessage });
+                return JsonConvert.SerializeObject(new { statusCode = 200, message = responseMessage });
             }catch(Exception ex)
             {
-                return JsonConvert.SerializeObject(new { statusCode = "Error", message = ex.Message });
+                return JsonConvert.SerializeObject(new { statusCode = 500, message = ex.Message });
             }
-            
         }
 
         private static string[] RemoveDuplicates(List<string> dateList)
