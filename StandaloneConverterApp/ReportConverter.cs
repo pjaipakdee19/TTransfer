@@ -97,19 +97,32 @@ namespace StandaloneConverterApp
             {
                 FileOperationLibrary fo = new FileOperationLibrary();
                 DirectoryInfo jsonTempPath = new DirectoryInfo($"{save_location}\\tmp\\");
+                List<DispenseHistoryBI> allRecord = new List<DispenseHistoryBI>();
                 foreach (var jsonFile in jsonTempPath.GetFiles("*.json"))
                 {
-                    List<DispenseHistoryBI> test = fo.convertToBIDataNew(jsonFile.FullName);//AutoTintLibrary.convertToBIDataNew(jsonFile.FullName);
-                    int extensionIndex = jsonFile.Name.IndexOf(".json");
-                    var export_bi_file = $"{save_location}\\{jsonFile.Name.Substring(0, extensionIndex)}_bi.json";
-                    Logger.Info($"Test Log File path : {csv_filepath} | Export path : {save_location}");
-                    File.WriteAllText(export_bi_file, JsonConvert.SerializeObject(test), Encoding.UTF8);
+                    List<DispenseHistoryBI> onefileRecord = fo.convertToBIDataNew(jsonFile.FullName);//AutoTintLibrary.convertToBIDataNew(jsonFile.FullName);
+                    //int extensionIndex = jsonFile.Name.IndexOf(".json");
+                    //var export_bi_file = $"{save_location}\\{jsonFile.Name.Substring(0, extensionIndex)}_bi.json";
+                    //Logger.Info($"Test Log File path : {csv_filepath} | Export path : {save_location}");
+                    //File.WriteAllText(export_bi_file, JsonConvert.SerializeObject(onefileRecord), Encoding.UTF8);
+                    allRecord.AddRange(onefileRecord);
+                }
+
+                string[] ExportFilename = csv_filepath.Split('\\');
+                int extensionIndex = ExportFilename[ExportFilename.Length - 1].IndexOf(".csv");
+                using (var writer = new StreamWriter($"{save_location}\\{ExportFilename[ExportFilename.Length-1].Substring(0, extensionIndex)}_bi.csv", true))
+                {
+                    using (var csv = new CsvWriter(writer, csvConfig))
+                    {
+                        csv.WriteRecords(allRecord);
+                    }
                 }
                 MessageBox.Show($"Operation Done | Export path : {save_location}", "File Content at path: " + csv_filepath, MessageBoxButtons.OK);
                 statusLbl.Invoke((MethodInvoker)(() =>
                 {
                     statusLbl.Text = "Complete";
                 }));
+                Directory.Delete(jsonTempPath.FullName,true);
                 Process.Start($"{save_location}");
             }
             catch (Exception ex)

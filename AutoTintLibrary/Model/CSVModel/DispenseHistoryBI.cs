@@ -14,18 +14,25 @@ namespace AutoTintLibrary
     }
     public class DispenseHistoryBI
     {
+        [Index(0)]
         [Name("RECORD_KEY")]
         public string record_key { get; set; }
+        [Index(1)]
         [Name("DISPENSED_DATE")]
         public string dispensed_date { get; set; }
+        [Index(2)]
         [Name("Date")]
         public string date { get; set; }
+        [Index(3)]
         [Name("WANTED_AMOUNT")]
         public string wanted_amount { get; set; }
+        [Index(4)]
         [Name("UNIT_NAME")]
         public string unit_name { get; set; }
+        [Index(5)]
         [Name("DB_NAME")]
         public string db_name { get; set; }
+        [Index(6)]
         [Name("PRODUCT_NAME")]
         public string product_name { get; set; }
         [Name("PRODUCT_CODE")]
