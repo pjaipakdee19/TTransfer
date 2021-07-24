@@ -39,6 +39,9 @@ namespace StandaloneConverterApp
             this.staticSavePathLbl = new System.Windows.Forms.Label();
             this.savePathLbl = new System.Windows.Forms.Label();
             this.statusLbl = new System.Windows.Forms.Label();
+            this.convertBtn = new System.Windows.Forms.Button();
+            this.fileNameTbx = new System.Windows.Forms.TextBox();
+            this.exportPathTbx = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // OpenFileDialog
@@ -47,9 +50,9 @@ namespace StandaloneConverterApp
             // 
             // selectFilebtn
             // 
-            this.selectFilebtn.Location = new System.Drawing.Point(169, 220);
+            this.selectFilebtn.Location = new System.Drawing.Point(200, 80);
             this.selectFilebtn.Name = "selectFilebtn";
-            this.selectFilebtn.Size = new System.Drawing.Size(170, 62);
+            this.selectFilebtn.Size = new System.Drawing.Size(98, 37);
             this.selectFilebtn.TabIndex = 0;
             this.selectFilebtn.Text = "Select File";
             this.selectFilebtn.UseVisualStyleBackColor = true;
@@ -57,7 +60,7 @@ namespace StandaloneConverterApp
             // 
             // progressBar1
             // 
-            this.progressBar1.Location = new System.Drawing.Point(125, 162);
+            this.progressBar1.Location = new System.Drawing.Point(122, 288);
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(255, 23);
             this.progressBar1.TabIndex = 1;
@@ -66,7 +69,7 @@ namespace StandaloneConverterApp
             // staticFilenameLbl
             // 
             this.staticFilenameLbl.AutoSize = true;
-            this.staticFilenameLbl.Location = new System.Drawing.Point(104, 87);
+            this.staticFilenameLbl.Location = new System.Drawing.Point(25, 39);
             this.staticFilenameLbl.Name = "staticFilenameLbl";
             this.staticFilenameLbl.Size = new System.Drawing.Size(55, 13);
             this.staticFilenameLbl.TabIndex = 2;
@@ -75,16 +78,17 @@ namespace StandaloneConverterApp
             // fileNameLbl
             // 
             this.fileNameLbl.AutoSize = true;
-            this.fileNameLbl.Location = new System.Drawing.Point(181, 87);
+            this.fileNameLbl.Location = new System.Drawing.Point(60, 92);
             this.fileNameLbl.Name = "fileNameLbl";
             this.fileNameLbl.Size = new System.Drawing.Size(33, 13);
             this.fileNameLbl.TabIndex = 3;
             this.fileNameLbl.Text = "None";
+            this.fileNameLbl.Visible = false;
             // 
             // staticSavePathLbl
             // 
             this.staticSavePathLbl.AutoSize = true;
-            this.staticSavePathLbl.Location = new System.Drawing.Point(104, 113);
+            this.staticSavePathLbl.Location = new System.Drawing.Point(25, 150);
             this.staticSavePathLbl.Name = "staticSavePathLbl";
             this.staticSavePathLbl.Size = new System.Drawing.Size(68, 13);
             this.staticSavePathLbl.TabIndex = 4;
@@ -93,20 +97,45 @@ namespace StandaloneConverterApp
             // savePathLbl
             // 
             this.savePathLbl.AutoSize = true;
-            this.savePathLbl.Location = new System.Drawing.Point(181, 113);
+            this.savePathLbl.Location = new System.Drawing.Point(60, 192);
             this.savePathLbl.Name = "savePathLbl";
             this.savePathLbl.Size = new System.Drawing.Size(33, 13);
             this.savePathLbl.TabIndex = 5;
             this.savePathLbl.Text = "None";
+            this.savePathLbl.Visible = false;
             // 
             // statusLbl
             // 
             this.statusLbl.AutoSize = true;
-            this.statusLbl.Location = new System.Drawing.Point(226, 146);
+            this.statusLbl.Location = new System.Drawing.Point(226, 262);
             this.statusLbl.Name = "statusLbl";
             this.statusLbl.Size = new System.Drawing.Size(50, 13);
             this.statusLbl.TabIndex = 6;
             this.statusLbl.Text = "Stand By";
+            // 
+            // convertBtn
+            // 
+            this.convertBtn.Location = new System.Drawing.Point(164, 180);
+            this.convertBtn.Name = "convertBtn";
+            this.convertBtn.Size = new System.Drawing.Size(170, 36);
+            this.convertBtn.TabIndex = 7;
+            this.convertBtn.Text = "Convert to BI format ";
+            this.convertBtn.UseVisualStyleBackColor = true;
+            this.convertBtn.Click += new System.EventHandler(this.convertBtn_Click);
+            // 
+            // fileNameTbx
+            // 
+            this.fileNameTbx.Location = new System.Drawing.Point(86, 36);
+            this.fileNameTbx.Name = "fileNameTbx";
+            this.fileNameTbx.Size = new System.Drawing.Size(393, 20);
+            this.fileNameTbx.TabIndex = 8;
+            // 
+            // exportPathTbx
+            // 
+            this.exportPathTbx.Location = new System.Drawing.Point(86, 147);
+            this.exportPathTbx.Name = "exportPathTbx";
+            this.exportPathTbx.Size = new System.Drawing.Size(393, 20);
+            this.exportPathTbx.TabIndex = 9;
             // 
             // ReportConverter
             // 
@@ -114,6 +143,9 @@ namespace StandaloneConverterApp
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(510, 385);
+            this.Controls.Add(this.exportPathTbx);
+            this.Controls.Add(this.fileNameTbx);
+            this.Controls.Add(this.convertBtn);
             this.Controls.Add(this.statusLbl);
             this.Controls.Add(this.savePathLbl);
             this.Controls.Add(this.staticSavePathLbl);
@@ -141,6 +173,9 @@ namespace StandaloneConverterApp
         private System.Windows.Forms.Label staticSavePathLbl;
         private System.Windows.Forms.Label savePathLbl;
         private System.Windows.Forms.Label statusLbl;
+        private System.Windows.Forms.Button convertBtn;
+        private System.Windows.Forms.TextBox fileNameTbx;
+        private System.Windows.Forms.TextBox exportPathTbx;
     }
 }
 

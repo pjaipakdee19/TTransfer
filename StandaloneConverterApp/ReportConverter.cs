@@ -22,6 +22,13 @@ namespace StandaloneConverterApp
 {
     public partial class ReportConverter : Form
     {
+        public ReportConverter()
+        {
+            InitializeComponent();
+            Version version = Assembly.GetExecutingAssembly().GetName().Version;
+            Text = " History Converter " + version.Major + "." + version.Minor;// + " (build " + version.Build + ")"; //change form title
+        }
+
         public CsvConfiguration csvConfig = new CsvConfiguration(CultureInfo.InvariantCulture)
         {
             MissingFieldFound = null,
@@ -38,13 +45,7 @@ namespace StandaloneConverterApp
         string csv_filepath = string.Empty;
         string save_location = string.Empty;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-        public ReportConverter()
-        {
-            InitializeComponent();
-            Version version = Assembly.GetExecutingAssembly().GetName().Version;
-            Text = Text + " " + version.Major + "." + version.Minor;// + " (build " + version.Build + ")"; //change form title
-        }
-
+        string selected_filename = string.Empty;
         private void selectFilebtn_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
@@ -58,24 +59,48 @@ namespace StandaloneConverterApp
                 {
                     csv_filepath = openFileDialog.FileName;
                 }
+                fileNameTbx.Text = $"{csv_filepath}";
+                selected_filename = openFileDialog.SafeFileName;
             }
 
-            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
-            dialog.InitialDirectory = "C:\\";
-            dialog.IsFolderPicker = true;
-            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+        }
+        private void convertBtn_Click(object sender, EventArgs e)
+        {
+            
+            SaveFileDialog dialog = new SaveFileDialog();
+            string initDirforConvert = "";
+            if (File.Exists(@"C:\ProgramData\TOA_Autotint\config.json"))
             {
+                string csv_history_path = ManageConfig.ReadGlobalConfig("csv_history_path");
+                initDirforConvert = csv_history_path;
+            }
+            else
+            {
+                initDirforConvert = "C:\\";
+            }
+
+            dialog.InitialDirectory = initDirforConvert;
+            dialog.Filter = "csv (*.csv)|*.csv|All files (*.*)|*.*";
+            dialog.Title = "Save an csv File";
+            if (selected_filename != string.Empty) {
+                string[] tmp = selected_filename.Split('.');
+                dialog.FileName = $"{tmp[0]}_bi.{tmp[1]}";
+            }
+
+            if(dialog.ShowDialog() == DialogResult.Cancel) return;
+            if (dialog.FileName != string.Empty)
+            {
+                exportPathTbx.Text = dialog.FileName;
                 save_location = dialog.FileName;
             }
+            else
+            {
+                MessageBox.Show($"Please select the output location", "Error", MessageBoxButtons.OK);
+                return;
+            }
 
-            if (String.IsNullOrEmpty(csv_filepath)) { MessageBox.Show($"Please select he csv file", "Error", MessageBoxButtons.OK); return; }
-            if (String.IsNullOrEmpty(save_location)) { MessageBox.Show($"Please select the output location", "Error", MessageBoxButtons.OK); return; }
-            //Read the contents of the file into a stream
-            //MessageBox.Show($"File path : {csv_filepath} | Export path : {save_location}", "File Content at path: " + csv_filepath, MessageBoxButtons.OK);
-            fileNameLbl.Text = $"{csv_filepath}";
-            savePathLbl.Text = $"{save_location}";
-            Logger.Info($"Test Log File path : {csv_filepath} | Export path : {save_location}");
-            
+            if (String.IsNullOrEmpty(csv_filepath)) { MessageBox.Show($"Please select the input csv file", "Error", MessageBoxButtons.OK); return; }
+
             var workingThread = new Thread(new ThreadStart(converter));
             workingThread.Start();
         }
@@ -85,7 +110,9 @@ namespace StandaloneConverterApp
             {
                 statusLbl.Text = "Running ...";
             }));
-            string result = convertCSV(csv_filepath, save_location);
+            
+            string temp_path = $"{save_location.Substring(0,save_location.LastIndexOf('\\'))}\\export_tmp";
+            string result = convertCSV(csv_filepath, temp_path);
             APIHelperResponse res = JsonConvert.DeserializeObject<APIHelperResponse>(result);
             if (res.statusCode == 500)
             {
@@ -96,21 +123,16 @@ namespace StandaloneConverterApp
             try
             {
                 FileOperationLibrary fo = new FileOperationLibrary();
-                DirectoryInfo jsonTempPath = new DirectoryInfo($"{save_location}\\tmp\\");
+                
+                DirectoryInfo jsonTempPath = new DirectoryInfo($"{temp_path}");
                 List<DispenseHistoryBI> allRecord = new List<DispenseHistoryBI>();
                 foreach (var jsonFile in jsonTempPath.GetFiles("*.json"))
                 {
-                    List<DispenseHistoryBI> onefileRecord = fo.convertToBIDataNew(jsonFile.FullName);//AutoTintLibrary.convertToBIDataNew(jsonFile.FullName);
-                    //int extensionIndex = jsonFile.Name.IndexOf(".json");
-                    //var export_bi_file = $"{save_location}\\{jsonFile.Name.Substring(0, extensionIndex)}_bi.json";
-                    //Logger.Info($"Test Log File path : {csv_filepath} | Export path : {save_location}");
-                    //File.WriteAllText(export_bi_file, JsonConvert.SerializeObject(onefileRecord), Encoding.UTF8);
+                    List<DispenseHistoryBI> onefileRecord = fo.convertToBIDataNew(jsonFile.FullName);
                     allRecord.AddRange(onefileRecord);
                 }
 
-                string[] ExportFilename = csv_filepath.Split('\\');
-                int extensionIndex = ExportFilename[ExportFilename.Length - 1].IndexOf(".csv");
-                using (var writer = new StreamWriter($"{save_location}\\{ExportFilename[ExportFilename.Length-1].Substring(0, extensionIndex)}_bi.csv", true))
+                using (var writer = new StreamWriter($"{save_location}", false, System.Text.Encoding.UTF8))
                 {
                     using (var csv = new CsvWriter(writer, csvConfig))
                     {
@@ -123,10 +145,16 @@ namespace StandaloneConverterApp
                     statusLbl.Text = "Complete";
                 }));
                 Directory.Delete(jsonTempPath.FullName,true);
-                Process.Start($"{save_location}");
+                string argument = "/select, \"" + save_location + "\"";
+
+                Process.Start("explorer.exe", argument);
             }
             catch (Exception ex)
             {
+                statusLbl.Invoke((MethodInvoker)(() =>
+                {
+                    statusLbl.Text = $"{ex.Message}";
+                }));
                 Console.WriteLine("Exception " + ex.ToString());
                 Logger.Error("Exception on create json _bi : " + ex.ToString());
             }
@@ -175,8 +203,8 @@ namespace StandaloneConverterApp
                     }
                     if (exportRecord.Count > 0)
                     {
-                        CreateDirectoryIfNotExist($"{save_location}\\tmp\\");
-                        var export_path = $"{save_location}\\tmp\\full_dispense_log_{cleanDate[i].Replace("/", "_")}.json";
+                        CreateDirectoryIfNotExist($"{save_location}");
+                        var export_path = $"{save_location}\\full_dispense_log_{cleanDate[i].Replace("/", "_")}.json";
                         Logger.Info("Export log path : " + export_path);
                         File.WriteAllText(export_path, JsonConvert.SerializeObject(exportRecord), Encoding.UTF8);
                     }
@@ -209,6 +237,8 @@ namespace StandaloneConverterApp
                 Directory.CreateDirectory(filepath);
             }
         }
+
+
     }
 }
 
