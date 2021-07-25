@@ -50,9 +50,9 @@ namespace StandaloneConverterApp
             // 
             // selectFilebtn
             // 
-            this.selectFilebtn.Location = new System.Drawing.Point(200, 80);
+            this.selectFilebtn.Location = new System.Drawing.Point(97, 179);
             this.selectFilebtn.Name = "selectFilebtn";
-            this.selectFilebtn.Size = new System.Drawing.Size(98, 37);
+            this.selectFilebtn.Size = new System.Drawing.Size(166, 36);
             this.selectFilebtn.TabIndex = 0;
             this.selectFilebtn.Text = "Select File";
             this.selectFilebtn.UseVisualStyleBackColor = true;
@@ -69,16 +69,16 @@ namespace StandaloneConverterApp
             // staticFilenameLbl
             // 
             this.staticFilenameLbl.AutoSize = true;
-            this.staticFilenameLbl.Location = new System.Drawing.Point(25, 39);
+            this.staticFilenameLbl.Location = new System.Drawing.Point(60, 124);
             this.staticFilenameLbl.Name = "staticFilenameLbl";
-            this.staticFilenameLbl.Size = new System.Drawing.Size(55, 13);
+            this.staticFilenameLbl.Size = new System.Drawing.Size(54, 13);
             this.staticFilenameLbl.TabIndex = 2;
-            this.staticFilenameLbl.Text = "Filename :";
+            this.staticFilenameLbl.Text = "File Path :";
             // 
             // fileNameLbl
             // 
             this.fileNameLbl.AutoSize = true;
-            this.fileNameLbl.Location = new System.Drawing.Point(60, 92);
+            this.fileNameLbl.Location = new System.Drawing.Point(159, 63);
             this.fileNameLbl.Name = "fileNameLbl";
             this.fileNameLbl.Size = new System.Drawing.Size(33, 13);
             this.fileNameLbl.TabIndex = 3;
@@ -88,16 +88,17 @@ namespace StandaloneConverterApp
             // staticSavePathLbl
             // 
             this.staticSavePathLbl.AutoSize = true;
-            this.staticSavePathLbl.Location = new System.Drawing.Point(25, 150);
+            this.staticSavePathLbl.Location = new System.Drawing.Point(12, 257);
             this.staticSavePathLbl.Name = "staticSavePathLbl";
             this.staticSavePathLbl.Size = new System.Drawing.Size(68, 13);
             this.staticSavePathLbl.TabIndex = 4;
             this.staticSavePathLbl.Text = "Export Path :";
+            this.staticSavePathLbl.Visible = false;
             // 
             // savePathLbl
             // 
             this.savePathLbl.AutoSize = true;
-            this.savePathLbl.Location = new System.Drawing.Point(60, 192);
+            this.savePathLbl.Location = new System.Drawing.Point(213, 63);
             this.savePathLbl.Name = "savePathLbl";
             this.savePathLbl.Size = new System.Drawing.Size(33, 13);
             this.savePathLbl.TabIndex = 5;
@@ -107,7 +108,7 @@ namespace StandaloneConverterApp
             // statusLbl
             // 
             this.statusLbl.AutoSize = true;
-            this.statusLbl.Location = new System.Drawing.Point(226, 262);
+            this.statusLbl.Location = new System.Drawing.Point(483, 315);
             this.statusLbl.Name = "statusLbl";
             this.statusLbl.Size = new System.Drawing.Size(50, 13);
             this.statusLbl.TabIndex = 6;
@@ -115,9 +116,9 @@ namespace StandaloneConverterApp
             // 
             // convertBtn
             // 
-            this.convertBtn.Location = new System.Drawing.Point(164, 180);
+            this.convertBtn.Location = new System.Drawing.Point(302, 179);
             this.convertBtn.Name = "convertBtn";
-            this.convertBtn.Size = new System.Drawing.Size(170, 36);
+            this.convertBtn.Size = new System.Drawing.Size(166, 36);
             this.convertBtn.TabIndex = 7;
             this.convertBtn.Text = "Convert to BI format ";
             this.convertBtn.UseVisualStyleBackColor = true;
@@ -125,24 +126,25 @@ namespace StandaloneConverterApp
             // 
             // fileNameTbx
             // 
-            this.fileNameTbx.Location = new System.Drawing.Point(86, 36);
+            this.fileNameTbx.Location = new System.Drawing.Point(122, 121);
             this.fileNameTbx.Name = "fileNameTbx";
-            this.fileNameTbx.Size = new System.Drawing.Size(393, 20);
+            this.fileNameTbx.Size = new System.Drawing.Size(346, 20);
             this.fileNameTbx.TabIndex = 8;
             // 
             // exportPathTbx
             // 
-            this.exportPathTbx.Location = new System.Drawing.Point(86, 147);
+            this.exportPathTbx.Location = new System.Drawing.Point(86, 250);
             this.exportPathTbx.Name = "exportPathTbx";
             this.exportPathTbx.Size = new System.Drawing.Size(393, 20);
             this.exportPathTbx.TabIndex = 9;
+            this.exportPathTbx.Visible = false;
             // 
             // ReportConverter
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.ClientSize = new System.Drawing.Size(510, 385);
+            this.ClientSize = new System.Drawing.Size(564, 348);
             this.Controls.Add(this.exportPathTbx);
             this.Controls.Add(this.fileNameTbx);
             this.Controls.Add(this.convertBtn);

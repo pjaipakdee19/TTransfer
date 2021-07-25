@@ -66,7 +66,6 @@ namespace StandaloneConverterApp
         }
         private void convertBtn_Click(object sender, EventArgs e)
         {
-            
             SaveFileDialog dialog = new SaveFileDialog();
             string initDirforConvert = "";
             if (File.Exists(@"C:\ProgramData\TOA_Autotint\config.json"))
