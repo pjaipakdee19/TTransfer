@@ -328,6 +328,25 @@ namespace AutoTintLibrary
             return JsonConvert.SerializeObject(new { statusCode = statusCode, message = responseMessage });
         }
 
+        public async Task<string> StartOperationNew()
+        {
+            int statusCode = 200;
+            string responseMessage = "Succesful Tranfer";
+            string csv_history_path = ManageConfig.ReadGlobalConfig("csv_history_path");
+            string jsonDispenseLogPath = ManageConfig.ReadGlobalConfig("json_dispense_log_path");
+            string csv_history_achive_path = ManageConfig.ReadGlobalConfig("csv_history_achive_path");
+            string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
+            string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+
+            CreateDirectoryIfNotExist($"{jsonDispenseLogPath}");
+            //Create isRunning file
+            CreateDirectoryIfNotExist($"{programdata_path}\\tmp");
+            File.Create($"{programdata_path}\\tmp\\running.tmp").Dispose();
+
+            DirectoryInfo csvHistoryPathInfo = new DirectoryInfo(csv_history_path);
+
+            return JsonConvert.SerializeObject(new { statusCode = statusCode, message = responseMessage });
+        }
         private DispenseHistoryBI convertToBIData(string clean_date, string auto_tint_id, DispenseHistory dispenseHistory)
         {
             DispenseHistoryBI data = new DispenseHistoryBI();
