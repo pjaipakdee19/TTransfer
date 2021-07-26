@@ -15,157 +15,190 @@ namespace AutoTintLibrary
     public class DispenseHistoryBI
     {
         [Index(0)]
-        [Name("RECORD_KEY")]
+        [Name("record_key")]
         public string record_key { get; set; }
         [Index(1)]
-        [Name("DISPENSED_DATE")]
+        [Name("dispensed_date")]
         public string dispensed_date { get; set; }
         [Index(2)]
-        [Name("Date")]
+        [Name("date")]
         public string date { get; set; }
         [Index(3)]
-        [Name("WANTED_AMOUNT")]
+        [Name("wanted_amount")]
         public string wanted_amount { get; set; }
         [Index(4)]
-        [Name("UNIT_NAME")]
+        [Name("unit_name")]
         public string unit_name { get; set; }
         [Index(5)]
-        [Name("DB_NAME")]
+        [Name("db_name")]
         public string db_name { get; set; }
         [Index(6)]
-        [Name("PRODUCT_NAME")]
+        [Name("product_name")]
         public string product_name { get; set; }
         [Index(7)]
-        [Name("PRODUCT_CODE")]
+        [Name("product_code")]
         public string product_code { get; set; }
         [Index(8)]
-        [Name("COLOUR_CODE")]
+        [Name("colour_code")]
         public string colour_code { get; set; }
         [Index(9)]
-        [Name("COLOR_NAME")]
+        [Name("color_name")]
         public string color_name { get; set; }
         [Index(10)]
-        [Name("COLLECTION_NAME")]
+        [Name("collection_name")]
         public string collection_name { get; set; }
         [Index(11)]
-        [Name("BASE_NAME")]
+        [Name("base_name")]
         public string base_name { get; set; }
         [Index(12)]
-        [Name("BASE_VALUE")]
+        [Name("base_value")]
         public string base_value { get; set; }
         [Index(13)]
-        [Name("PRICE")]
+        [Name("price")]
         public string price { get; set; }
         [Index(14)]
-        [Name("BASE_PRICE")]
+        [Name("base_price")]
         public string base_price { get; set; }
         [Index(15)]
-        [Name("COLORANT_PRICE")]
+        [Name("colorant_price")]
         public string colorant_price { get; set; }
         [Index(16)]
-        [Name("COMPANY_NAME")]
+        [Name("company_name")]
         public string company_name { get; set; }
         [Index(17)]
-        [Name("COMPANY_CODE")]
+        [Name("company_code")]
         public string company_code { get; set; }
         [Index(18)]
-        [Name("DISPENSER_NO")]
+        [Name("dispenser_no")]
         public string dispenser_no { get; set; }
         [Index(19)]
-        [Name("CUSTOMER_KEY")]
+        [Name("customer_key")]
         public string customer_key { get; set; }
         [Index(20)]
-        [Name("MATERIAL_PF_CODE")]
+        [Name("distribution_channel")]
+        public string distribution_channel { get; set; }
+        [Index(20)]
+        [Name("sale_office")]
+        public string sale_office { get; set; }
+        [Index(20)]
+        [Name("sale_group ")]
+        public string sale_group { get; set; }
+        [Index(20)]
+        [Name("sale_district")]
+        public string sale_district { get; set; }
+        [Index(20)]
+        [Name("buying_group")]
+        public string buying_group { get; set; }
+        [Index(20)]
+        [Name("material_pf_code")]
         public string material_pf_code { get; set; }
         [Index(21)]
-        [Name("TYPE")]
+        [Name("marketing_group")]
+        public string marketing_group { get; set; }
+        [Index(21)]
+        [Name("submarketing")]
+        public string submarketing { get; set; }
+        [Index(21)]
+        [Name("product_segment")]
+        public string product_segment { get; set; }
+        [Index(21)]
+        [Name("brand")]
+        public string brand { get; set; }
+        [Index(21)]
+        [Name("type")]
         public string type { get; set; }
         [Index(22)]
-        [Name("COMPONENT_NAME")]
+        [Name("function")]
+        public string function { get; set; }
+        [Index(22)]
+        [Name("material_group_5")]
+        public string material_group_5 { get; set; }
+        [Index(22)]
+        [Name("component_name")]
         public string component_name { get; set; }
         [Index(23)]
-        [Name("CW01_LV")]
+        [Name("cw01_lv")]
         public string cw01_lv { get; set; }
         [Index(24)]
-        [Name("CW02_LV")]
+        [Name("cw02_lv")]
         public string cw02_lv { get; set; }
         [Index(25)]
-        [Name("CW03_LV")]
+        [Name("cw03_lv")]
         public string cw03_lv { get; set; }
         [Index(26)]
-        [Name("CW04_LV")]
+        [Name("cw04_lv")]
         public string cw04_lv { get; set; }
         [Index(27)]
-        [Name("CW05_LV")]
+        [Name("cw05_lv")]
         public string cw05_lv { get; set; }
         [Index(28)]
-        [Name("CW06_LV")]
+        [Name("cw06_lv")]
         public string cw06_lv { get; set; }
         [Index(29)]
-        [Name("CW07_LV")]
+        [Name("cw07_lv")]
         public string cw07_lv { get; set; }
         [Index(30)]
-        [Name("CW08_LV")]
+        [Name("cw08_lv")]
         public string cw08_lv { get; set; }
         [Index(31)]
-        [Name("CW09_LV")]
+        [Name("cw09_lv")]
         public string cw09_lv { get; set; }
         [Index(32)]
-        [Name("CW10_LV")]
+        [Name("cw10_lv")]
         public string cw10_lv { get; set; }
         [Index(33)]
-        [Name("CW11_LV")]
+        [Name("cw11_lv")]
         public string cw11_lv { get; set; }
         [Index(34)]
-        [Name("CW12_LV")]
+        [Name("cw12_lv")]
         public string cw12_lv { get; set; }
         [Index(35)]
-        [Name("CW13_LV")]
+        [Name("cw13_lv")]
         public string cw13_lv { get; set; }
         [Index(36)]
-        [Name("CW14_LV")]
+        [Name("cw14_lv")]
         public string cw14_lv { get; set; }
         [Index(37)]
-        [Name("CW15_LV")]
+        [Name("cw15_lv")]
         public string cw15_lv { get; set; }
         [Index(38)]
-        [Name("CW16_LV")]
+        [Name("cw16_lv")]
         public string cw16_lv { get; set; }
         [Index(39)]
-        [Name("CW17_LV")]
+        [Name("cw17_lv")]
         public string cw17_lv { get; set; }
         [Index(40)]
-        [Name("CW18_LV")]
+        [Name("cw18_lv")]
         public string cw18_lv { get; set; }
         [Index(41)]
-        [Name("CW19_LV")]
+        [Name("cw19_lv")]
         public string cw19_lv { get; set; }
         [Index(42)]
-        [Name("CW20_LV")]
+        [Name("cw20_lv")]
         public string cw20_lv { get; set; }
         [Index(43)]
-        [Name("CW_TOTAL")]
+        [Name("cw_total")]
         public string cw_total { get; set; }
         [Index(44)]
-        [Name("SALE_OUT_QUANTITY_GL")]
+        [Name("sale_out_quantity_gl")]
         public string sale_out_quantity_gl { get; set; }
         [Index(45)]
-        [Name("SALE_OUT_QUANTITY_L")]
+        [Name("sale_out_quantity_l")]
         public string sale_out_quantity_l { get; set; }
         [Index(46)]
-        [Name("SALE_OUT_QUANTITY_EA")]
+        [Name("sale_out_quantity_ea")]
         public string sale_out_quantity_ea { get; set; }
         [Index(47)]
-        [Name("SALE_OUT_AMT_THB")]
+        [Name("sale_out_amt_thb")]
         public string sale_out_amt_thb { get; set; }
         [Index(48)]
-        [Name("BRANCH_NAME")]
+        [Name("branch_name")]
         public string branch_name { get; set; }
         [Index(49)]
-        [Name("BRANCH_CODE")]
+        [Name("branch_code")]
         public string branch_code { get; set; }
         [Index(50)]
-        [Name("STATUS_SHADE")]
+        [Name("status_shade")]
         public string status_shade { get; set; }
 
         public object this[string propertyName]
