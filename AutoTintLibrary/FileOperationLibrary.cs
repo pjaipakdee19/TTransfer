@@ -561,7 +561,7 @@ namespace AutoTintLibrary
             NullValueHandling = NullValueHandling.Ignore,
             MissingMemberHandling = MissingMemberHandling.Ignore
         };
-        public async Task UpdateAutotintVersion()
+        public async Task<bool> UpdateAutotintVersion()
         {
             string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             CreateDirectoryIfNotExist($"{programdata_path}\\tmp");
@@ -574,9 +574,17 @@ namespace AutoTintLibrary
             string file_total_log_path = $"{programdata_path}\\tmp\\lib_running_log.json";
             var jsonData = new ProgressCounter() { total_file = 0, complete_counter = 0, status = "Download DB File" };
             File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(jsonData), Encoding.UTF8);
-            if (response.statusCode == 200)
+            if (response.statusCode == 200 )
             {
                 AutoTintWithId result = JsonConvert.DeserializeObject<AutoTintWithId>(response.message, JsonSetting);
+                if(result.pos_setting == null)
+                {
+                    Logger.Error($"Pos_setting object is null");
+                    File.Delete($"{programdata_path}\\tmp\\dbupdate_running.tmp");
+                    File.Delete($"{programdata_path}\\tmp\\lib_running_log.json");
+                    File.Create($"{programdata_path}\\tmp\\dbupdate_version_check.tmp").Dispose();
+                    return false;
+                }
                 //lblDatabaseVersionText.Text = "" + result.pos_setting_version;
                 DateTime startTimeFormate = DateTime.UtcNow;
                 TimeZoneInfo systemTimeZone = TimeZoneInfo.Local;
@@ -604,7 +612,12 @@ namespace AutoTintLibrary
                     {
                         Directory.CreateDirectory(tmp_path);
                     }
-                    //if (!APIHelper.APIConnectionCheck(3, 30)) throw new Exception("Internet Connection Error");
+                    if (!APIHelper.APIConnectionCheck(3, 30))
+                    {
+                        Logger.Error("Internet Connection Error");
+                        //throw new Exception("Internet Connection Error");
+                        return false;
+                    }
                     String[] URIArray = downloadURI.Split('/');
                     WebClient webClient = new WebClient();
                     webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadCompleted);
@@ -632,7 +645,7 @@ namespace AutoTintLibrary
                 //MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Status Code : {response.statusCode} \nMessage : {response.message}", "Error", MessageBoxButton.OK);
                 Logger.Error($"Exception on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
             }
-            
+            return true;
         }
 
         private void DownloadCompleted(object sender, AsyncCompletedEventArgs e)

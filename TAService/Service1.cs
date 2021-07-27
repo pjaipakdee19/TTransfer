@@ -53,8 +53,16 @@ namespace TAService
             Logger.Info($"[AutoStart] Transfer operation when PC turn on Finish on {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
             //logMaskAsDoneDate("[AutoStart]" + actualTime);
             Logger.Info($"[AutoStart] Start checking and update database at {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
-            await instance.UpdateAutotintVersion();
-            Logger.Info($"[AutoStart] Update the database done at {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
+            var isUpdateOkay = await instance.UpdateAutotintVersion();
+            if (isUpdateOkay)
+            {
+                Logger.Info($"[AutoStart] Update the database done at {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
+            }
+            else
+            {
+                Logger.Error($"[AutoStart] Update the database got error at {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)}, Please check the lib log");
+            }
+            
             Logger.Info("[Service] Start timer");
             System.Timers.Timer timScheduledTask = new System.Timers.Timer();
             timScheduledTask.Enabled = true;
