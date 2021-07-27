@@ -234,6 +234,18 @@ namespace AutoTintLibrary
                     //Y Did the files name ended with _p2 ? (Does it have file name not end with p2 ?)
                     //if (!jsonFile.Name.Contains("_p2"))
                     //{
+                    //check jsonFile format if file doesn't have dispense date or invalid json format operation will be ignore.
+                    try
+                    {
+                        DispenseHistory jsonChecker = JsonConvert.DeserializeObject<DispenseHistory>(File.ReadAllText($"{jsonFile.FullName}"));
+                        if(jsonChecker.dispensed_date == null) throw new Exception();
+                    }catch(Exception ex)
+                    {
+                        Logger.Error($"The file {jsonFile.FullName} is not valid dispense history json format");
+                        continue;
+                    }
+                    
+                    
                     bool isDispenseDone = false, isDispenseBIDone = false;
                     bool test_p2 = false;
                     int retry = 1, retry_bi = 1;
