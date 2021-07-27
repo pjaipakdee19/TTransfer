@@ -59,15 +59,24 @@ namespace AutoTintLibrary
                     var csv = new CsvReader(reader, csvConfig);
                     try
                     {
-                        
-
-
                         //csv.Configuration.PrepareHeaderForMatch = (string header) => header.Replace(" ", "");
                         var records = csv.GetRecords<DispenseHistory>().ToList();
                         //Clean the records that dispense_formular_id is empty or null
                         records.RemoveAll(x => string.IsNullOrWhiteSpace(x.dispensed_formula_id));
 
-
+                        if(records.Count == 0)
+                        {
+                            reader.Close();
+                            Logger.Error($"File format is not correct {csvFile.FullName}");
+                            Logger.Error("Move file to ignore location");
+                            CreateDirectoryIfNotExist($"{csv_history_path}\\ignore_files");
+                            if (File.Exists($"{csv_history_path}\\ignore_files\\{csvFile.Name}"))
+                            {
+                                File.Delete($"{csv_history_path}\\ignore_files\\{csvFile.Name}");
+                            }
+                            File.Move(csvFile.FullName, $"{csv_history_path}\\ignore_files\\{csvFile.Name}");
+                            continue;
+                        }
 
                         var dateList = new List<string>();
                         //does csv file exist?
