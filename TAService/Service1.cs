@@ -42,18 +42,28 @@ namespace TAService
             var actualTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, ictZone);
             string programdata_path = ManageConfig.ReadConfig("programdata_log_path");
             Logger.Info($"[AutoStart] Start transfer operation when PC turn on {actualTime} !!!");
+            bool gotException = false;
             var instance = new FileOperationLibrary();
             //Lock the manual process
             File.Create($"{programdata_path}\\tmp\\running.tmp").Dispose();
             File.Create($"{programdata_path}\\tmp\\dbupdate_running.tmp").Dispose();
-            var result = await instance.StartOperation();
-            APIHelperResponse res = JsonConvert.DeserializeObject<APIHelperResponse>(result);
-            if (res.statusCode == 200) Logger.Info($"[AutoStart] Start transfer status {res.statusCode} message {res.message}");
-            if (res.statusCode == 500) Logger.Error($"[AutoStart] Start transfer status {res.statusCode} message {res.message}");
+            try
+            {
+                var result = await instance.StartOperation();
+                APIHelperResponse res = JsonConvert.DeserializeObject<APIHelperResponse>(result);
+                if (res.statusCode == 200) Logger.Info($"[AutoStart] Start transfer status {res.statusCode} message {res.message}");
+                if (res.statusCode == 500) Logger.Error($"[AutoStart] Start transfer status {res.statusCode} message {res.message}");
+            }catch(Exception ex)
+            {
+                Logger.Error($"[AutoStart] Start transfer Exception {ex.Message}");
+                gotException = true;
+            }
+           
             Logger.Info($"[AutoStart] Transfer operation when PC turn on Finish on {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
-            //logMaskAsDoneDate("[AutoStart]" + actualTime);
             Logger.Info($"[AutoStart] Start checking and update database at {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
-            var isUpdateOkay = await instance.UpdateAutotintVersion();
+            try
+            {
+                var isUpdateOkay = await instance.UpdateAutotintVersion();
             if (isUpdateOkay)
             {
                 Logger.Info($"[AutoStart] Update the database done at {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
@@ -62,7 +72,20 @@ namespace TAService
             {
                 Logger.Error($"[AutoStart] Update the database got error at {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)}, Please check the lib log");
             }
-            
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"[AutoStart] Update the database got Exception {ex.Message}");
+                gotException = true;
+            }
+
+            if (gotException)
+            {
+                //Delete the file for prevent deadlock on client side
+                File.Delete($"{programdata_path}\\tmp\\running.tmp");
+                File.Delete($"{programdata_path}\\tmp\\dbupdate_running.tmp");
+            }
+
             Logger.Info("[Service] Start timer");
             System.Timers.Timer timScheduledTask = new System.Timers.Timer();
             timScheduledTask.Enabled = true;
@@ -88,6 +111,7 @@ namespace TAService
             //    }
 
             //}
+            CreateDirectoryIfNotExist($"{programdata_path}\\tmp");
             //Clear the tmp file 
             File.Delete($"{programdata_path}\\tmp\\running.tmp");
             File.Delete($"{programdata_path}\\tmp\\dbupdate_running.tmp");
@@ -213,6 +237,14 @@ namespace TAService
         {
             Console.WriteLine("Call logger !!");
             Logger.Trace("Service Done for today " + text);
+        }
+
+        private void CreateDirectoryIfNotExist(string filepath)
+        {
+            if (!Directory.Exists(filepath))
+            {
+                Directory.CreateDirectory(filepath);
+            }
         }
     }
 }
