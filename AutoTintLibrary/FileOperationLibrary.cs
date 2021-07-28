@@ -209,15 +209,15 @@ namespace AutoTintLibrary
                 Logger.Error($"Exception in csv convert method {ex.Message}");
             }
             //Move the ignore file back to csv directory (csv_history_path)
-            if (Directory.Exists($"{csv_history_path}\\ignore_files\\"))
-            {
-                DirectoryInfo csvIgnorePathInfo = new DirectoryInfo($"{csv_history_path}\\ignore_files\\");
+            //if (Directory.Exists($"{csv_history_path}\\ignore_files\\"))
+            //{
+            //    DirectoryInfo csvIgnorePathInfo = new DirectoryInfo($"{csv_history_path}\\ignore_files\\");
 
-                foreach (var file in csvIgnorePathInfo.GetFiles())
-                {
-                    File.Move(file.FullName, $"{csv_history_path}\\{file.Name}");
-                }
-            }
+            //    foreach (var file in csvIgnorePathInfo.GetFiles())
+            //    {
+            //        File.Move(file.FullName, $"{csv_history_path}\\{file.Name}");
+            //    }
+            //}
 
 
             //N find json files in json dir, Does the files is exist ?
@@ -235,15 +235,16 @@ namespace AutoTintLibrary
                     //if (!jsonFile.Name.Contains("_p2"))
                     //{
                     //check jsonFile format if file doesn't have dispense date or invalid json format operation will be ignore.
-                    try
-                    {
-                        DispenseHistory jsonChecker = JsonConvert.DeserializeObject<DispenseHistory>(File.ReadAllText($"{jsonFile.FullName}"));
-                        if(jsonChecker.dispensed_date == null) throw new Exception();
-                    }catch(Exception ex)
-                    {
-                        Logger.Error($"The file {jsonFile.FullName} is not valid dispense history json format");
-                        continue;
-                    }
+                    //try
+                    //{
+                    //    //DispenseHistory jsonChecker = JsonConvert.DeserializeObject<DispenseHistory>(File.ReadAllText($"{jsonFile.FullName}"));
+                    //    dynamic theObject = JObject.Parse(File.ReadAllText($"{jsonFile.FullName}"));
+                    //    if (theObject.dispensed_date == null) throw new Exception();
+                    //}catch(Exception ex)
+                    //{
+                    //    Logger.Error($"The file {jsonFile.FullName} is not valid dispense history json format");
+                    //    continue;
+                    //}
                     
                     
                     bool isDispenseDone = false, isDispenseBIDone = false;
