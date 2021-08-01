@@ -541,7 +541,8 @@ namespace AutoTintLibrary
 
                 //status shade
                 /*
-                 * Complete : LINES_WANTED_AMOUNT กับ LINES_DISPENSED_AMOUNT ของทุก component ต้องเท่ากัน ยกเว้นแม่สี ที่จะเป็น 0 เสมอ
+                 * 
+                Complete : LINES_WANTED_AMOUNT กับ LINES_DISPENSED_AMOUNT ของทุก component ต้องเท่ากัน ยกเว้นแม่สี ที่จะเป็น 0 เสมอ
                 Error  : LINES_WANTED_AMOUNT กับ LINES_DISPENSED_AMOUNT ของ component ไม่เท่ากัน แค่มี 1 อันไม่เท่า ก็เป็น Error เลย
                 View  :  LINES_DISPENSED_AMOUNT ของทุก component เป็น 0 สถานะนี้คือเรียกดูสูตรการผสมเฉยๆ ไม่มีการฉีดสีลงไปผสม
                  * 
@@ -552,6 +553,10 @@ namespace AutoTintLibrary
                 for (int i = 1; i <= component_qty; i++)
                 {
                     String numStr = i.ToString();
+                    if (detail[$"component_name{i}"].ToString().ToLower().Contains("base"))
+                    {
+                        continue;
+                    }
                     if (detail[$"lines_wanted_amount{i}"] == null || detail[$"lines_dispensed_amount{i}"] == null)
                     {
                         continue;

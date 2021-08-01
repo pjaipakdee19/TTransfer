@@ -69,8 +69,8 @@ namespace IOTClient
             serviceStatusLabelThread.Start();
             var lastestUploadLabelThread = new Thread(new ThreadStart(checkUploadDTLable));
             lastestUploadLabelThread.Start();
-            var xxx = new Thread(new ThreadStart(checkDBservicecomleteFlag));
-            xxx.Start();
+            var checkDBThread = new Thread(new ThreadStart(checkDBservicecomleteFlag));
+            checkDBThread.Start();
             //string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             //string pathToMonitor = $@"{path}\tmp\";
             //FileSystemWatcher watcher = new FileSystemWatcher(pathToMonitor);
@@ -190,7 +190,15 @@ namespace IOTClient
         }
         public void clearLabelHandler()
         {
-            ServiceStatusLbl.Text = "Stand by";
+            string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            if ((File.Exists($"{path}\\tmp\\service_not_start.tmp")))
+            {
+                ServiceStatusLbl.Text = "Timer service not running";
+            }
+            else
+            {
+                ServiceStatusLbl.Text = "Stand by";
+            }
         }
         public async void checkServiceLable()
         {
