@@ -483,7 +483,7 @@ namespace IOTClient
                 ManageConfig.WriteGlobalConfig("start_random_minutes_threshold", "25");
                 ManageConfig.WriteGlobalConfig("programdata_log_path", @"C:\ProgramData\TOA_Autotint\Logs");
                 ManageConfig.WriteGlobalConfig("global_config_path", @"C:\ProgramData\TOA_Autotint\config.json");
-                string base_url_tmp = ManageConfig.ReadConfig("base_url");
+                string base_url_tmp = ManageConfig.ReadGlobalConfig("base_url");
                 if(base_url_tmp == null)
                 {
                     ManageConfig.WriteGlobalConfig("base_url", "http://49.229.21.7");

@@ -103,7 +103,7 @@ namespace StandaloneConverterApp
             var workingThread = new Thread(new ThreadStart(converter));
             workingThread.Start();
         }
-        public void converter()
+        public async void converter()
         {
             statusLbl.Invoke((MethodInvoker)(() =>
             {
@@ -121,7 +121,35 @@ namespace StandaloneConverterApp
             }
             try
             {
+
                 FileOperationLibrary fo = new FileOperationLibrary();
+                if (!File.Exists(@"C:\ProgramData\TOA_Autotint\Logs\basedb.json"))
+                {
+                    var dbDownloadResult = await fo.downloadBaseDB();
+                    if (!dbDownloadResult)
+                    {
+                        MessageBox.Show($"Download database error please check internet or server  ... program will exit", "Error", MessageBoxButtons.OK);
+                        return;
+                    }
+                }
+                else
+                {
+                    DateTime creationDT = File.GetCreationTime(@"C:\ProgramData\TOA_Autotint\Logs\basedb.json");
+                    
+                    DateTime localTime = DateTime.Now;
+                    TimeSpan ts = localTime - creationDT;
+                    var filesLife = Math.Abs(ts.TotalHours);
+                    //If file older than 24 Hours should update db file.
+                    if (filesLife >= 24)
+                    {
+                        var dbDownloadResult = await fo.downloadBaseDB();
+                        if (!dbDownloadResult)
+                        {
+                            MessageBox.Show($"Download database error please check internet or server  ... program will exit", "Error", MessageBoxButtons.OK);
+                            return;
+                        }
+                    }
+                }
                 
                 DirectoryInfo jsonTempPath = new DirectoryInfo($"{temp_path}");
                 List<DispenseHistoryBI> allRecord = new List<DispenseHistoryBI>();

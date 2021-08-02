@@ -50,8 +50,29 @@ namespace AutoTintLibrary
             //Create isRunning file
             CreateDirectoryIfNotExist($"{programdata_path}\\tmp");
             File.Create($"{programdata_path}\\tmp\\running.tmp").Dispose();
-            //find the csv in history files
-            DirectoryInfo csvHistoryPathInfo = new DirectoryInfo(csv_history_path);
+            //Prepare the base database for convert BI data.
+            if (!File.Exists($"{programdata_path}\\basedb.json"))
+            {
+                var baseDBDLresult = await downloadBaseDB();
+                if (!baseDBDLresult) Logger.Error("downloadBaseDB error");
+                }
+                else
+                {
+                    DateTime creationDT = File.GetCreationTime($"{programdata_path}\\basedb.json");
+
+                    DateTime localTime = DateTime.Now;
+                    TimeSpan ts = localTime - creationDT;
+                    var filesLife = Math.Abs(ts.TotalHours);
+                    //If file older than 24 Hours should update db file.
+                    if (filesLife >= 24)
+                    {
+                        var baseDBDLresult = await downloadBaseDB();
+                        if (!baseDBDLresult) Logger.Error("downloadBaseDB error");
+                    }
+                }
+
+                //find the csv in history files
+                DirectoryInfo csvHistoryPathInfo = new DirectoryInfo(csv_history_path);
             
             foreach (var csvFile in csvHistoryPathInfo.GetFiles("*.csv"))
             {
@@ -231,22 +252,7 @@ namespace AutoTintLibrary
             {
                 try
                 {
-                    //Y Did the files name ended with _p2 ? (Does it have file name not end with p2 ?)
-                    //if (!jsonFile.Name.Contains("_p2"))
-                    //{
-                    //check jsonFile format if file doesn't have dispense date or invalid json format operation will be ignore.
-                    //try
-                    //{
-                    //    //DispenseHistory jsonChecker = JsonConvert.DeserializeObject<DispenseHistory>(File.ReadAllText($"{jsonFile.FullName}"));
-                    //    dynamic theObject = JObject.Parse(File.ReadAllText($"{jsonFile.FullName}"));
-                    //    if (theObject.dispensed_date == null) throw new Exception();
-                    //}catch(Exception ex)
-                    //{
-                    //    Logger.Error($"The file {jsonFile.FullName} is not valid dispense history json format");
-                    //    continue;
-                    //}
-                    
-                    
+
                     bool isDispenseDone = false, isDispenseBIDone = false;
                     bool test_p2 = false;
                     int retry = 1, retry_bi = 1;
@@ -345,24 +351,6 @@ namespace AutoTintLibrary
                         data = new ProgressCounter() { total_file = jsonFileCounter, complete_counter = (int)((jsonFileTotalCounter-jsonFileCounter) * 100)/jsonFileTotalCounter, status = "Transfering ...." };
                         File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(data), Encoding.UTF8);
                     }
-
-                    
-
-                    //if(retry_bi > 4)
-                    //{
-                    //    //change file name to xxx_p2 after unsucessful transfer
-                    //    int extensionIndex = jsonFile.Name.IndexOf(".json");
-                    //    //create tmp directory
-                    //    CreateDirectoryIfNotExist($"{jsonDispenseLogPath}\\tmp");
-                    //    string moveTo = $"{jsonDispenseLogPath}\\tmp\\{jsonFile.Name.Substring(0, extensionIndex)}_p2.json";
-                    //    File.Move(jsonFile.FullName, moveTo);
-                    //    Logger.Info("Transfer to server error move json files to : " + moveTo);
-                        
-                    //}
-                //}
-
-
-                    
                 }
                 catch (Exception ex)
                 {
@@ -401,7 +389,25 @@ namespace AutoTintLibrary
             dynamic details = JArray.Parse(streamFile);
             //dynamic stuff = JsonConvert.DeserializeObject<ListDispenseHistory>(details);
             var exportRecordBI = new List<DispenseHistoryBI>();
-
+            string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            List<BaseData> baseData = new List<BaseData>();
+            if (File.Exists($"{programdata_path}\\basedb.json"))
+            {
+                try
+                {
+                    string tmpBaseData = File.ReadAllText($"{programdata_path}\\basedb.json");
+                    baseData = JsonConvert.DeserializeObject<List<BaseData>>(tmpBaseData);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"Exception occurs when parse basedb.json  {ex.Message}");
+                    throw ex;
+                }
+            }
+            else
+            {
+                Logger.Error("basedb.json doesn't exist convertToBI data can't validate status shade");
+            }
 
             foreach (dynamic detail in details)
             {
@@ -553,10 +559,20 @@ namespace AutoTintLibrary
                 for (int i = 1; i <= component_qty; i++)
                 {
                     String numStr = i.ToString();
-                    if (detail[$"component_name{i}"].ToString().ToLower().Contains("base"))
+                    bool matchBaseComponentCondition = false;
+                    for (int j = 0;j< baseData.Count; j++)
                     {
-                        continue;
+                        var kkkk = detail[$"component_name{i}"].ToString().ToLower();
+                        var eeee = baseData[j].base_name.ToString().ToLower();
+                        var vavva = detail[$"lines_dispensed_amount{i}"];
+                        if ((detail[$"component_name{i}"].ToString().ToLower() == baseData[j].base_name.ToString().ToLower())
+                            &&(detail[$"lines_dispensed_amount{i}"] == 0))
+                        {
+                            matchBaseComponentCondition = true;
+                        }
+                        if (matchBaseComponentCondition) break;
                     }
+                    if (matchBaseComponentCondition) continue;
                     if (detail[$"lines_wanted_amount{i}"] == null || detail[$"lines_dispensed_amount{i}"] == null)
                     {
                         continue;
@@ -751,6 +767,50 @@ namespace AutoTintLibrary
                     File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(jsonData), Encoding.UTF8);
                 }
             }
+        }
+
+        public async Task<bool> downloadBaseDB()
+        {
+            string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
+            try
+            {
+                string basedata = await APIHelper.RequestGet(client, $"/base/?page=1&page_size=1", auto_tint_id);
+                APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(basedata);
+                if (response.statusCode == 200) {
+                    var responseData = JsonConvert.DeserializeObject<AutoTintBase>(response.message);
+                    decimal totaldata = responseData.count;
+                    List<BaseData> jsonData = new List<BaseData>();
+                    
+                    if (totaldata > 0)
+                    {
+                        var page = (int)Math.Ceiling(totaldata / 100);
+                        for (int i = 1; i <= page; i++)
+                        {
+                            basedata = await APIHelper.RequestGet(client, $"/base/?page={i}&page_size=100", auto_tint_id);
+                            response = JsonConvert.DeserializeObject<APIHelperResponse>(basedata);
+                            if (response.statusCode == 200)
+                            {
+                                responseData = JsonConvert.DeserializeObject<AutoTintBase>(response.message);
+                                jsonData.AddRange(responseData.results);
+                            }                                
+                        }
+                        //Create file from data
+                        string pgdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+                        string file_total_log_path = $"{pgdata_path}\\basedb.json";
+                        File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(jsonData), Encoding.UTF8);
+                        Logger.Info($"Done on on downloadBaseDB to {file_total_log_path} and Total base data {totaldata}");
+                        return true;
+                    }
+                    Logger.Info($"Done on on downloadBaseDB : Total base data {totaldata}");
+                    return true;
+                };
+            }
+            catch(Exception ex)
+            {
+                Logger.Error($"Exception on downloadBaseDB : Exception {ex.Message}");
+                return false;
+            }
+            return false;
         }
     }
 }

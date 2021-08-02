@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace AutoTintLibrary
 {
-    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse); 
     public class Links
     {
         public object next { get; set; }

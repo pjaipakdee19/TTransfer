@@ -44,10 +44,13 @@ namespace TAService
             var ictZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
             var actualTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, ictZone);
             string programdata_path = ManageConfig.ReadConfig("programdata_log_path");
-
+            var instance = new FileOperationLibrary();
+            if (!APIHelper.APIConnectionCheck(3, 30)) throw new Exception("Connection error");
+            //Download database
+            var baseDBDLresult = await instance.downloadBaseDB();
+            if (!baseDBDLresult) Logger.Error("[AutoStart]downloadBaseDB error please check the lib log");
             bool skipStartProcess = false;
             //Check the time with server time.
-            if (!APIHelper.APIConnectionCheck(3, 30)) throw new Exception("Connection error");
             DateTime NetworkTime = GetNetworkTime();
             Logger.Info("[AutoStart]Current ServerTime from time.windows.com " + NetworkTime);
             //Check current computer time.
@@ -69,7 +72,7 @@ namespace TAService
             {
                 Logger.Info($"[AutoStart] Start transfer operation when PC turn on {actualTime} !!!");
                 bool gotException = false;
-                var instance = new FileOperationLibrary();
+                
                 //Lock the manual process
                 File.Create($"{programdata_path}\\tmp\\running.tmp").Dispose();
                 File.Create($"{programdata_path}\\tmp\\dbupdate_running.tmp").Dispose();
