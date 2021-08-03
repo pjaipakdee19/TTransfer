@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension"><?define HelloWorld_TargetDir=$(var.HelloWorld.TargetDir)?><?define AutoTintLibrary_TargetDir=$(var.AutoTintLibrary.TargetDir)?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
+	<?define IOTClient_TargetDir=$(var.IOTClient.TargetDir)?>
+	<?define AutoTintLibrary_TargetDir=$(var.AutoTintLibrary.TargetDir)?>
 	
 	<?define TAService_TargetDir=$(var.TAService.TargetDir)?><?define PropertySetupAction_TargetDir=$(var.PropertySetupAction.TargetDir)?>
-	<Product Id="*" Name="TOA IOT Project" Language="1033" Version="0.2" Manufacturer="TOA" UpgradeCode="a9b1d837-9b09-491b-bd81-b794560745a4">
+	<Product Id="*" Name="TOA IOT Project" Language="1033" Version="1.0" Manufacturer="TOA" UpgradeCode="a9b1d837-9b09-491b-bd81-b794560745a4">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
 		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
@@ -101,60 +103,60 @@
 	<Fragment>
 	  <ComponentGroup Id="INSTALLDIR_files" Directory="INSTALLDIR">
 	    <Component Id="RestSharp.dll" Guid="ac2cbf52-2db5-49a0-a2ab-b4d14868c30f">
-	      <File Id="RestSharp.dll" Name="RestSharp.dll" Source="$(var.HelloWorld_TargetDir)RestSharp.dll" />
+	      <File Id="RestSharp.dll" Name="RestSharp.dll" Source="$(var.IOTClient_TargetDir)RestSharp.dll" />
 	    </Component>
 	    <Component Id="NLog.config" Guid="1e889337-ef02-43dd-a0fc-cc949ed95490">
 	      <File Id="NLog.config" Name="NLog.config" Source="$(var.AutoTintLibrary_TargetDir)NLog.config" />
 	    </Component>
 	    <Component Id="IOTClient.exe.config" Guid="da8739d8-ff11-493f-a18a-337d4f4a695b">
-	      <File Id="IOTClient.exe.config" Name="IOTClient.exe.config" Source="$(var.HelloWorld_TargetDir)IOTClient.exe.config" />
+	      <File Id="IOTClient.exe.config" Name="IOTClient.exe.config" Source="$(var.IOTClient_TargetDir)IOTClient.exe.config" />
 	    </Component>
 	    <Component Id="IOTClient.exe" Guid="8c846565-53a0-473b-b9fc-f9f24b7b7366">
-			<File Id="IOTClient.exe" Name="IOTClient.exe" Source="$(var.HelloWorld_TargetDir)IOTClient.exe">
+			<File Id="IOTClient.exe" Name="IOTClient.exe" Source="$(var.IOTClient_TargetDir)IOTClient.exe">
 				<Shortcut Id="DesktopShortcut"
                   Directory="DesktopFolder"
-                  Name="TOA IOT Setting Beta 2"
+                  Name="TOA IOT Setting V1.0"
                   Description="Desktop application"
                   WorkingDirectory="INSTALLFOLDER"
                   Icon="IOTClient.exe"
                   IconIndex="0"
                   Advertise="yes" >
-					<Icon Id="IOTClient.exe" SourceFile="$(var.HelloWorld_TargetDir)IOTClient.exe" />
+					<Icon Id="IOTClient.exe" SourceFile="$(var.IOTClient_TargetDir)IOTClient.exe" />
 				</Shortcut>
 			</File>
 	    </Component>
 	    <Component Id="NLog.dll" Guid="bc2b62ac-d40c-4c4e-942e-99aeae421e28">
-	      <File Id="NLog.dll" Name="NLog.dll" Source="$(var.HelloWorld_TargetDir)NLog.dll" />
+	      <File Id="NLog.dll" Name="NLog.dll" Source="$(var.IOTClient_TargetDir)NLog.dll" />
 	    </Component>
 	    <Component Id="AutoTintLibrary.dll" Guid="bbbfbbbe-f1c3-48cf-a653-6d30c7033e99">
 	      <File Id="AutoTintLibrary.dll" Name="AutoTintLibrary.dll" Source="$(var.AutoTintLibrary_TargetDir)AutoTintLibrary.dll" />
 	    </Component>
 	    <Component Id="Newtonsoft.Json.dll" Guid="bb399e27-98c6-4779-8d3e-1890de44a7d4">
-	      <File Id="Newtonsoft.Json.dll" Name="Newtonsoft.Json.dll" Source="$(var.HelloWorld_TargetDir)Newtonsoft.Json.dll" />
+	      <File Id="Newtonsoft.Json.dll" Name="Newtonsoft.Json.dll" Source="$(var.IOTClient_TargetDir)Newtonsoft.Json.dll" />
 	    </Component>
 	    <Component Id="System.Buffers.dll" Guid="e3f309a0-0155-4c27-9236-2c88241e5e57">
-	      <File Id="System.Buffers.dll" Name="System.Buffers.dll" Source="$(var.HelloWorld_TargetDir)System.Buffers.dll" />
+	      <File Id="System.Buffers.dll" Name="System.Buffers.dll" Source="$(var.IOTClient_TargetDir)System.Buffers.dll" />
 	    </Component>
 	    <Component Id="CsvHelper.dll" Guid="0994cd15-a4d4-4e9f-b51d-a4b893d0ac16">
-	      <File Id="CsvHelper.dll" Name="CsvHelper.dll" Source="$(var.HelloWorld_TargetDir)CsvHelper.dll" />
+	      <File Id="CsvHelper.dll" Name="CsvHelper.dll" Source="$(var.IOTClient_TargetDir)CsvHelper.dll" />
 	    </Component>
 	    <Component Id="Microsoft.Bcl.AsyncInterfaces.dll" Guid="9ae7994d-6957-4c64-b83d-8749de675185">
-	      <File Id="Microsoft.Bcl.AsyncInterfaces.dll" Name="Microsoft.Bcl.AsyncInterfaces.dll" Source="$(var.HelloWorld_TargetDir)Microsoft.Bcl.AsyncInterfaces.dll" />
+	      <File Id="Microsoft.Bcl.AsyncInterfaces.dll" Name="Microsoft.Bcl.AsyncInterfaces.dll" Source="$(var.IOTClient_TargetDir)Microsoft.Bcl.AsyncInterfaces.dll" />
 	    </Component>
 	    <Component Id="System.Threading.Tasks.Extensions.dll" Guid="d3d41e50-76f9-4a53-b2fd-f484c889f63c">
-	      <File Id="System.Threading.Tasks.Extensions.dll" Name="System.Threading.Tasks.Extensions.dll" Source="$(var.HelloWorld_TargetDir)System.Threading.Tasks.Extensions.dll" />
+	      <File Id="System.Threading.Tasks.Extensions.dll" Name="System.Threading.Tasks.Extensions.dll" Source="$(var.IOTClient_TargetDir)System.Threading.Tasks.Extensions.dll" />
 	    </Component>
 	    <Component Id="System.Runtime.CompilerServices.Unsafe.dll" Guid="c917e73f-8747-4053-ab76-af8e4afd3369">
-	      <File Id="System.Runtime.CompilerServices.Unsafe.dll" Name="System.Runtime.CompilerServices.Unsafe.dll" Source="$(var.HelloWorld_TargetDir)System.Runtime.CompilerServices.Unsafe.dll" />
+	      <File Id="System.Runtime.CompilerServices.Unsafe.dll" Name="System.Runtime.CompilerServices.Unsafe.dll" Source="$(var.IOTClient_TargetDir)System.Runtime.CompilerServices.Unsafe.dll" />
 	    </Component>
 	    <Component Id="Microsoft.Bcl.HashCode.dll" Guid="2f8e4550-c779-4758-af2c-ffd51e505dd6">
-	      <File Id="Microsoft.Bcl.HashCode.dll" Name="Microsoft.Bcl.HashCode.dll" Source="$(var.HelloWorld_TargetDir)Microsoft.Bcl.HashCode.dll" />
+	      <File Id="Microsoft.Bcl.HashCode.dll" Name="Microsoft.Bcl.HashCode.dll" Source="$(var.IOTClient_TargetDir)Microsoft.Bcl.HashCode.dll" />
 	    </Component>
 	    <Component Id="System.Memory.dll" Guid="4adf4d91-afa1-4bf4-a235-f2ff7b954754">
-	      <File Id="System.Memory.dll" Name="System.Memory.dll" Source="$(var.HelloWorld_TargetDir)System.Memory.dll" />
+	      <File Id="System.Memory.dll" Name="System.Memory.dll" Source="$(var.IOTClient_TargetDir)System.Memory.dll" />
 	    </Component>
 	    <Component Id="System.Numerics.Vectors.dll" Guid="a107204d-6a4d-4e12-bcfc-58e2ea2abcec">
-	      <File Id="System.Numerics.Vectors.dll" Name="System.Numerics.Vectors.dll" Source="$(var.HelloWorld_TargetDir)System.Numerics.Vectors.dll" />
+	      <File Id="System.Numerics.Vectors.dll" Name="System.Numerics.Vectors.dll" Source="$(var.IOTClient_TargetDir)System.Numerics.Vectors.dll" />
 	    </Component>
 	    <Component Id="TAService.exe.config" Guid="b682f54b-88a0-44c4-946d-af6f68c5a540">
 	      <File Id="TAService.exe.config" Name="TAService.exe.config" Source="$(var.TAService_TargetDir)TAService.exe.config" />
@@ -174,16 +176,16 @@
   <Fragment>
     <ComponentGroup Id="ProgramFilesFolder_files" Directory="INSTALLDIR">
       <Component Id="Images_Exit.png" Guid="f2c98c6b-5c9d-44c6-aa6a-7102fc2c4d14">
-        <File Id="Images_Exit.png" Name="Exit.png" Source="$(var.HelloWorld_TargetDir)Images\Exit.png" />
+        <File Id="Images_Exit.png" Name="Exit.png" Source="$(var.IOTClient_TargetDir)Images\Exit.png" />
       </Component>
       <Component Id="Images_Explorer.png" Guid="80e06223-3f4e-4a51-b6fa-d7d8c5e8bfd5">
-        <File Id="Images_Explorer.png" Name="Explorer.png" Source="$(var.HelloWorld_TargetDir)Images\Explorer.png" />
+        <File Id="Images_Explorer.png" Name="Explorer.png" Source="$(var.IOTClient_TargetDir)Images\Explorer.png" />
       </Component>
       <Component Id="Images_SystemTrayApp.ico" Guid="dcfef4db-0f0d-47a3-88f7-155780b7fb34">
-        <File Id="Images_SystemTrayApp.ico" Name="SystemTrayApp.ico" Source="$(var.HelloWorld_TargetDir)Images\SystemTrayApp.ico" />
+        <File Id="Images_SystemTrayApp.ico" Name="SystemTrayApp.ico" Source="$(var.IOTClient_TargetDir)Images\SystemTrayApp.ico" />
       </Component>
       <Component Id="Images_About.png" Guid="398fc8b4-21fb-40aa-87f6-5c86af6a2e4f">
-        <File Id="Images_About.png" Name="About.png" Source="$(var.HelloWorld_TargetDir)Images\About.png" />
+        <File Id="Images_About.png" Name="About.png" Source="$(var.IOTClient_TargetDir)Images\About.png" />
       </Component>
     </ComponentGroup>
   </Fragment>

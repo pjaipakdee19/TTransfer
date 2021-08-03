@@ -11,7 +11,7 @@ using System.ComponentModel;
 using System.Text;
 using NLog;
 using System.Runtime.InteropServices;
-
+using System.Net.NetworkInformation;
 namespace AutoTintLibrary
 {
     public class APIHelper
@@ -31,17 +31,31 @@ namespace AutoTintLibrary
         [DllImport("wininet.dll")]
         private extern static bool InternetGetConnectedState(out int Description, int ReservedValue);
 
+
         public static bool APIConnectionCheck(int retry_round,int interval)
         {
             int status_code;
             int connection_retry = 1;
             bool isConnected = false;
-            while (connection_retry <= retry_round && !isConnected)
+            bool IsServerReply = false;
+            var ping = new Ping();
+            while (connection_retry <= retry_round)
             {
                 isConnected = InternetGetConnectedState(out status_code, 0);
+                try
+                {
+                    //Comment this section out until find the better way to get the API server status
+                   // var pingReply = ping.Send("http://49.229.21.7/docs/", 30 * 1000); // 1 minute time out (in ms)
+                    IsServerReply = true;
+                }
+                catch(Exception ex)
+                {
+                    IsServerReply = false;
+                }
+                
                 Logger.Info($"Internet status isConnected: {isConnected} Connection Flag : {status_code}");
                 connection_retry++;
-                if (!isConnected)
+                if (!isConnected || !IsServerReply)
                 {
                     Logger.Error($"Internet status isConnected:{isConnected} Connection Flag : {status_code}");
                     Logger.Info($"Retrying in {interval} seconds ...");

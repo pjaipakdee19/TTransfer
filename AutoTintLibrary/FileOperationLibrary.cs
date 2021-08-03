@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -44,135 +44,201 @@ namespace AutoTintLibrary
             string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
             string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             string file_total_log_path = $"{programdata_path}\\tmp\\lib_running_log.json";
+            try
+            {
             CreateDirectoryIfNotExist($"{jsonDispenseLogPath}");
             //Create isRunning file
             CreateDirectoryIfNotExist($"{programdata_path}\\tmp");
             File.Create($"{programdata_path}\\tmp\\running.tmp").Dispose();
-            //find the csv in history files
-            DirectoryInfo csvHistoryPathInfo = new DirectoryInfo(csv_history_path);
+            //Prepare the base database for convert BI data.
+            if (!File.Exists($"{programdata_path}\\basedb.json"))
+            {
+                var baseDBDLresult = await downloadBaseDB();
+                if (!baseDBDLresult) Logger.Error("downloadBaseDB error");
+                }
+                else
+                {
+                    DateTime creationDT = File.GetCreationTime($"{programdata_path}\\basedb.json");
+
+                    DateTime localTime = DateTime.Now;
+                    TimeSpan ts = localTime - creationDT;
+                    var filesLife = Math.Abs(ts.TotalHours);
+                    //If file older than 24 Hours should update db file.
+                    if (filesLife >= 24)
+                    {
+                        var baseDBDLresult = await downloadBaseDB();
+                        if (!baseDBDLresult) Logger.Error("downloadBaseDB error");
+                    }
+                }
+
+                //find the csv in history files
+                DirectoryInfo csvHistoryPathInfo = new DirectoryInfo(csv_history_path);
+            
             foreach (var csvFile in csvHistoryPathInfo.GetFiles("*.csv"))
             {
-                var reader = new StreamReader(csvFile.FullName);
-                var csv = new CsvReader(reader, csvConfig);
-                //csv.Configuration.PrepareHeaderForMatch = (string header) => header.Replace(" ", "");
-                var records = csv.GetRecords<DispenseHistory>().ToList();
-                //Clean the records that dispense_formular_id is empty or null
-                records.RemoveAll(x => string.IsNullOrWhiteSpace(x.dispensed_formula_id));
-
-
-
-                var dateList = new List<string>();
-                //does csv file exist?
-                //Extract the csv to json following DISPENSED_DATE
-                //(New requirement) 27/06/2021 : extract if the dispensed date from Response of API /dispense_history/last_updated/ is earlier than the date in file.
-                string latest_dispense_date = await APIHelper.RequestGet(client, $"/dispense_history/last_updated/?auto_tint_id={auto_tint_id}", auto_tint_id);
-                
-                //string latest_dispense_date = await APIHelper.RequestGet(client, $"/dispense_history/last_updated/?auto_tint_id=11016469AT01");
-                APIHelperResponse latest_dispense_date_response = JsonConvert.DeserializeObject<APIHelperResponse>(latest_dispense_date);
-                //ProgressCounter data = 
-                File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(new ProgressCounter() { total_file = 0, complete_counter = 0, status = "Converting ..." }), Encoding.UTF8);
-                //Get all date in csv 
-                for (int i = 0; i < records.Count(); i++)
-                {
-                    string[] date = records[i].dispensed_date.Split(' ');
-                    //date[0] = "21/10/2015"
-                    //date[1] = "15:30:16"
-                    //TODO: if lastest_dispense_date is 404 and lastest_dispense_data.dispensed_date > date we will not add the date to dateList
-                    //DateTime econvertedDate = Convert.ToDateTime(latest_dispense_date);
-                    //DateTime econvertedDate = Convert.ToDateTime();
-                    //Convert Year to C.E. if input is B.E. if compare with today and the year is more than today
-                    int year = int.Parse(date[0].Split('/')[2]);
-                    int now = DateTime.Today.Year;
-                    if (year > now)
+                    var reader = new StreamReader(csvFile.FullName);
+                    var csv = new CsvReader(reader, csvConfig);
+                    try
                     {
-                        date[0] = $"{date[0].Split('/')[1]}/{date[0].Split('/')[0]}/{year - 543}";
-                        records[i].dispensed_date = $"{date[0]} {date[1]}";
-                    }
+                        //csv.Configuration.PrepareHeaderForMatch = (string header) => header.Replace(" ", "");
+                        var records = csv.GetRecords<DispenseHistory>().ToList();
+                        //Clean the records that dispense_formular_id is empty or null
+                        records.RemoveAll(x => string.IsNullOrWhiteSpace(x.dispensed_formula_id));
 
-                    bool shouldConvert = false;
-                    if (latest_dispense_date_response.statusCode != 404)
-                    {
-                        //convert latest_dispense_date_response.message then get the latest_dispense_date.dispensed_date
-                        DispenseHistory dispenseH = JsonConvert.DeserializeObject<DispenseHistory>(latest_dispense_date_response.message);
-
-                        string[] dd = dispenseH.dispensed_date.Split(' ');
-                        //date[0] = "2015-10-21"
-                        //string dpdate = dd[0].Split('-')[1]+"/"+dd[0].Split('-')[2]+"/"+dd[0].Split('-')[0];
-                        string dpdate = $"{dd[0].Split('-')[1]}/{dd[0].Split('-')[2]}/{dd[0].Split('-')[0]}";
-                        DateTime econvertedDate = DateTime.Parse(dpdate);
-
-                        string spdate = $"{date[0].Split('/')[1]}/{date[0].Split('/')[0]}/{date[0].Split('/')[2]}";
-                        DateTime sconvertedDate = DateTime.Parse(spdate);
-
-                        int result = DateTime.Compare(econvertedDate, sconvertedDate);
-                        //if (result < 0)
-                        //    relationship = "is earlier than";
-                        //else if (result == 0)
-                        //    relationship = "is the same time as";
-                        //else
-                        //    relationship = "is later than";
-                        //Console.WriteLine("{0} {1} {2}", econvertedDate, relationship, sconvertedDate);
-                        if (result <= 0)
+                        if(records.Count == 0)
                         {
-                            shouldConvert = true;
-                        }
-                        else
-                        {
-                            Logger.Info($"Lastest dispense date {econvertedDate} for {auto_tint_id}, it's later than {sconvertedDate} system will not convert and transfer data.");
-                        }
-                    }
-
-
-
-                    //latest_dispense_date_response.statusCode = 404;
-                    if ((latest_dispense_date_response.statusCode != 404)&&(shouldConvert))
-                    {
-                        dateList.Add(date[0]);
-                    }else if(latest_dispense_date_response.statusCode == 404)
-                    {
-                        dateList.Add(date[0]);
-                    }
-                    
-                }
-
-                string[] cleanDate = RemoveDuplicates(dateList);
-
-
-                //save the dispenselog to file.json following date
-                for (int i = 0; i < cleanDate.Count(); i++)
-                {
-                    var exportRecord = new List<DispenseHistory>();
-                    var exportRecordBI = new List<DispenseHistoryBI>();
-                    for (int j = 0; j < records.Count(); j++)
-                    {
-
-                        if (records[j].dispensed_date.Contains(cleanDate[i]))
-                        {
-                            exportRecord.Add(records[j]);
+                            reader.Close();
+                            Logger.Error($"File format is not correct {csvFile.FullName}");
+                            Logger.Error("Move file to ignore location");
+                            CreateDirectoryIfNotExist($"{csv_history_path}\\ignore_files");
+                            if (File.Exists($"{csv_history_path}\\ignore_files\\{csvFile.Name}"))
+                            {
+                                File.Delete($"{csv_history_path}\\ignore_files\\{csvFile.Name}");
+                            }
+                            File.Move(csvFile.FullName, $"{csv_history_path}\\ignore_files\\{csvFile.Name}");
+                            continue;
                         }
 
-                    }
-                    if (exportRecord.Count > 0)
-                    {
-                        var export_path = $"{jsonDispenseLogPath}\\full_dispense_log_{cleanDate[i].Replace("/", "_")}.json";
-                        Logger.Info("Export log path : " + export_path);
-                        File.WriteAllText(export_path, JsonConvert.SerializeObject(exportRecord),Encoding.UTF8);
-                    }
-                    else
-                    {
-                        Logger.Info($"Doesn't have match dispense date in csv with cleanDate ({cleanDate[i].Replace("/", "_")})");
-                    }
-                }
+                        var dateList = new List<string>();
+                        //does csv file exist?
+                        //Extract the csv to json following DISPENSED_DATE
+                        //(New requirement) 27/06/2021 : extract if the dispensed date from Response of API /dispense_history/last_updated/ is earlier than the date in file.
+                        string latest_dispense_date = await APIHelper.RequestGet(client, $"/dispense_history/last_updated/?auto_tint_id={auto_tint_id}", auto_tint_id);
 
-                //Move complete extract file into achive folder
-                reader.Close();
-                CreateDirectoryIfNotExist(csv_history_achive_path);
-                if (File.Exists($"{csv_history_achive_path}\\{csvFile.Name}"))
-                {
-                    File.Delete($"{csv_history_achive_path}\\{csvFile.Name}");
-                }
-                File.Move(csvFile.FullName, $"{csv_history_achive_path}\\{csvFile.Name}");
+                        //string latest_dispense_date = await APIHelper.RequestGet(client, $"/dispense_history/last_updated/?auto_tint_id=11016469AT01");
+                        APIHelperResponse latest_dispense_date_response = JsonConvert.DeserializeObject<APIHelperResponse>(latest_dispense_date);
+                        //ProgressCounter data = 
+                        File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(new ProgressCounter() { total_file = 0, complete_counter = 0, status = "Converting ..." }), Encoding.UTF8);
+                        //Get all date in csv 
+                        for (int i = 0; i < records.Count(); i++)
+                        {
+                            string[] date = records[i].dispensed_date.Split(' ');
+                            //date[0] = "21/10/2015"
+                            //date[1] = "15:30:16"
+                            //TODO: if lastest_dispense_date is 404 and lastest_dispense_data.dispensed_date > date we will not add the date to dateList
+                            //DateTime econvertedDate = Convert.ToDateTime(latest_dispense_date);
+                            //DateTime econvertedDate = Convert.ToDateTime();
+                            //Convert Year to C.E. if input is B.E. if compare with today and the year is more than today
+                            int year = int.Parse(date[0].Split('/')[2]);
+                            int now = DateTime.Today.Year;
+                            if (year > now)
+                            {
+                                date[0] = $"{date[0].Split('/')[1]}/{date[0].Split('/')[0]}/{year - 543}";
+                                records[i].dispensed_date = $"{date[0]} {date[1]}";
+                            }
+
+                            bool shouldConvert = false;
+                            if (latest_dispense_date_response.statusCode != 404)
+                            {
+                                //convert latest_dispense_date_response.message then get the latest_dispense_date.dispensed_date
+                                DispenseHistory dispenseH = JsonConvert.DeserializeObject<DispenseHistory>(latest_dispense_date_response.message);
+
+                                string[] dd = dispenseH.dispensed_date.Split(' ');
+                                //date[0] = "2015-10-21"
+                                //string dpdate = dd[0].Split('-')[1]+"/"+dd[0].Split('-')[2]+"/"+dd[0].Split('-')[0];
+                                string dpdate = $"{dd[0].Split('-')[1]}/{dd[0].Split('-')[2]}/{dd[0].Split('-')[0]}";
+                                DateTime econvertedDate = DateTime.Parse(dpdate);
+
+                                string spdate = $"{date[0].Split('/')[1]}/{date[0].Split('/')[0]}/{date[0].Split('/')[2]}";
+                                DateTime sconvertedDate = DateTime.Parse(spdate);
+
+                                int result = DateTime.Compare(econvertedDate, sconvertedDate);
+                                //if (result < 0)
+                                //    relationship = "is earlier than";
+                                //else if (result == 0)
+                                //    relationship = "is the same time as";
+                                //else
+                                //    relationship = "is later than";
+                                //Console.WriteLine("{0} {1} {2}", econvertedDate, relationship, sconvertedDate);
+                                if (result <= 0)
+                                {
+                                    shouldConvert = true;
+                                }
+                                else
+                                {
+                                    Logger.Info($"Lastest dispense date {econvertedDate} for {auto_tint_id}, it's later than {sconvertedDate} system will not convert and transfer data.");
+                                }
+                            }
+
+
+
+                            //latest_dispense_date_response.statusCode = 404;
+                            if ((latest_dispense_date_response.statusCode != 404) && (shouldConvert))
+                            {
+                                dateList.Add(date[0]);
+                            }
+                            else if (latest_dispense_date_response.statusCode == 404)
+                            {
+                                dateList.Add(date[0]);
+                            }
+
+                        }
+
+                        string[] cleanDate = RemoveDuplicates(dateList);
+
+
+                        //save the dispenselog to file.json following date
+                        for (int i = 0; i < cleanDate.Count(); i++)
+                        {
+                            var exportRecord = new List<DispenseHistory>();
+                            var exportRecordBI = new List<DispenseHistoryBI>();
+                            for (int j = 0; j < records.Count(); j++)
+                            {
+
+                                if (records[j].dispensed_date.Contains(cleanDate[i]))
+                                {
+                                    exportRecord.Add(records[j]);
+                                }
+
+                            }
+                            if (exportRecord.Count > 0)
+                            {
+                                var export_path = $"{jsonDispenseLogPath}\\full_dispense_log_{cleanDate[i].Replace("/", "_")}.json";
+                                Logger.Info("Export log path : " + export_path);
+                                File.WriteAllText(export_path, JsonConvert.SerializeObject(exportRecord), Encoding.UTF8);
+                            }
+                            else
+                            {
+                                Logger.Info($"Doesn't have match dispense date in csv with cleanDate ({cleanDate[i].Replace("/", "_")})");
+                            }
+                        }
+
+                        //Move complete extract file into achive folder
+                        reader.Close();
+                        CreateDirectoryIfNotExist(csv_history_achive_path);
+                        if (File.Exists($"{csv_history_achive_path}\\{csvFile.Name}"))
+                        {
+                            File.Delete($"{csv_history_achive_path}\\{csvFile.Name}");
+                        }
+                        File.Move(csvFile.FullName, $"{csv_history_achive_path}\\{csvFile.Name}");
+                    } catch (Exception ex)
+                    {
+                        reader.Close();
+                        Logger.Error($"Exception in csv convert file {csvFile.FullName}");
+                        Logger.Error($"Exception message {ex.Message}");
+                        Logger.Error("Move file to ignore location");
+                        CreateDirectoryIfNotExist($"{csv_history_path}\\ignore_files");
+                        if (File.Exists($"{csv_history_path}\\ignore_files\\{csvFile.Name}"))
+                        {
+                            File.Delete($"{csv_history_path}\\ignore_files\\{csvFile.Name}");
+                        }
+                        File.Move(csvFile.FullName, $"{csv_history_path}\\ignore_files\\{csvFile.Name}");
+                    }
             }
+            }catch(Exception ex)
+            {
+                Logger.Error($"Exception in csv convert method {ex.Message}");
+            }
+            //Move the ignore file back to csv directory (csv_history_path)
+            //if (Directory.Exists($"{csv_history_path}\\ignore_files\\"))
+            //{
+            //    DirectoryInfo csvIgnorePathInfo = new DirectoryInfo($"{csv_history_path}\\ignore_files\\");
+
+            //    foreach (var file in csvIgnorePathInfo.GetFiles())
+            //    {
+            //        File.Move(file.FullName, $"{csv_history_path}\\{file.Name}");
+            //    }
+            //}
 
 
             //N find json files in json dir, Does the files is exist ?
@@ -186,9 +252,7 @@ namespace AutoTintLibrary
             {
                 try
                 {
-                    //Y Did the files name ended with _p2 ? (Does it have file name not end with p2 ?)
-                    //if (!jsonFile.Name.Contains("_p2"))
-                    //{
+
                     bool isDispenseDone = false, isDispenseBIDone = false;
                     bool test_p2 = false;
                     int retry = 1, retry_bi = 1;
@@ -202,7 +266,7 @@ namespace AutoTintLibrary
                         if (response.statusCode != 201)
                         {
                             retry++;
-                            Logger.Error($"Error when upload file retring round {retry} filename {jsonFile.FullName}");
+                            Logger.Error($"Error when upload file retiring round {retry} filename {jsonFile.FullName}");
                             Logger.Error($"Service response statusCode : {response.statusCode}");
                             Logger.Error($"Service response message :  {response.message}");
                         }
@@ -284,12 +348,9 @@ namespace AutoTintLibrary
 
                         int jsonFileCounter = jsonDispensePathInfo.GetFiles("*.json").Length;
                         //string file_total_log_path = $"{programdata_path}\\tmp\\lib_running_log.json";
-                        int completePercentage = (int)((jsonFileTotalCounter - jsonFileCounter) * 100) / jsonFileTotalCounter;
-                        Logger.Info($"Log the percentage to file {completePercentage}");
-                        data = new ProgressCounter() { total_file = jsonFileCounter, complete_counter = completePercentage, status = "Transfering ...." };
+                        data = new ProgressCounter() { total_file = jsonFileCounter, complete_counter = (int)((jsonFileTotalCounter-jsonFileCounter) * 100)/jsonFileTotalCounter, status = "Transfering ...." };
                         File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(data), Encoding.UTF8);
-
-                    }       
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -309,9 +370,7 @@ namespace AutoTintLibrary
             }
             //Delete is running file
             File.Delete($"{programdata_path}\\tmp\\running.tmp");
-            //File.Delete($"{programdata_path}\\tmp\\lib_running_log.json");
-            var jsonData = new ProgressCounter() { total_file = 0, complete_counter = 0, status = "Stand by" };
-            File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(jsonData), Encoding.UTF8);
+            File.Delete($"{programdata_path}\\tmp\\lib_running_log.json");
             return JsonConvert.SerializeObject(new { statusCode = statusCode, message = responseMessage });
         }
 
@@ -330,7 +389,25 @@ namespace AutoTintLibrary
             dynamic details = JArray.Parse(streamFile);
             //dynamic stuff = JsonConvert.DeserializeObject<ListDispenseHistory>(details);
             var exportRecordBI = new List<DispenseHistoryBI>();
-
+            string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            List<BaseData> baseData = new List<BaseData>();
+            if (File.Exists($"{programdata_path}\\basedb.json"))
+            {
+                try
+                {
+                    string tmpBaseData = File.ReadAllText($"{programdata_path}\\basedb.json");
+                    baseData = JsonConvert.DeserializeObject<List<BaseData>>(tmpBaseData);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"Exception occurs when parse basedb.json  {ex.Message}");
+                    throw ex;
+                }
+            }
+            else
+            {
+                Logger.Error("basedb.json doesn't exist convertToBI data can't validate status shade");
+            }
 
             foreach (dynamic detail in details)
             {
@@ -470,7 +547,8 @@ namespace AutoTintLibrary
 
                 //status shade
                 /*
-                 * Complete : LINES_WANTED_AMOUNT กับ LINES_DISPENSED_AMOUNT ของทุก component ต้องเท่ากัน ยกเว้นแม่สี ที่จะเป็น 0 เสมอ
+                 * 
+                Complete : LINES_WANTED_AMOUNT กับ LINES_DISPENSED_AMOUNT ของทุก component ต้องเท่ากัน ยกเว้นแม่สี ที่จะเป็น 0 เสมอ
                 Error  : LINES_WANTED_AMOUNT กับ LINES_DISPENSED_AMOUNT ของ component ไม่เท่ากัน แค่มี 1 อันไม่เท่า ก็เป็น Error เลย
                 View  :  LINES_DISPENSED_AMOUNT ของทุก component เป็น 0 สถานะนี้คือเรียกดูสูตรการผสมเฉยๆ ไม่มีการฉีดสีลงไปผสม
                  * 
@@ -481,6 +559,20 @@ namespace AutoTintLibrary
                 for (int i = 1; i <= component_qty; i++)
                 {
                     String numStr = i.ToString();
+                    bool matchBaseComponentCondition = false;
+                    for (int j = 0;j< baseData.Count; j++)
+                    {
+                        var kkkk = detail[$"component_name{i}"].ToString().ToLower();
+                        var eeee = baseData[j].base_name.ToString().ToLower();
+                        var vavva = detail[$"lines_dispensed_amount{i}"];
+                        if ((detail[$"component_name{i}"].ToString().ToLower() == baseData[j].base_name.ToString().ToLower())
+                            &&(detail[$"lines_dispensed_amount{i}"] == 0))
+                        {
+                            matchBaseComponentCondition = true;
+                        }
+                        if (matchBaseComponentCondition) break;
+                    }
+                    if (matchBaseComponentCondition) continue;
                     if (detail[$"lines_wanted_amount{i}"] == null || detail[$"lines_dispensed_amount{i}"] == null)
                     {
                         continue;
@@ -548,8 +640,10 @@ namespace AutoTintLibrary
             NullValueHandling = NullValueHandling.Ignore,
             MissingMemberHandling = MissingMemberHandling.Ignore
         };
-        public async Task UpdateAutotintVersion()
+        public async Task<bool> UpdateAutotintVersion()
         {
+            try
+            {
             string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             CreateDirectoryIfNotExist($"{programdata_path}\\tmp");
             File.Create($"{programdata_path}\\tmp\\dbupdate_running.tmp").Dispose();
@@ -559,11 +653,19 @@ namespace AutoTintLibrary
 
             APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(str_response);
             string file_total_log_path = $"{programdata_path}\\tmp\\lib_running_log.json";
-            var jsonData = new ProgressCounter() { total_file = 1, complete_counter = 0, status = "Download DB File" };
+            var jsonData = new ProgressCounter() { total_file = 0, complete_counter = 0, status = "Download DB File" };
             File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(jsonData), Encoding.UTF8);
-            if (response.statusCode == 200)
+            if (response.statusCode == 200 )
             {
                 AutoTintWithId result = JsonConvert.DeserializeObject<AutoTintWithId>(response.message, JsonSetting);
+                if(result.pos_setting == null)
+                {
+                    Logger.Error($"Pos_setting object is null");
+                    File.Delete($"{programdata_path}\\tmp\\dbupdate_running.tmp");
+                    File.Delete($"{programdata_path}\\tmp\\lib_running_log.json");
+                    File.Create($"{programdata_path}\\tmp\\dbupdate_version_check.tmp").Dispose();
+                    return false;
+                }
                 //lblDatabaseVersionText.Text = "" + result.pos_setting_version;
                 DateTime startTimeFormate = DateTime.UtcNow;
                 TimeZoneInfo systemTimeZone = TimeZoneInfo.Local;
@@ -581,6 +683,9 @@ namespace AutoTintLibrary
                 if (shouldDownloadNewDB)
                 //if (true)
                 {
+                    //    //Goto download
+
+                    
                     string downloadURI = $"{checkVersion.file}";
                     string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
                     string tmp_path = $"{path}\\tmp";
@@ -588,7 +693,12 @@ namespace AutoTintLibrary
                     {
                         Directory.CreateDirectory(tmp_path);
                     }
-                    //if (!APIHelper.APIConnectionCheck(3, 30)) throw new Exception("Internet Connection Error");
+                    if (!APIHelper.APIConnectionCheck(3, 30))
+                    {
+                        Logger.Error("Internet Connection Error");
+                        //throw new Exception("Internet Connection Error");
+                        return false;
+                    }
                     String[] URIArray = downloadURI.Split('/');
                     WebClient webClient = new WebClient();
                     webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadCompleted);
@@ -601,25 +711,14 @@ namespace AutoTintLibrary
                     ""pos_setting_version_id"": " + checkVersion.id + @"
                     }
                     ";
-                    //dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
-                    DBversionHandler jsonData2 = new DBversionHandler() { version = $"{checkVersion.number}", datetime = $"{ICTDateTimeText}", filename = $"{URIArray[URIArray.Length - 1]}", auto_tint_id = $"{auto_tint_id}" };
-                    File.WriteAllText($"{programdata_path}\\db_version.json", JsonConvert.SerializeObject(jsonData2), Encoding.UTF8);
+                    dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
                 }
                 else
                 {
                     //Delete is running file
                     File.Delete($"{programdata_path}\\tmp\\dbupdate_running.tmp");
-                    //File.Delete($"{programdata_path}\\tmp\\lib_running_log.json");
-                    var jsonDataElse = new ProgressCounter() { total_file = 0, complete_counter = 0, status = "Stand by" };
-                    File.WriteAllText($"{programdata_path}\\tmp\\lib_running_log.json", JsonConvert.SerializeObject(jsonDataElse), Encoding.UTF8);
-                    AutoTintWithId result2 = JsonConvert.DeserializeObject<AutoTintWithId>(response.message, JsonSetting);
-                    string[] fileName = result2.pos_setting_version.file.Split('/');
-                    DBversionHandler jsonData3 = new DBversionHandler() { version = $"{result2.pos_setting_version.number}", datetime = $"{ICTDateTimeText}", filename = $"{fileName[fileName.Length - 1]}", auto_tint_id = $"{auto_tint_id}" };
-                    File.WriteAllText($"{programdata_path}\\db_version.json", JsonConvert.SerializeObject(jsonData3), Encoding.UTF8);
-                    //DirectoryInfo dInfo = new DirectoryInfo($"{programdata_path}\\tmp\\checkdbVersion.tmp");
-                    //DirectorySecurity dSecurity = dInfo.GetAccessControl();
-                    //dSecurity.AddAccessRule(new FileSystemAccessRule("everyone", FileSystemRights.FullControl, InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit, PropagationFlags.InheritOnly, AccessControlType.Allow));
-                    //dInfo.SetAccessControl(dSecurity);
+                    File.Delete($"{programdata_path}\\tmp\\lib_running_log.json");
+                    File.Create($"{programdata_path}\\tmp\\dbupdate_version_check.tmp").Dispose();
                 }
             }
             else
@@ -627,7 +726,12 @@ namespace AutoTintLibrary
                 //MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Status Code : {response.statusCode} \nMessage : {response.message}", "Error", MessageBoxButton.OK);
                 Logger.Error($"Exception on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
             }
-            
+            return true;
+            }catch(Exception ex)
+            {
+                Logger.Error($"Exception on get Autotint Version : Exception {ex.Message}");
+                return false;
+            }
         }
 
         private void DownloadCompleted(object sender, AsyncCompletedEventArgs e)
@@ -647,29 +751,66 @@ namespace AutoTintLibrary
             Logger.Info($"Download new update succesful");
             string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             File.Delete($"{programdata_path}\\tmp\\dbupdate_running.tmp");
-            //File.Delete($"{programdata_path}\\tmp\\lib_running_log.json");
-            var jsonDataComp = new ProgressCounter() { total_file = 0, complete_counter = 0, status = "Stand by" };
-            File.WriteAllText($"{programdata_path}\\tmp\\lib_running_log.json", JsonConvert.SerializeObject(jsonDataComp), Encoding.UTF8);
+            File.Delete($"{programdata_path}\\tmp\\lib_running_log.json");
+            File.Create($"{programdata_path}\\tmp\\dbupdate_version_check.tmp").Dispose();
         }
 
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-            try
+            string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            if (File.Exists($"{programdata_path}\\tmp\\lib_running_log.json"))
             {
-                string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
-                string file_total_log_path = $"{programdata_path}\\tmp\\lib_running_log.json";
                 if (e.ProgressPercentage % 5 == 0)
                 {
-                    Logger.Info($"ProgressChanged  : {e.ProgressPercentage}");
-                    var jsonData = new ProgressCounter() { total_file = 1, complete_counter = e.ProgressPercentage, status = "Download DB File" };
+                    string file_total_log_path = $"{programdata_path}\\tmp\\lib_running_log.json";
+                    var jsonData = new ProgressCounter() { total_file = 0, complete_counter = e.ProgressPercentage, status = "Download DB File" };
                     File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(jsonData), Encoding.UTF8);
                 }
-            }catch(Exception ex)
-            {
-                Logger.Error($"Exception on progresschanged : {ex.Message}");
-
             }
-            
+        }
+
+        public async Task<bool> downloadBaseDB()
+        {
+            string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
+            try
+            {
+                string basedata = await APIHelper.RequestGet(client, $"/base/?page=1&page_size=1", auto_tint_id);
+                APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(basedata);
+                if (response.statusCode == 200) {
+                    var responseData = JsonConvert.DeserializeObject<AutoTintBase>(response.message);
+                    decimal totaldata = responseData.count;
+                    List<BaseData> jsonData = new List<BaseData>();
+                    
+                    if (totaldata > 0)
+                    {
+                        var page = (int)Math.Ceiling(totaldata / 100);
+                        for (int i = 1; i <= page; i++)
+                        {
+                            basedata = await APIHelper.RequestGet(client, $"/base/?page={i}&page_size=100", auto_tint_id);
+                            response = JsonConvert.DeserializeObject<APIHelperResponse>(basedata);
+                            if (response.statusCode == 200)
+                            {
+                                responseData = JsonConvert.DeserializeObject<AutoTintBase>(response.message);
+                                jsonData.AddRange(responseData.results);
+                            }                                
+                        }
+                        //Create file from data
+                        string pgdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+                        string file_total_log_path = $"{pgdata_path}\\basedb.json";
+                        File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(jsonData), Encoding.UTF8);
+                        Logger.Info($"Done on on downloadBaseDB to {file_total_log_path} and Total base data {totaldata}");
+                        return true;
+                    }
+                    Logger.Info($"Done on on downloadBaseDB : Total base data {totaldata}");
+                    return true;
+                };
+            }
+            catch(Exception ex)
+            {
+                Logger.Error($"Exception on downloadBaseDB : Exception {ex.Message}");
+                return false;
+            }
+            return false;
         }
     }
 }

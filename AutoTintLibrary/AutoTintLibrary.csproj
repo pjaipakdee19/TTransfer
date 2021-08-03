@@ -114,6 +114,7 @@
     <Compile Include="Model\APIModel\APIHelperResponse.cs" />
     <Compile Include="Model\APIModel\AutoTintWithId.cs" />
     <Compile Include="Model\APIModel\AutoTintWithIdV2.cs" />
+    <Compile Include="Model\APIModel\AutoTintBase.cs" />
     <Compile Include="Model\APIModel\PrismaPro.cs" />
     <Compile Include="Model\APIModel\DBversionHandler.cs" />
     <Compile Include="Model\APIModel\ProsmaProLatestVersion.cs" />
