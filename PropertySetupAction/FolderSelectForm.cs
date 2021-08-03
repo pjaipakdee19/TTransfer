@@ -86,7 +86,7 @@ namespace PropertySetupAction
                 WriteGlobalConfig("start_random_minutes_threshold", "25");
                 WriteGlobalConfig("programdata_log_path", @"C:\ProgramData\TOA_Autotint\Logs");
                 WriteGlobalConfig("global_config_path", @"C:\ProgramData\TOA_Autotint\config.json");
-                WriteGlobalConfig("base_url", "http://49.229.21.9/dev");
+                WriteGlobalConfig("base_url", "http://49.229.21.7");
                 this.DialogResult = DialogResult.Yes;
             }
         }
