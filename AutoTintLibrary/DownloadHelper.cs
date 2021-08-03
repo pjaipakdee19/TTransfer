@@ -78,6 +78,7 @@ namespace AutoTintLibrary
                 else
                 {
                     Console.WriteLine(e.Error.Message);
+                    Console.WriteLine(e.Error.InnerException.Message);
                 }
             }
             else
