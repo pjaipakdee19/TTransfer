@@ -86,9 +86,16 @@ namespace AutoTintLibrary
                 if (!APIConnectionCheck(3, 30)) throw new Exception("Connection error");
                 response = await client.ExecuteAsync(request, cancellationTokenSource.Token);
                 Console.WriteLine(response.Content);
-                
-                //return result.Content;
-                Logger.Info($"Param {url},{auto_tint_id}:Response Status {response.StatusCode} | Content {response.Content}");
+
+                //log result.Content;
+                if (!url.Contains("/base/?page"))
+                {
+                    Logger.Info($"Param {url},{auto_tint_id}:Response Status {response.StatusCode} | Content {response.Content}");
+                }
+                else
+                {
+                    Logger.Info($"Param {url},{auto_tint_id}:Response Status {response.StatusCode}");
+                }
             }
             catch (Exception ex)
             {

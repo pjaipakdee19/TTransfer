@@ -46,49 +46,161 @@ namespace AutoTintLibrary
             string file_total_log_path = $"{programdata_path}\\tmp\\lib_running_log.json";
             try
             {
-            CreateDirectoryIfNotExist($"{jsonDispenseLogPath}");
-            //Create isRunning file
-            CreateDirectoryIfNotExist($"{programdata_path}\\tmp");
-            File.Create($"{programdata_path}\\tmp\\running.tmp").Dispose();
-            //Prepare the base database for convert BI data.
-            if (!File.Exists($"{programdata_path}\\basedb.json"))
-            {
-                var baseDBDLresult = await downloadBaseDB();
-                if (!baseDBDLresult) Logger.Error("downloadBaseDB error");
-                }
-                else
-                {
-                    DateTime creationDT = File.GetCreationTime($"{programdata_path}\\basedb.json");
-
-                    DateTime localTime = DateTime.Now;
-                    TimeSpan ts = localTime - creationDT;
-                    var filesLife = Math.Abs(ts.TotalHours);
-                    //If file older than 24 Hours should update db file.
-                    if (filesLife >= 24)
-                    {
-                        var baseDBDLresult = await downloadBaseDB();
-                        if (!baseDBDLresult) Logger.Error("downloadBaseDB error");
-                    }
-                }
-
+                CreateDirectoryIfNotExist($"{jsonDispenseLogPath}");
+                //Create isRunning file
+                CreateDirectoryIfNotExist($"{programdata_path}\\tmp");
+                File.Create($"{programdata_path}\\tmp\\running.tmp").Dispose();
+               
                 //find the csv in history files
                 DirectoryInfo csvHistoryPathInfo = new DirectoryInfo(csv_history_path);
-            
-            foreach (var csvFile in csvHistoryPathInfo.GetFiles("*.csv"))
-            {
-                    var reader = new StreamReader(csvFile.FullName);
-                    var csv = new CsvReader(reader, csvConfig);
-                    try
-                    {
-                        //csv.Configuration.PrepareHeaderForMatch = (string header) => header.Replace(" ", "");
-                        var records = csv.GetRecords<DispenseHistory>().ToList();
-                        //Clean the records that dispense_formular_id is empty or null
-                        records.RemoveAll(x => string.IsNullOrWhiteSpace(x.dispensed_formula_id));
+                //Prepare the base database for convert BI data.
+                if (csvHistoryPathInfo.GetFiles("*.csv").Length > 0)
+                {
+                    var baseDBDLresult = await downloadBaseDB();
+                    if (!baseDBDLresult) Logger.Error("downloadBaseDB error");
+                }
+                foreach (var csvFile in csvHistoryPathInfo.GetFiles("*.csv"))
+                {
+                        var reader = new StreamReader(csvFile.FullName);
+                        var csv = new CsvReader(reader, csvConfig);
+                        try
+                        {
+                            //csv.Configuration.PrepareHeaderForMatch = (string header) => header.Replace(" ", "");
+                            var records = csv.GetRecords<DispenseHistory>().ToList();
+                            //Clean the records that dispense_formular_id is empty or null
+                            records.RemoveAll(x => string.IsNullOrWhiteSpace(x.dispensed_formula_id));
 
-                        if(records.Count == 0)
+                            if(records.Count == 0)
+                            {
+                                reader.Close();
+                                Logger.Error($"File format is not correct {csvFile.FullName}");
+                                Logger.Error("Move file to ignore location");
+                                CreateDirectoryIfNotExist($"{csv_history_path}\\ignore_files");
+                                if (File.Exists($"{csv_history_path}\\ignore_files\\{csvFile.Name}"))
+                                {
+                                    File.Delete($"{csv_history_path}\\ignore_files\\{csvFile.Name}");
+                                }
+                                File.Move(csvFile.FullName, $"{csv_history_path}\\ignore_files\\{csvFile.Name}");
+                                continue;
+                            }
+
+                            var dateList = new List<string>();
+                            //does csv file exist?
+                            //Extract the csv to json following DISPENSED_DATE
+                            //(New requirement) 27/06/2021 : extract if the dispensed date from Response of API /dispense_history/last_updated/ is earlier than the date in file.
+                            string latest_dispense_date = await APIHelper.RequestGet(client, $"/dispense_history/last_updated/?auto_tint_id={auto_tint_id}", auto_tint_id);
+
+                            //string latest_dispense_date = await APIHelper.RequestGet(client, $"/dispense_history/last_updated/?auto_tint_id=11016469AT01");
+                            APIHelperResponse latest_dispense_date_response = JsonConvert.DeserializeObject<APIHelperResponse>(latest_dispense_date);
+                            //ProgressCounter data = 
+                            File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(new ProgressCounter() { total_file = 0, complete_counter = 0, status = "Converting ..." }), Encoding.UTF8);
+                            //Get all date in csv 
+                            for (int i = 0; i < records.Count(); i++)
+                            {
+                                string[] date = records[i].dispensed_date.Split(' ');
+                                //date[0] = "21/10/2015"
+                                //date[1] = "15:30:16"
+                                //TODO: if lastest_dispense_date is 404 and lastest_dispense_data.dispensed_date > date we will not add the date to dateList
+                                //DateTime econvertedDate = Convert.ToDateTime(latest_dispense_date);
+                                //DateTime econvertedDate = Convert.ToDateTime();
+                                //Convert Year to C.E. if input is B.E. if compare with today and the year is more than today
+                                int year = int.Parse(date[0].Split('/')[2]);
+                                int now = DateTime.Today.Year;
+                                if (year > now)
+                                {
+                                    date[0] = $"{date[0].Split('/')[1]}/{date[0].Split('/')[0]}/{year - 543}";
+                                    records[i].dispensed_date = $"{date[0]} {date[1]}";
+                                }
+
+                                bool shouldConvert = false;
+                                if (latest_dispense_date_response.statusCode != 404)
+                                {
+                                    //convert latest_dispense_date_response.message then get the latest_dispense_date.dispensed_date
+                                    DispenseHistory dispenseH = JsonConvert.DeserializeObject<DispenseHistory>(latest_dispense_date_response.message);
+
+                                    string[] dd = dispenseH.dispensed_date.Split(' ');
+                                    //date[0] = "2015-10-21"
+                                    //string dpdate = dd[0].Split('-')[1]+"/"+dd[0].Split('-')[2]+"/"+dd[0].Split('-')[0];
+                                    string dpdate = $"{dd[0].Split('-')[1]}/{dd[0].Split('-')[2]}/{dd[0].Split('-')[0]}";
+                                    DateTime econvertedDate = DateTime.Parse(dpdate);
+
+                                    string spdate = $"{date[0].Split('/')[1]}/{date[0].Split('/')[0]}/{date[0].Split('/')[2]}";
+                                    DateTime sconvertedDate = DateTime.Parse(spdate);
+
+                                    int result = DateTime.Compare(econvertedDate, sconvertedDate);
+                                    //if (result < 0)
+                                    //    relationship = "is earlier than";
+                                    //else if (result == 0)
+                                    //    relationship = "is the same time as";
+                                    //else
+                                    //    relationship = "is later than";
+                                    //Console.WriteLine("{0} {1} {2}", econvertedDate, relationship, sconvertedDate);
+                                    if (result <= 0)
+                                    {
+                                        shouldConvert = true;
+                                    }
+                                    else
+                                    {
+                                        Logger.Info($"Lastest dispense date {econvertedDate} for {auto_tint_id}, it's later than {sconvertedDate} system will not convert and transfer data.");
+                                    }
+                                }
+
+
+
+                                //latest_dispense_date_response.statusCode = 404;
+                                if ((latest_dispense_date_response.statusCode != 404) && (shouldConvert))
+                                {
+                                    dateList.Add(date[0]);
+                                }
+                                else if (latest_dispense_date_response.statusCode == 404)
+                                {
+                                    dateList.Add(date[0]);
+                                }
+
+                            }
+
+                            string[] cleanDate = RemoveDuplicates(dateList);
+
+
+                            //save the dispenselog to file.json following date
+                            for (int i = 0; i < cleanDate.Count(); i++)
+                            {
+                                var exportRecord = new List<DispenseHistory>();
+                                var exportRecordBI = new List<DispenseHistoryBI>();
+                                for (int j = 0; j < records.Count(); j++)
+                                {
+
+                                    if (records[j].dispensed_date.Contains(cleanDate[i]))
+                                    {
+                                        exportRecord.Add(records[j]);
+                                    }
+
+                                }
+                                if (exportRecord.Count > 0)
+                                {
+                                    var export_path = $"{jsonDispenseLogPath}\\full_dispense_log_{cleanDate[i].Replace("/", "_")}.json";
+                                    Logger.Info("Export log path : " + export_path);
+                                    File.WriteAllText(export_path, JsonConvert.SerializeObject(exportRecord), Encoding.UTF8);
+                                }
+                                else
+                                {
+                                    Logger.Info($"Doesn't have match dispense date in csv with cleanDate ({cleanDate[i].Replace("/", "_")})");
+                                }
+                            }
+
+                            //Move complete extract file into achive folder
+                            reader.Close();
+                            CreateDirectoryIfNotExist(csv_history_achive_path);
+                            if (File.Exists($"{csv_history_achive_path}\\{csvFile.Name}"))
+                            {
+                                File.Delete($"{csv_history_achive_path}\\{csvFile.Name}");
+                            }
+                            File.Move(csvFile.FullName, $"{csv_history_achive_path}\\{csvFile.Name}");
+                        } catch (Exception ex)
                         {
                             reader.Close();
-                            Logger.Error($"File format is not correct {csvFile.FullName}");
+                            Logger.Error($"Exception in csv convert file {csvFile.FullName}");
+                            Logger.Error($"Exception message {ex.Message}");
                             Logger.Error("Move file to ignore location");
                             CreateDirectoryIfNotExist($"{csv_history_path}\\ignore_files");
                             if (File.Exists($"{csv_history_path}\\ignore_files\\{csvFile.Name}"))
@@ -96,134 +208,7 @@ namespace AutoTintLibrary
                                 File.Delete($"{csv_history_path}\\ignore_files\\{csvFile.Name}");
                             }
                             File.Move(csvFile.FullName, $"{csv_history_path}\\ignore_files\\{csvFile.Name}");
-                            continue;
                         }
-
-                        var dateList = new List<string>();
-                        //does csv file exist?
-                        //Extract the csv to json following DISPENSED_DATE
-                        //(New requirement) 27/06/2021 : extract if the dispensed date from Response of API /dispense_history/last_updated/ is earlier than the date in file.
-                        string latest_dispense_date = await APIHelper.RequestGet(client, $"/dispense_history/last_updated/?auto_tint_id={auto_tint_id}", auto_tint_id);
-
-                        //string latest_dispense_date = await APIHelper.RequestGet(client, $"/dispense_history/last_updated/?auto_tint_id=11016469AT01");
-                        APIHelperResponse latest_dispense_date_response = JsonConvert.DeserializeObject<APIHelperResponse>(latest_dispense_date);
-                        //ProgressCounter data = 
-                        File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(new ProgressCounter() { total_file = 0, complete_counter = 0, status = "Converting ..." }), Encoding.UTF8);
-                        //Get all date in csv 
-                        for (int i = 0; i < records.Count(); i++)
-                        {
-                            string[] date = records[i].dispensed_date.Split(' ');
-                            //date[0] = "21/10/2015"
-                            //date[1] = "15:30:16"
-                            //TODO: if lastest_dispense_date is 404 and lastest_dispense_data.dispensed_date > date we will not add the date to dateList
-                            //DateTime econvertedDate = Convert.ToDateTime(latest_dispense_date);
-                            //DateTime econvertedDate = Convert.ToDateTime();
-                            //Convert Year to C.E. if input is B.E. if compare with today and the year is more than today
-                            int year = int.Parse(date[0].Split('/')[2]);
-                            int now = DateTime.Today.Year;
-                            if (year > now)
-                            {
-                                date[0] = $"{date[0].Split('/')[1]}/{date[0].Split('/')[0]}/{year - 543}";
-                                records[i].dispensed_date = $"{date[0]} {date[1]}";
-                            }
-
-                            bool shouldConvert = false;
-                            if (latest_dispense_date_response.statusCode != 404)
-                            {
-                                //convert latest_dispense_date_response.message then get the latest_dispense_date.dispensed_date
-                                DispenseHistory dispenseH = JsonConvert.DeserializeObject<DispenseHistory>(latest_dispense_date_response.message);
-
-                                string[] dd = dispenseH.dispensed_date.Split(' ');
-                                //date[0] = "2015-10-21"
-                                //string dpdate = dd[0].Split('-')[1]+"/"+dd[0].Split('-')[2]+"/"+dd[0].Split('-')[0];
-                                string dpdate = $"{dd[0].Split('-')[1]}/{dd[0].Split('-')[2]}/{dd[0].Split('-')[0]}";
-                                DateTime econvertedDate = DateTime.Parse(dpdate);
-
-                                string spdate = $"{date[0].Split('/')[1]}/{date[0].Split('/')[0]}/{date[0].Split('/')[2]}";
-                                DateTime sconvertedDate = DateTime.Parse(spdate);
-
-                                int result = DateTime.Compare(econvertedDate, sconvertedDate);
-                                //if (result < 0)
-                                //    relationship = "is earlier than";
-                                //else if (result == 0)
-                                //    relationship = "is the same time as";
-                                //else
-                                //    relationship = "is later than";
-                                //Console.WriteLine("{0} {1} {2}", econvertedDate, relationship, sconvertedDate);
-                                if (result <= 0)
-                                {
-                                    shouldConvert = true;
-                                }
-                                else
-                                {
-                                    Logger.Info($"Lastest dispense date {econvertedDate} for {auto_tint_id}, it's later than {sconvertedDate} system will not convert and transfer data.");
-                                }
-                            }
-
-
-
-                            //latest_dispense_date_response.statusCode = 404;
-                            if ((latest_dispense_date_response.statusCode != 404) && (shouldConvert))
-                            {
-                                dateList.Add(date[0]);
-                            }
-                            else if (latest_dispense_date_response.statusCode == 404)
-                            {
-                                dateList.Add(date[0]);
-                            }
-
-                        }
-
-                        string[] cleanDate = RemoveDuplicates(dateList);
-
-
-                        //save the dispenselog to file.json following date
-                        for (int i = 0; i < cleanDate.Count(); i++)
-                        {
-                            var exportRecord = new List<DispenseHistory>();
-                            var exportRecordBI = new List<DispenseHistoryBI>();
-                            for (int j = 0; j < records.Count(); j++)
-                            {
-
-                                if (records[j].dispensed_date.Contains(cleanDate[i]))
-                                {
-                                    exportRecord.Add(records[j]);
-                                }
-
-                            }
-                            if (exportRecord.Count > 0)
-                            {
-                                var export_path = $"{jsonDispenseLogPath}\\full_dispense_log_{cleanDate[i].Replace("/", "_")}.json";
-                                Logger.Info("Export log path : " + export_path);
-                                File.WriteAllText(export_path, JsonConvert.SerializeObject(exportRecord), Encoding.UTF8);
-                            }
-                            else
-                            {
-                                Logger.Info($"Doesn't have match dispense date in csv with cleanDate ({cleanDate[i].Replace("/", "_")})");
-                            }
-                        }
-
-                        //Move complete extract file into achive folder
-                        reader.Close();
-                        CreateDirectoryIfNotExist(csv_history_achive_path);
-                        if (File.Exists($"{csv_history_achive_path}\\{csvFile.Name}"))
-                        {
-                            File.Delete($"{csv_history_achive_path}\\{csvFile.Name}");
-                        }
-                        File.Move(csvFile.FullName, $"{csv_history_achive_path}\\{csvFile.Name}");
-                    } catch (Exception ex)
-                    {
-                        reader.Close();
-                        Logger.Error($"Exception in csv convert file {csvFile.FullName}");
-                        Logger.Error($"Exception message {ex.Message}");
-                        Logger.Error("Move file to ignore location");
-                        CreateDirectoryIfNotExist($"{csv_history_path}\\ignore_files");
-                        if (File.Exists($"{csv_history_path}\\ignore_files\\{csvFile.Name}"))
-                        {
-                            File.Delete($"{csv_history_path}\\ignore_files\\{csvFile.Name}");
-                        }
-                        File.Move(csvFile.FullName, $"{csv_history_path}\\ignore_files\\{csvFile.Name}");
-                    }
             }
             }catch(Exception ex)
             {
@@ -797,7 +782,15 @@ namespace AutoTintLibrary
                         //Create file from data
                         string pgdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
                         string file_total_log_path = $"{pgdata_path}\\basedb.json";
-                        File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(jsonData), Encoding.UTF8);
+                        if (File.Exists($"{pgdata_path}\\basedb.json"))
+                        {
+                            File.Delete($"{pgdata_path}\\basedb.json");
+                        }
+
+                        using (StreamWriter outputFile = new StreamWriter($"{pgdata_path}\\basedb.json", false, Encoding.UTF8))
+                        {
+                            await outputFile.WriteAsync(JsonConvert.SerializeObject(jsonData));
+                        }
                         Logger.Info($"Done on on downloadBaseDB to {file_total_log_path} and Total base data {totaldata}");
                         return true;
                     }
