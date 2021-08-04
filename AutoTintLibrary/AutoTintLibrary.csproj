@@ -121,6 +121,7 @@
     <Compile Include="Model\APIModel\ProgressCounter.cs" />
     <Compile Include="Model\Config\GlobalConfig.cs" />
     <Compile Include="Model\CSVModel\DispenseHistory.cs" />
+    <Compile Include="Model\CSVModel\DispenseHistoryBIAPP.cs" />
     <Compile Include="Model\CSVModel\DispenseHistoryBI.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

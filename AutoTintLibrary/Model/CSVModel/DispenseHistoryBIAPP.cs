@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace AutoTintLibrary
 {
-    public class ListDispenseHistoryBIx
+    public class ListDispenseHistoryBI
     {
-        public List<DispenseHistoryBIx> DispenseHistoriesBI { get; set; }
+        public List<DispenseHistoryBI> DispenseHistoriesBI { get; set; }
     }
-    public class DispenseHistoryBIx
+    public class DispenseHistoryBI
     {
         [Index(0)]
         [Name("RECORD KEY")]
@@ -117,64 +117,64 @@ namespace AutoTintLibrary
         [Name("COMPONENT_NAME")]
         public string component_name { get; set; }
         [Index(34)]
-        [Name("CW01_LV")]
+        [Name("CW01 LV")]
         public string cw01_lv { get; set; }
         [Index(35)]
-        [Name("CW02_LV")]
+        [Name("CW02 LV")]
         public string cw02_lv { get; set; }
         [Index(36)]
-        [Name("CW03_LV")]
+        [Name("CW03 LV")]
         public string cw03_lv { get; set; }
         [Index(37)]
-        [Name("CW04_LV")]
+        [Name("CW04 LV")]
         public string cw04_lv { get; set; }
         [Index(38)]
-        [Name("CW05_LV")]
+        [Name("CW05 LV")]
         public string cw05_lv { get; set; }
         [Index(39)]
-        [Name("CW06_LV")]
+        [Name("CW06 LV")]
         public string cw06_lv { get; set; }
         [Index(40)]
-        [Name("CW07_LV")]
+        [Name("CW07 LV")]
         public string cw07_lv { get; set; }
         [Index(41)]
-        [Name("CW08_LV")]
+        [Name("CW08 LV")]
         public string cw08_lv { get; set; }
         [Index(42)]
-        [Name("CW09_LV")]
+        [Name("CW09 LV")]
         public string cw09_lv { get; set; }
         [Index(43)]
-        [Name("CW10_LV")]
+        [Name("CW10 LV")]
         public string cw10_lv { get; set; }
         [Index(44)]
-        [Name("CW11_LV")]
+        [Name("CW11 LV")]
         public string cw11_lv { get; set; }
         [Index(45)]
-        [Name("CW12_LV")]
+        [Name("CW12 LV")]
         public string cw12_lv { get; set; }
         [Index(46)]
-        [Name("CW13_LV")]
+        [Name("CW13 LV")]
         public string cw13_lv { get; set; }
         [Index(47)]
-        [Name("CW14_LV")]
+        [Name("CW14 LV")]
         public string cw14_lv { get; set; }
         [Index(48)]
-        [Name("CW15_LV")]
+        [Name("CW15 LV")]
         public string cw15_lv { get; set; }
         [Index(49)]
-        [Name("CW16_LV")]
+        [Name("CW16 LV")]
         public string cw16_lv { get; set; }
         [Index(50)]
-        [Name("CW17_LV")]
+        [Name("CW17 LV")]
         public string cw17_lv { get; set; }
         [Index(51)]
-        [Name("CW18_LV")]
+        [Name("CW18 LV")]
         public string cw18_lv { get; set; }
         [Index(52)]
-        [Name("CW19_LV")]
+        [Name("CW19 LV")]
         public string cw19_lv { get; set; }
         [Index(53)]
-        [Name("CW20_LV")]
+        [Name("CW20 LV")]
         public string cw20_lv { get; set; }
         [Index(54)]
         [Name("CW Total")]
