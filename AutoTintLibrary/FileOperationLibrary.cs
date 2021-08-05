@@ -367,7 +367,7 @@ namespace AutoTintLibrary
             return data;
         }
 
-        public List<DispenseHistoryBI> convertToBIDataNew(string json_history_path)
+        public List<DispenseHistoryBI> convertToBIDataNew(string json_history_path,string auto_tint_id="")
         {
             string file_path = json_history_path;//@"E:\Tutorial\json_dispense_log\full_dispense_log_21_10_2015_p2_test.json";
             string streamFile = File.ReadAllText(file_path);
@@ -580,6 +580,242 @@ namespace AutoTintLibrary
                 export_bi.collection_name = detail["collection_name"];
                 export_bi.base_name = detail["base_name"];
                 export_bi.base_value = ((export_bi.base_name.Length > 0)&&(export_bi.base_name != " "))? detail["base_name"].ToString().Substring(detail["base_name"].ToString().Length - (detail["base_name"].ToString().IndexOf("Base") + 3)):"";
+                export_bi.price = detail["price"];
+                export_bi.base_price = detail["base_price"];
+                export_bi.colorant_price = detail["colorant_price"];
+                export_bi.company_name = detail["company_name"];
+                export_bi.company_code = detail["company_code"];
+
+                export_bi.material_pf_code = detail["material_pf_code"];
+                export_bi.component_name = "";
+
+                export_bi.sale_out_quantity_ea = "1";
+
+                export_bi.branch_code = "";
+                export_bi.branch_name = "";
+                export_bi.type = saleType;
+                export_bi.status_shade = status_shade;
+                exportRecordBI.Add(export_bi);
+            }
+            return exportRecordBI;
+        }
+
+        public List<DispenseHistoryBI> convertToBIDataAPP(string json_history_path, string auto_tint_id = "")
+        {
+            string file_path = json_history_path;//@"E:\Tutorial\json_dispense_log\full_dispense_log_21_10_2015_p2_test.json";
+            string streamFile = File.ReadAllText(file_path);
+            dynamic details = JArray.Parse(streamFile);
+            //dynamic stuff = JsonConvert.DeserializeObject<ListDispenseHistory>(details);
+            var exportRecordBI = new List<DispenseHistoryBI>();
+            string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            List<BaseData> baseData = new List<BaseData>();
+            if (File.Exists($"{programdata_path}\\basedb.json"))
+            {
+                try
+                {
+                    string tmpBaseData = File.ReadAllText($"{programdata_path}\\basedb.json");
+                    baseData = JsonConvert.DeserializeObject<List<BaseData>>(tmpBaseData);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"Exception occurs when parse basedb.json  {ex.Message}");
+                    throw ex;
+                }
+            }
+            else
+            {
+                Logger.Error("basedb.json doesn't exist convertToBI data can't validate status shade");
+            }
+
+            foreach (dynamic detail in details)
+            {
+                if (!String.IsNullOrEmpty(auto_tint_id)) detail["company_code"] = auto_tint_id;
+                //Console.WriteLine(detail);
+                //Do a formatted date
+                String[] dispense_date = detail["dispensed_date"].ToString().Split(' ');
+                string formattedDate = "";
+                var export_bi = new DispenseHistoryBI();
+                try
+                {
+                    //Append the day and month to 2 length string
+                    if (dispense_date[0].Split('/')[0].Length < 2) dispense_date[0] = $"0{dispense_date[0].Split('/')[0]}/{dispense_date[0].Split('/')[1]}/{dispense_date[0].Split('/')[2]}";
+                    if (dispense_date[0].Split('/')[1].Length < 2) dispense_date[0] = $"{dispense_date[0].Split('/')[0]}/0{dispense_date[0].Split('/')[1]}/{dispense_date[0].Split('/')[2]}";
+
+                    DateTime parsedDateTime;
+                    if (DateTime.TryParseExact(dispense_date[0], "dd/mm/yyyy",
+                        CultureInfo.InvariantCulture,
+                        DateTimeStyles.None,
+                        out parsedDateTime))
+                    {
+                        formattedDate = parsedDateTime.ToString("yyyymmdd");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Parsing failed");
+                        Logger.Error($"BI Parsing dispense_date fail dispense_date data : {dispense_date[0]}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"BI Parsing dispense_date fail dispense_date data : {dispense_date[0]}");
+                    throw ex;
+                }
+
+
+
+                //Do a dispenser_no,customer_key
+                try
+                {
+                    String[] sp_company_code = detail["company_code"].ToString().Split(new String[] { "AT" }, StringSplitOptions.None);
+                    String dispenser_no, customer_key = "";
+                    if (sp_company_code.Length > 1)
+                    {
+                        dispenser_no = $"{sp_company_code[1]}";
+                    }
+                    else
+                    {
+                        dispenser_no = "01";
+                    }
+                    customer_key = sp_company_code[0];
+                    export_bi.dispenser_no = dispenser_no;
+                    export_bi.customer_key = customer_key;
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"BI dispenser_no,customer_key due to {detail["company_code"]}");
+                    throw ex;
+                }
+
+                //Do an cwlv
+                //export_bi["cw01_lv"] = "";
+                int component_qty = 20;
+                for (int i = 1; i <= component_qty; i++)
+                {
+                    if (detail[$"component_name{i}"] == null)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        String numStr = i.ToString();
+                        int indexOfCW = detail[$"component_name{i}"].ToString().IndexOf("CW");
+                        if (indexOfCW >= 0)
+                        {
+                            //Read XX from CWXX_LV to store in object cwxx_lv
+                            numStr = detail[$"component_name{i}"].ToString().Substring(indexOfCW + 2, 2);
+                            export_bi[$"cw{numStr}_lv"] = detail[$"lines_wanted_amount{i}"].ToString();
+                            Double total, lines_wanted_amount = 0;
+                            Double.TryParse((export_bi["cw_total"] != null) ? export_bi["cw_total"].ToString() : "0", out total);
+                            Double.TryParse((detail[$"lines_wanted_amount{i}"] != null) ? detail[$"lines_wanted_amount{i}"].ToString() : "0", out lines_wanted_amount);
+                            total = total + lines_wanted_amount;
+                            export_bi["cw_total"] = total.ToString();
+                        }
+                    }
+                }
+
+                //Convert a sales out qty (gl)
+                try
+                {
+                    double amount = (double)detail["wanted_amount"];
+                    string libUnits = detail["unit_name"].ToString().ToLower(); //Quart => UsQuart , GL,Gallon => UsGallon , Liter => Liter , ml => Milliliter
+                    if (libUnits.IndexOf("quart") >= 0) libUnits = "UsQuart";
+                    if (libUnits.IndexOf("gallon") >= 0) libUnits = "UsGallon";
+                    if (libUnits.IndexOf("gl") >= 0) libUnits = "UsGallon";
+                    if (libUnits.IndexOf("liter") >= 0) libUnits = "Liter";
+                    if (libUnits.IndexOf("kg") >= 0) libUnits = "Liter";
+                    if (libUnits.IndexOf("ml") >= 0) libUnits = "Milliliter";
+                    string sales_out_qty_gl = UnitConverter.ConvertByName(amount, "Volume", libUnits, "UsGallon").ToString();
+                    string sales_out_qty_l = UnitConverter.ConvertByName(amount, "Volume", libUnits, "Liter").ToString();
+                    export_bi.sale_out_quantity_gl = sales_out_qty_gl;
+                    export_bi.sale_out_quantity_l = sales_out_qty_l;
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"BI Convert wanted_amount by libUnits exception for {detail["wanted_amount"]} {detail["unit_name"]}");
+                    throw ex;
+                }
+
+
+                //sale_out_amt_thb
+                try
+                {
+                    double base_price = (double)detail["base_price"];
+                    double colorant_price = (double)detail["colorant_price"];
+                    double sale_out_amt_thb = Math.Ceiling((base_price + (base_price * 7 / 100)) + (colorant_price + (colorant_price * 7 / 100)));
+                    export_bi.sale_out_amt_thb = sale_out_amt_thb.ToString();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"BI Convert sale_out_amt_thb exception from {detail["base_price"]} {detail["colorant_price"]}");
+                    throw ex;
+                }
+
+                //getSaleType
+                string saleType = "";
+                if ((double)detail["base_price"] > 0)
+                {
+                    saleType = "Base and Colorant";
+                }
+                else
+                {
+                    saleType = "Colorant Only";
+                }
+
+                //status shade
+                /*
+                 * 
+                Complete : LINES_WANTED_AMOUNT กับ LINES_DISPENSED_AMOUNT ของทุก component ต้องเท่ากัน ยกเว้นแม่สี ที่จะเป็น 0 เสมอ
+                Error  : LINES_WANTED_AMOUNT กับ LINES_DISPENSED_AMOUNT ของ component ไม่เท่ากัน แค่มี 1 อันไม่เท่า ก็เป็น Error เลย
+                View  :  LINES_DISPENSED_AMOUNT ของทุก component เป็น 0 สถานะนี้คือเรียกดูสูตรการผสมเฉยๆ ไม่มีการฉีดสีลงไปผสม
+                 * 
+                 */
+                string status_shade = "Complete";
+                bool errorFlag = false;
+                bool viewFlag = true;
+                for (int i = 1; i <= component_qty; i++)
+                {
+                    String numStr = i.ToString();
+                    bool matchBaseComponentCondition = false;
+                    for (int j = 0; j < baseData.Count; j++)
+                    {
+                        var kkkk = detail[$"component_name{i}"].ToString().ToLower();
+                        var eeee = baseData[j].base_name.ToString().ToLower();
+                        var vavva = detail[$"lines_dispensed_amount{i}"];
+                        if ((detail[$"component_name{i}"].ToString().ToLower() == baseData[j].base_name.ToString().ToLower())
+                            && (detail[$"lines_dispensed_amount{i}"] == 0))
+                        {
+                            matchBaseComponentCondition = true;
+                        }
+                        if (matchBaseComponentCondition) break;
+                    }
+                    if (matchBaseComponentCondition) continue;
+                    if (detail[$"lines_wanted_amount{i}"] == null || detail[$"lines_dispensed_amount{i}"] == null)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        if (detail[$"lines_wanted_amount{i}"].ToString() != detail[$"lines_dispensed_amount{i}"].ToString()) errorFlag = true;
+                        if (detail[$"lines_dispensed_amount{i}"] > 0) viewFlag = false;
+                    }
+
+                }
+                if (errorFlag) status_shade = "Error";
+                if (viewFlag) status_shade = "View";
+
+                export_bi.dispensed_date = detail["dispensed_date"]; //convert to CE.
+                export_bi.date = formattedDate;
+                export_bi.record_key = detail["dispensed_formula_id"] + formattedDate + detail["company_code"];
+                export_bi.wanted_amount = detail["wanted_amount"];
+                export_bi.unit_name = detail["unit_name"];
+                export_bi.db_name = detail["db_name"];
+                export_bi.product_name = detail["product_name"];
+                export_bi.product_code = detail["product_code"];
+                export_bi.colour_code = detail["colour_code"];
+                export_bi.color_name = detail["color_name"];
+                export_bi.collection_name = detail["collection_name"];
+                export_bi.base_name = detail["base_name"];
+                export_bi.base_value = ((export_bi.base_name.Length > 0) && (export_bi.base_name != " ")) ? detail["base_name"].ToString().Substring(detail["base_name"].ToString().Length - (detail["base_name"].ToString().IndexOf("Base") + 3)) : "";
                 export_bi.price = detail["price"];
                 export_bi.base_price = detail["base_price"];
                 export_bi.colorant_price = detail["colorant_price"];

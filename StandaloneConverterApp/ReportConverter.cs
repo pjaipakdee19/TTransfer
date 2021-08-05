@@ -89,7 +89,6 @@ namespace StandaloneConverterApp
             if(dialog.ShowDialog() == DialogResult.Cancel) return;
             if (dialog.FileName != string.Empty)
             {
-                exportPathTbx.Text = dialog.FileName;
                 save_location = dialog.FileName;
             }
             else
@@ -155,7 +154,7 @@ namespace StandaloneConverterApp
                 List<DispenseHistoryBI> allRecord = new List<DispenseHistoryBI>();
                 foreach (var jsonFile in jsonTempPath.GetFiles("*.json"))
                 {
-                    List<DispenseHistoryBI> onefileRecord = fo.convertToBIDataNew(jsonFile.FullName);
+                    List<DispenseHistoryBI> onefileRecord = fo.convertToBIDataAPP(jsonFile.FullName,idTbx.Text);
                     allRecord.AddRange(onefileRecord);
                 }
 
