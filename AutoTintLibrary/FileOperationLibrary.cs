@@ -456,29 +456,24 @@ namespace AutoTintLibrary
                 int component_qty = 20;
                 for (int i = 1; i <= component_qty; i++)
                 {
-                    String numStr = i.ToString();
-                    if (numStr.Length <= 1)
-                    {
-                        numStr = $"0{numStr}";
-                    }
                     if (detail[$"component_name{i}"] == null)
                     {
-                        export_bi[$"cw{numStr}_lv"] = "";
+                        continue;
                     }
                     else
                     {
-                        if (detail[$"component_name{i}"].ToString().IndexOf("CW") >= 0)
+                        String numStr = i.ToString();
+                        int indexOfCW = detail[$"component_name{i}"].ToString().IndexOf("CW");
+                        if (indexOfCW >= 0)
                         {
+                            //Read XX from CWXX_LV to store in object cwxx_lv
+                            numStr = detail[$"component_name{i}"].ToString().Substring(indexOfCW + 2, 2);
                             export_bi[$"cw{numStr}_lv"] = detail[$"lines_wanted_amount{i}"].ToString();
                             Double total, lines_wanted_amount = 0;
                             Double.TryParse((export_bi["cw_total"] != null) ? export_bi["cw_total"].ToString() : "0", out total);
                             Double.TryParse((detail[$"lines_wanted_amount{i}"] != null) ? detail[$"lines_wanted_amount{i}"].ToString() : "0", out lines_wanted_amount);
                             total = total + lines_wanted_amount;
                             export_bi["cw_total"] = total.ToString();
-                        }
-                        else
-                        {
-                            export_bi[$"cw{numStr}_lv"] = "";
                         }
                     }
                 }
