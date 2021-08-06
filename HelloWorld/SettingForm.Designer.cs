@@ -80,6 +80,7 @@ namespace IOTClient
             // 
             // btnDatabaseSelect
             // 
+            this.btnDatabaseSelect.Enabled = false;
             this.btnDatabaseSelect.Location = new System.Drawing.Point(607, 140);
             this.btnDatabaseSelect.Name = "btnDatabaseSelect";
             this.btnDatabaseSelect.Size = new System.Drawing.Size(75, 23);
@@ -90,6 +91,7 @@ namespace IOTClient
             // 
             // btnSeletectHistoryCVS
             // 
+            this.btnSeletectHistoryCVS.Enabled = false;
             this.btnSeletectHistoryCVS.Location = new System.Drawing.Point(607, 182);
             this.btnSeletectHistoryCVS.Name = "btnSeletectHistoryCVS";
             this.btnSeletectHistoryCVS.Size = new System.Drawing.Size(75, 23);
@@ -109,6 +111,7 @@ namespace IOTClient
             // 
             // databaseLocationTextbox
             // 
+            this.databaseLocationTextbox.Enabled = false;
             this.databaseLocationTextbox.Location = new System.Drawing.Point(219, 142);
             this.databaseLocationTextbox.Name = "databaseLocationTextbox";
             this.databaseLocationTextbox.Size = new System.Drawing.Size(383, 20);
@@ -116,6 +119,7 @@ namespace IOTClient
             // 
             // posHistoryLocationTextBox
             // 
+            this.posHistoryLocationTextBox.Enabled = false;
             this.posHistoryLocationTextBox.Location = new System.Drawing.Point(219, 185);
             this.posHistoryLocationTextBox.Name = "posHistoryLocationTextBox";
             this.posHistoryLocationTextBox.Size = new System.Drawing.Size(383, 20);
@@ -132,6 +136,7 @@ namespace IOTClient
             // 
             // tbxShopDispenVal
             // 
+            this.tbxShopDispenVal.Enabled = false;
             this.tbxShopDispenVal.Location = new System.Drawing.Point(219, 101);
             this.tbxShopDispenVal.Name = "tbxShopDispenVal";
             this.tbxShopDispenVal.Size = new System.Drawing.Size(184, 20);
@@ -194,6 +199,7 @@ namespace IOTClient
             // 
             // btnCheckShopID
             // 
+            this.btnCheckShopID.Enabled = false;
             this.btnCheckShopID.Location = new System.Drawing.Point(409, 98);
             this.btnCheckShopID.Name = "btnCheckShopID";
             this.btnCheckShopID.Size = new System.Drawing.Size(75, 23);
@@ -227,7 +233,7 @@ namespace IOTClient
             this.SaveInputData.Name = "SaveInputData";
             this.SaveInputData.Size = new System.Drawing.Size(265, 23);
             this.SaveInputData.TabIndex = 19;
-            this.SaveInputData.Text = "Save";
+            this.SaveInputData.Text = "Edit";
             this.SaveInputData.UseVisualStyleBackColor = true;
             this.SaveInputData.Click += new System.EventHandler(this.SaveInputData_Click);
             // 

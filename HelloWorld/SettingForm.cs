@@ -464,9 +464,46 @@ namespace IOTClient
             }
             
         }
+        private void enableEdit()
+        {
+            tbxShopDispenVal.Enabled = true;
+            btnCheckShopID.Enabled = true;
+            databaseLocationTextbox.Enabled = true;
+            btnDatabaseSelect.Enabled = true;
+            posHistoryLocationTextBox.Enabled = true;
+            btnSeletectHistoryCVS.Enabled = true;
+            SaveInputData.Text = "Save";
+        }
 
+        private void disableEdit()
+        {
+            tbxShopDispenVal.Enabled = false;
+            btnCheckShopID.Enabled = false;
+            databaseLocationTextbox.Enabled = false;
+            btnDatabaseSelect.Enabled = false;
+            posHistoryLocationTextBox.Enabled = false;
+            btnSeletectHistoryCVS.Enabled = false;
+            SaveInputData.Text = "Edit";
+        }
         private void SaveInputData_Click(object sender, EventArgs e)
         {
+            if (SaveInputData.Text == "Edit")
+            {
+                using (var form = new PasswordInputForm())
+                {
+                    var result = form.ShowDialog();
+                    if (result == DialogResult.OK)
+                    {
+                        enableEdit();
+                    }
+                    if (result == DialogResult.Cancel) {
+                        disableEdit();
+                    }
+                }
+                return;
+            }
+
+
             if (databaseLocationTextbox.Text != "" || posHistoryLocationTextBox.Text != "")
             {
                 //ManageConfig.WriteGlobalConfig("auto_tint_id", tbxShopDispenVal.Text);
@@ -484,7 +521,7 @@ namespace IOTClient
                 ManageConfig.WriteGlobalConfig("programdata_log_path", @"C:\ProgramData\TOA_Autotint\Logs");
                 ManageConfig.WriteGlobalConfig("global_config_path", @"C:\ProgramData\TOA_Autotint\config.json");
                 string base_url_tmp = ManageConfig.ReadGlobalConfig("base_url");
-                if(base_url_tmp == null)
+                if (base_url_tmp == null)
                 {
                     ManageConfig.WriteGlobalConfig("base_url", "http://49.229.21.7");
                 }
@@ -492,7 +529,7 @@ namespace IOTClient
                 {
                     ManageConfig.WriteGlobalConfig("base_url", base_url_tmp);
                 }
-
+                disableEdit();
                 MessageBoxResult confirmResult = System.Windows.MessageBox.Show("Configuration saved", "Success", MessageBoxButton.OK);
             }
             else
@@ -674,6 +711,7 @@ namespace IOTClient
             this.WindowState = FormWindowState.Minimized;
             this.Hide();
             minimizedToTray = true;
+            disableEdit();
         }
         public void ShowWindow()
         {
@@ -694,17 +732,7 @@ namespace IOTClient
         {
             ShowWindow();
         }
+
         #endregion
-
-        //private void Form1_Resize(object sender, System.EventArgs e)
-        //{
-        //    if (FormWindowState.Minimized == WindowState)
-        //        Hide();
-        //}
-
-        //private void SettingForm_Load(object sender, EventArgs e)
-        //{
-
-        //}
     }
 }
