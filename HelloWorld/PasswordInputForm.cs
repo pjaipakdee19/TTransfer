@@ -16,6 +16,10 @@ namespace IOTClient
         {
             InitializeComponent();
             this.pwTbx.PasswordChar = '\u25CF';
+            Application.Idle += Application_Idle;
+        }
+        void Application_Idle(object sender, EventArgs e)
+        {
             if (Control.IsKeyLocked(Keys.CapsLock))
             {
                 this.capLocLbl.Visible = true;
@@ -24,6 +28,12 @@ namespace IOTClient
             {
                 this.capLocLbl.Visible = false;
             }
+        }
+
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            Application.Idle -= Application_Idle;
+            base.OnFormClosed(e);
         }
         //remove the entire system menu:
         private const int WS_SYSMENU = 0x80000;
