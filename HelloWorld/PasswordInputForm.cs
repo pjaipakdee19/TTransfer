@@ -15,6 +15,15 @@ namespace IOTClient
         public PasswordInputForm()
         {
             InitializeComponent();
+            this.pwTbx.PasswordChar = '\u25CF';
+            if (Control.IsKeyLocked(Keys.CapsLock))
+            {
+                this.capLocLbl.Visible = true;
+            }
+            else
+            {
+                this.capLocLbl.Visible = false;
+            }
         }
         //remove the entire system menu:
         private const int WS_SYSMENU = 0x80000;

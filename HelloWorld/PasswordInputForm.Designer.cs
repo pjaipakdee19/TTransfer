@@ -33,6 +33,7 @@ namespace IOTClient
             this.pwTbx = new System.Windows.Forms.TextBox();
             this.pwLbl = new System.Windows.Forms.Label();
             this.cancelBtn = new System.Windows.Forms.Button();
+            this.capLocLbl = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // submitPWBtn
@@ -71,11 +72,22 @@ namespace IOTClient
             this.cancelBtn.UseVisualStyleBackColor = true;
             this.cancelBtn.Click += new System.EventHandler(this.cancelBtn_Click);
             // 
+            // capLocLbl
+            // 
+            this.capLocLbl.AutoSize = true;
+            this.capLocLbl.Location = new System.Drawing.Point(150, 95);
+            this.capLocLbl.Name = "capLocLbl";
+            this.capLocLbl.Size = new System.Drawing.Size(91, 13);
+            this.capLocLbl.TabIndex = 4;
+            this.capLocLbl.Text = "CapsLock is On !!";
+            this.capLocLbl.Visible = false;
+            // 
             // PasswordInputForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(478, 149);
+            this.Controls.Add(this.capLocLbl);
             this.Controls.Add(this.cancelBtn);
             this.Controls.Add(this.pwLbl);
             this.Controls.Add(this.pwTbx);
@@ -94,5 +106,6 @@ namespace IOTClient
         private System.Windows.Forms.TextBox pwTbx;
         private System.Windows.Forms.Label pwLbl;
         private System.Windows.Forms.Button cancelBtn;
+        private System.Windows.Forms.Label capLocLbl;
     }
 }
