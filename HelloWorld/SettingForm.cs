@@ -384,6 +384,12 @@ namespace IOTClient
                 File.Create($"{program_data_path}\\tmp\\dbupdate_running.tmp").Dispose();
                 APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(str_response);
 
+                DateTime startTimeFormate = DateTime.UtcNow;
+                TimeZoneInfo systemTimeZone = TimeZoneInfo.Local;
+                DateTime localDateTime = TimeZoneInfo.ConvertTimeFromUtc(startTimeFormate, systemTimeZone);
+                //string ICTDateTimeText = localDateTime.ToString("dddd dd MMMM yyyy HH:mm:ff", new System.Globalization.CultureInfo("th-TH"));
+                string ICTDateTimeText = localDateTime.ToString("dddd dd MMMM yyyy HH:mm:ss", new System.Globalization.CultureInfo("en-GB"));
+
                 if (response.statusCode == 200)
                 {
                     AutoTintWithId result = JsonConvert.DeserializeObject<AutoTintWithId>(response.message, Jsonettings);
@@ -393,11 +399,7 @@ namespace IOTClient
                         File.Delete($"{program_data_path}\\tmp\\dbupdate_running.tmp");;
                         return;
                     }
-                    DateTime startTimeFormate = DateTime.UtcNow;
-                    TimeZoneInfo systemTimeZone = TimeZoneInfo.Local;
-                    DateTime localDateTime = TimeZoneInfo.ConvertTimeFromUtc(startTimeFormate, systemTimeZone);
-                    //string ICTDateTimeText = localDateTime.ToString("dddd dd MMMM yyyy HH:mm:ff", new System.Globalization.CultureInfo("th-TH"));
-                    string ICTDateTimeText = localDateTime.ToString("dddd dd MMMM yyyy HH:mm:ss", new System.Globalization.CultureInfo("en-GB"));
+
                     lblDatabaseCheckVal.Text = ICTDateTimeText;
                     PrismaProLatestVersion checkVersion = new PrismaProLatestVersion();
                     //Check the server for newer version.
@@ -450,10 +452,12 @@ namespace IOTClient
                 }
                 else
                 {
-                    //MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Status Code : {response.statusCode} \nMessage : {response.message}", "Error", MessageBoxButton.OK);
-                    MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Database Version : Not found", "Error", MessageBoxButton.OK);
-                    Logger.Error($"Error on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
                     File.Delete($"{program_data_path}\\tmp\\dbupdate_running.tmp");
+                    //Set version label
+                    lblDatabaseVersionText.Text = "Not Found";
+                    lblDatabaseCheckVal.Text = ICTDateTimeText;
+                    Logger.Error($"Error on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
+                    MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Database Version Check\nStatus Code : {response.statusCode} \nMessage : {response.message}", "Error", MessageBoxButton.OK);
                 }
                 button1.Enabled = true;
                 button1.Text = "Check for updates";

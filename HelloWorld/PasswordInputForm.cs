@@ -17,6 +17,7 @@ namespace IOTClient
             InitializeComponent();
             this.pwTbx.PasswordChar = '\u25CF';
             Application.Idle += Application_Idle;
+            this.ActiveControl = pwTbx;
         }
         void Application_Idle(object sender, EventArgs e)
         {
@@ -47,6 +48,17 @@ namespace IOTClient
             }
         }
 
+        private void pwTbx_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                submitPWBtn_Click(this, new EventArgs());
+            }
+            if(e.KeyCode == Keys.Escape)
+            {
+                cancelBtn_Click(this, new EventArgs());
+            }
+        }
         private void submitPWBtn_Click(object sender, EventArgs e)
         {
             if(pwTbx.Text == "")

@@ -52,6 +52,7 @@ namespace IOTClient
             this.pwTbx.Name = "pwTbx";
             this.pwTbx.Size = new System.Drawing.Size(225, 20);
             this.pwTbx.TabIndex = 1;
+            this.pwTbx.KeyDown += new System.Windows.Forms.KeyEventHandler(this.pwTbx_KeyDown);
             // 
             // pwLbl
             // 
