@@ -450,8 +450,9 @@ namespace IOTClient
                 }
                 else
                 {
-                    MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Status Code : {response.statusCode} \nMessage : {response.message}", "Error", MessageBoxButton.OK);
-                    Logger.Error($"Exception on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
+                    //MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Status Code : {response.statusCode} \nMessage : {response.message}", "Error", MessageBoxButton.OK);
+                    MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Database Version : Not found", "Error", MessageBoxButton.OK);
+                    Logger.Error($"Error on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
                     File.Delete($"{program_data_path}\\tmp\\dbupdate_running.tmp");
                 }
                 button1.Enabled = true;

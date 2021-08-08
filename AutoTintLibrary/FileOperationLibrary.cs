@@ -704,7 +704,12 @@ namespace AutoTintLibrary
             else
             {
                 //MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Status Code : {response.statusCode} \nMessage : {response.message}", "Error", MessageBoxButton.OK);
-                Logger.Error($"Exception on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
+                Logger.Error($"Error on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
+                //Delete is running file
+                File.Delete($"{programdata_path}\\tmp\\dbupdate_running.tmp");
+                File.Delete($"{programdata_path}\\tmp\\lib_running_log.json");
+                File.Create($"{programdata_path}\\tmp\\dbupdate_version_check.tmp").Dispose();
+                    return false;
             }
             return true;
             }catch(Exception ex)
