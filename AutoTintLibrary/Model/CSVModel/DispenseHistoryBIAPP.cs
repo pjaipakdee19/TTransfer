@@ -77,42 +77,9 @@ namespace AutoTintLibrary
         [Index(20)]
         [Name("Distribution Channel")]
         public string distribution_channel { get; set; }
-        [Index(21)]
-        [Name("Sale Office")]
-        public string sale_office { get; set; }
-        [Index(22)]
-        [Name("Sale group")]
-        public string sale_group { get; set; }
-        [Index(23)]
-        [Name("Sale district")]
-        public string sale_district { get; set; }
-        [Index(24)]
-        [Name("Buying group >>Text & key")]
-        public string buying_group { get; set; }
         [Index(25)]
         [Name("MATERIAL_PF_CODE")]
         public string material_pf_code { get; set; }
-        [Index(26)]
-        [Name("Marketing Group")]
-        public string marketing_group { get; set; }
-        [Index(27)]
-        [Name("Submarketing")]
-        public string submarketing { get; set; }
-        [Index(28)]
-        [Name("Product segment")]
-        public string product_segment { get; set; }
-        [Index(29)]
-        [Name("Brand")]
-        public string brand { get; set; }
-        [Index(30)]
-        [Name("Type")]
-        public string ptype { get; set; }
-        [Index(31)]
-        [Name("Function")]
-        public string function { get; set; }
-        [Index(32)]
-        [Name("Material group 5")]
-        public string material_group_5 { get; set; }
         [Index(33)]
         [Name("COMPONENT_NAME")]
         public string component_name { get; set; }
