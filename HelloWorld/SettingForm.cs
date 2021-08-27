@@ -200,6 +200,18 @@ namespace IOTClient
                 ServiceStatusLbl.Text = "Stand by";
             }
         }
+        public void noInternetLabelHandler()
+        {
+            string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            if ((File.Exists($"{path}\\tmp\\network_require.tmp")))
+            {
+                ServiceStatusLbl.Text = "Trying to connect to network";
+            }
+            else
+            {
+                ServiceStatusLbl.Text = "Stand by";
+            }
+        }
         public async void checkServiceLable()
         {
             string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
@@ -214,6 +226,9 @@ namespace IOTClient
                     //updateLabelHandler();
                     //MethodInvoker mi1 = new MethodInvoker(updateLabelHandler);
                     //mi1.BeginInvoke();
+                }else if (File.Exists($"{path}\\tmp\\network_require.tmp"))
+                {
+                    ServiceStatusLbl.Invoke(new UpdateProgressLbl(noInternetLabelHandler));
                 }
                 else
                 {
@@ -362,6 +377,10 @@ namespace IOTClient
         private async Task UpdateAutotintVersion()
         {
             string program_data_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            if (File.Exists($"{program_data_path}\\tmp\\network_require.tmp"))
+            {
+                return;
+            }
             try
             {
                 button1.Enabled = false;
@@ -570,6 +589,11 @@ namespace IOTClient
 
         private async void btnExport1_ClickAsync(object sender, EventArgs e)
         {
+            string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            if (File.Exists($"{path}\\tmp\\network_require.tmp"))
+            {
+                return;
+            }
             var instance = new FileOperationLibrary();
 
             //Thread progressThread = new Thread(delegate ()
@@ -581,7 +605,6 @@ namespace IOTClient
             //progressThread.Start();
             btnExport1.Text = "Checking ...";
             //Check the status is running ?
-            string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             if (File.Exists($"{path}\\tmp\\running.tmp"))
             {
                 MessageBoxResult AlertMessageBox2 = System.Windows.MessageBox.Show($"Another Tranfer process is running please wait for a while and try again", "Message", MessageBoxButton.OK);

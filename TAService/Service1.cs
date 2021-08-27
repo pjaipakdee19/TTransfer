@@ -31,7 +31,8 @@ namespace TAService
         };
 
         public DateTime randomStartTime = new DateTime();
-        
+        public decimal small_loop_retry_round = 3;
+
         public static RestClient APIclient = APIHelper.init();
         public Service1()
         {
@@ -39,13 +40,46 @@ namespace TAService
         }
         public async void startUpProcess()
         {
-            
+            string programdata_path = ManageConfig.ReadConfig("programdata_log_path");
+            File.Create($"{programdata_path}\\tmp\\network_require.tmp").Dispose();
+            decimal infinite_loop_round = 1;
+            bool isSmallLoopDone = false;
+            //Add the network connection verification loop here
+            while (File.Exists($"{programdata_path}\\tmp\\network_require.tmp"))
+            {
+                if (!isSmallLoopDone)
+                {
+                    //Check 30 sec , 3 rounds
+                    for (int i = 0; i < small_loop_retry_round; i++)
+                    {
+                        if (APIHelper.APIConnectionCheck(1, 30))
+                        {
+                            File.Delete($"{programdata_path}\\tmp\\network_require.tmp");
+                        }
+                        else
+                        {
+                            Logger.Error($"Network not ready retring round .... {i+1} of {small_loop_retry_round} in 30 secs");
+                        }
+                    }
+                    isSmallLoopDone = true;
+                }
+                else
+                {
+                    if (APIHelper.APIConnectionCheck(1, 60*5))
+                    {
+                        File.Delete($"{programdata_path}\\tmp\\network_require.tmp");
+                    }
+                    else
+                    {
+                        Logger.Error($"Network not ready retring round .... {infinite_loop_round} in 5 minutes");
+                        infinite_loop_round++;
+                    }
+                }
+            }
             var utcTime = DateTime.UtcNow;
             var ictZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
             var actualTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, ictZone);
-            string programdata_path = ManageConfig.ReadConfig("programdata_log_path");
             var instance = new FileOperationLibrary();
-            if (!APIHelper.APIConnectionCheck(3, 30)) throw new Exception("Connection error");
             //Download database
             var baseDBDLresult = await instance.downloadBaseDB();
             if (!baseDBDLresult) Logger.Error("[AutoStart]downloadBaseDB error please check the lib log");
@@ -162,12 +196,48 @@ namespace TAService
 
         async void timeScheduledTask_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
+            //Add the network connection loop here
+            string programdata_path = ManageConfig.ReadConfig("programdata_log_path");
+            File.Create($"{programdata_path}\\tmp\\network_require.tmp").Dispose();
+            decimal infinite_loop_round = 1;
+            bool isSmallLoopDone = false;
+            //Add the network connection verification loop here
+            while (File.Exists($"{programdata_path}\\tmp\\network_require.tmp"))
+            {
+                if (!isSmallLoopDone)
+                {
+                    //Check 30 sec , 3 rounds
+                    for (int i = 0; i < small_loop_retry_round; i++)
+                    {
+                        if (APIHelper.APIConnectionCheck(1, 30))
+                        {
+                            File.Delete($"{programdata_path}\\tmp\\network_require.tmp");
+                        }
+                        else
+                        {
+                            Logger.Error($"Network not ready retring round .... {i + 1} of {small_loop_retry_round} in 30 secs");
+                        }
+                    }
+                    isSmallLoopDone = true;
+                }
+                else
+                {
+                    if (APIHelper.APIConnectionCheck(1, 60 * 5))
+                    {
+                        File.Delete($"{programdata_path}\\tmp\\network_require.tmp");
+                    }
+                    else
+                    {
+                        Logger.Error($"Network not ready retring round .... {infinite_loop_round} in 5 minutes");
+                        infinite_loop_round++;
+                    }
+                }
+            }
             var utcTime = DateTime.UtcNow;
             var ictZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
             var actualTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, ictZone);
             bool isTodayDone = false;
             //string programdata_path = ConfigurationManager.AppSettings.Get("programdata_log_path");
-            string programdata_path = ManageConfig.ReadConfig("programdata_log_path");
             DirectoryInfo programdata_info = new DirectoryInfo(programdata_path);
             foreach (var txtFile in programdata_info.GetFiles("*.txt"))
             {
