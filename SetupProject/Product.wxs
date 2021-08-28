@@ -4,7 +4,7 @@
 	<?define AutoTintLibrary_TargetDir=$(var.AutoTintLibrary.TargetDir)?>
 	
 	<?define TAService_TargetDir=$(var.TAService.TargetDir)?><?define PropertySetupAction_TargetDir=$(var.PropertySetupAction.TargetDir)?>
-	<Product Id="*" Name="TOA IOT Project" Language="1033" Version="1.1" Manufacturer="TOA" UpgradeCode="a9b1d837-9b09-491b-bd81-b794560745a4">
+	<Product Id="*" Name="TOA IOT Project" Language="1033" Version="1.2" Manufacturer="TOA" UpgradeCode="a9b1d837-9b09-491b-bd81-b794560745a4">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
 		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
@@ -115,7 +115,7 @@
 			<File Id="IOTClient.exe" Name="IOTClient.exe" Source="$(var.IOTClient_TargetDir)IOTClient.exe">
 				<Shortcut Id="DesktopShortcut"
                   Directory="DesktopFolder"
-                  Name="TOA IOT Setting V1.1"
+                  Name="TOA IOT Setting V1.2"
                   Description="Desktop application"
                   WorkingDirectory="INSTALLFOLDER"
                   Icon="IOTClient.exe"
