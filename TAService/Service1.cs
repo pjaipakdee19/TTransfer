@@ -199,40 +199,19 @@ namespace TAService
             //Add the network connection loop here
             string programdata_path = ManageConfig.ReadConfig("programdata_log_path");
             File.Create($"{programdata_path}\\tmp\\network_require.tmp").Dispose();
-            decimal infinite_loop_round = 1;
-            bool isSmallLoopDone = false;
-            //Add the network connection verification loop here
-            while (File.Exists($"{programdata_path}\\tmp\\network_require.tmp"))
+            if (File.Exists($"{programdata_path}\\tmp\\network_require.tmp"))
             {
-                if (!isSmallLoopDone)
+                if (APIHelper.APIConnectionCheck(1, 0))
                 {
-                    //Check 30 sec , 3 rounds
-                    for (int i = 0; i < small_loop_retry_round; i++)
-                    {
-                        if (APIHelper.APIConnectionCheck(1, 30))
-                        {
-                            File.Delete($"{programdata_path}\\tmp\\network_require.tmp");
-                        }
-                        else
-                        {
-                            Logger.Error($"Network not ready retring round .... {i + 1} of {small_loop_retry_round} in 30 secs");
-                        }
-                    }
-                    isSmallLoopDone = true;
+                    File.Delete($"{programdata_path}\\tmp\\network_require.tmp");
                 }
                 else
                 {
-                    if (APIHelper.APIConnectionCheck(1, 60 * 5))
-                    {
-                        File.Delete($"{programdata_path}\\tmp\\network_require.tmp");
-                    }
-                    else
-                    {
-                        Logger.Error($"Network not ready retring round .... {infinite_loop_round} in 5 minutes");
-                        infinite_loop_round++;
-                    }
+                    Logger.Error($"Network not ready retring next 1 minute");
+                    return;
                 }
             }
+            
             var utcTime = DateTime.UtcNow;
             var ictZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
             var actualTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, ictZone);
