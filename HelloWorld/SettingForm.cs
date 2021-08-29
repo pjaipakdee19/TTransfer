@@ -206,10 +206,14 @@ namespace IOTClient
             if ((File.Exists($"{path}\\tmp\\network_require.tmp")))
             {
                 ServiceStatusLbl.Text = "Trying to connect to network";
+                button1.Enabled = false;
+                btnExport1.Enabled = false;
             }
             else
             {
                 ServiceStatusLbl.Text = "Stand by";
+                button1.Enabled = true;
+                btnExport1.Enabled = true;
             }
         }
         public async void checkServiceLable()
