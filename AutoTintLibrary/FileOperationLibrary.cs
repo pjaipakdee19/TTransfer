@@ -44,6 +44,7 @@ namespace AutoTintLibrary
             string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
             string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             string file_total_log_path = $"{programdata_path}\\tmp\\lib_running_log.json";
+            var all_auto_tint_id_list = new List<string>();
             try
             {
                 CreateDirectoryIfNotExist($"{jsonDispenseLogPath}");
@@ -59,6 +60,7 @@ namespace AutoTintLibrary
                     var baseDBDLresult = await downloadBaseDB();
                     if (!baseDBDLresult) Logger.Error("downloadBaseDB error");
                 }
+                
                 foreach (var csvFile in csvHistoryPathInfo.GetFiles("*.csv"))
                 {
                         var reader = new StreamReader(csvFile.FullName);
@@ -85,6 +87,7 @@ namespace AutoTintLibrary
                             }
 
                             var dateList = new List<string>();
+                            var auto_tint_id_list = new List<string>();
                             //does csv file exist?
                             //Extract the csv to json following DISPENSED_DATE
                             //(New requirement) 27/06/2021 : extract if the dispensed date from Response of API /dispense_history/last_updated/ is earlier than the date in file.
@@ -156,11 +159,12 @@ namespace AutoTintLibrary
                                 {
                                     dateList.Add(date[0]);
                                 }
+                                all_auto_tint_id_list.Add(records[i].company_code);
 
                             }
 
                             string[] cleanDate = RemoveDuplicates(dateList);
-
+                            
 
                             //save the dispenselog to file.json following date
                             for (int i = 0; i < cleanDate.Count(); i++)
@@ -213,6 +217,33 @@ namespace AutoTintLibrary
             }catch(Exception ex)
             {
                 Logger.Error($"Exception in csv convert method {ex.Message}");
+            }
+            string[] cleanAutoTintId = RemoveDuplicates(all_auto_tint_id_list);
+            List<AutoTintWithIdV2> dispenser_data_list = new List<AutoTintWithIdV2>();
+            foreach (string id in cleanAutoTintId)
+            {
+                //string debug_id = "99999999AT01";
+                string id_for_api = "";
+                if (!id.Contains("AT"))
+                {
+                    id_for_api = $"{id}AT01";
+                }
+                else
+                {
+                    id_for_api = id;
+                }
+                var dispense_data_result = await APIHelper.RequestGet(client, $"/auto_tint/{id_for_api}", auto_tint_id);
+                //string result = "{ statusCode : 201, message : \"\" }";
+                APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(dispense_data_result);
+                if (response.statusCode != 200)
+                {
+                    throw new Exception($"Dispenser data of {id} not found");
+                }
+                else
+                {
+                    AutoTintWithIdV2 dispensev2_dataList = JsonConvert.DeserializeObject<AutoTintWithIdV2>(response.message, JsonSetting);
+                    dispenser_data_list.Add(dispensev2_dataList);
+                }
             }
             //Move the ignore file back to csv directory (csv_history_path)
             //if (Directory.Exists($"{csv_history_path}\\ignore_files\\"))
@@ -277,7 +308,7 @@ namespace AutoTintLibrary
                     {
                         //Convert successful json file to json bi format
                         try { 
-                            dynamic test = convertToBIDataNew(jsonFile.FullName);
+                            dynamic test = convertToBIDataNew(jsonFile.FullName, dispenser_data_list);
                             File.WriteAllText(export_bi_file, JsonConvert.SerializeObject(test),Encoding.UTF8);
                         }
                         catch (Exception ex)
@@ -367,7 +398,7 @@ namespace AutoTintLibrary
             return data;
         }
 
-        public List<DispenseHistoryBI> convertToBIDataNew(string json_history_path)
+        public List<DispenseHistoryBI> convertToBIDataNew(string json_history_path,List<AutoTintWithIdV2> dispenser_data_list = null)
         {
             string file_path = json_history_path;//@"E:\Tutorial\json_dispense_log\full_dispense_log_21_10_2015_p2_test.json";
             string streamFile = File.ReadAllText(file_path);
@@ -399,6 +430,7 @@ namespace AutoTintLibrary
                 //Console.WriteLine(detail);
                 //Do a formatted date
                 String[] dispense_date = detail["dispensed_date"].ToString().Split(' ');
+
                 string formattedDate = "";
                 var export_bi = new DispenseHistoryBI();
                 try
@@ -429,7 +461,7 @@ namespace AutoTintLibrary
 
 
 
-                //Do a dispenser_no,customer_key
+                //Do a dispenser_no,customer_key,com_code,sales_org
                 try { 
                     String[] sp_company_code = detail["company_code"].ToString().Split(new String[] { "AT" }, StringSplitOptions.None);
                     String dispenser_no, customer_key = "";
@@ -444,6 +476,21 @@ namespace AutoTintLibrary
                     customer_key = sp_company_code[0];
                     export_bi.dispenser_no = dispenser_no;
                     export_bi.customer_key = customer_key;
+
+                    foreach (AutoTintWithIdV2 data in dispenser_data_list)
+                    {
+                        if (data.auto_tint_id.Contains(detail["company_code"].ToString()))
+                        {
+                            export_bi.com_code = data.com_code;
+                            export_bi.sales_org = data.sales_org;
+                            break;
+                        }
+                        else
+                        {
+                            export_bi.com_code = null;
+                            export_bi.sales_org = null;
+                        }
+                    }
                 }
                 catch(Exception ex)
                 {

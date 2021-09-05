@@ -43,6 +43,8 @@ namespace AutoTintLibrary
             public object pos_setting_update_last_updated { get; set; }
             public DateTime created_at { get; set; }
             public DateTime updated_at { get; set; }
+            public string com_code { get; set; }
+            public string sales_org { get; set; }
         }
 
 

@@ -204,6 +204,13 @@ namespace AutoTintLibrary
         [Name("STATUS SHADE")]
         public string status_shade { get; set; }
 
+        [Index(63)]
+        [Name("COM_CODE")]
+        public string com_code { get; set; }
+        [Index(64)]
+        [Name("SALES_ORG")]
+        public string sales_org { get; set; }
+
         public object this[string propertyName]
         {
             get
