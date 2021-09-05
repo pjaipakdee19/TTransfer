@@ -237,7 +237,7 @@ namespace AutoTintLibrary
                 APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(dispense_data_result);
                 if (response.statusCode != 200)
                 {
-                    throw new Exception($"Dispenser data of {id} not found");
+                    //throw new Exception($"Dispenser data of {id} not found");
                 }
                 else
                 {
@@ -536,10 +536,21 @@ namespace AutoTintLibrary
                     if (libUnits.IndexOf("liter") >= 0) libUnits = "Liter";
                     if (libUnits.IndexOf("kg") >= 0) libUnits = "Liter";
                     if (libUnits.IndexOf("ml") >= 0) libUnits = "Milliliter";
-                    string sales_out_qty_gl = UnitConverter.ConvertByName(amount, "Volume", libUnits, "UsGallon").ToString();
-                    string sales_out_qty_l = UnitConverter.ConvertByName(amount, "Volume", libUnits, "Liter").ToString();
-                    export_bi.sale_out_quantity_gl = sales_out_qty_gl;
-                    export_bi.sale_out_quantity_l = sales_out_qty_l;
+                    if (libUnits.IndexOf("shots") >= 0)
+                    {
+                        double amount_to_lites = amount * 0.0443603;
+                        string sales_out_qty_gl = UnitConverter.ConvertByName(amount_to_lites, "Volume", "Liter", "UsGallon").ToString();
+                        string sales_out_qty_l = UnitConverter.ConvertByName(amount_to_lites, "Volume", "Liter", "Liter").ToString();
+                        export_bi.sale_out_quantity_gl = sales_out_qty_gl;
+                        export_bi.sale_out_quantity_l = sales_out_qty_l;
+                    }
+                    else
+                    {
+                        string sales_out_qty_gl = UnitConverter.ConvertByName(amount, "Volume", libUnits, "UsGallon").ToString();
+                        string sales_out_qty_l = UnitConverter.ConvertByName(amount, "Volume", libUnits, "Liter").ToString();
+                        export_bi.sale_out_quantity_gl = sales_out_qty_gl;
+                        export_bi.sale_out_quantity_l = sales_out_qty_l;
+                    }
                 }
                 catch(Exception ex){
                     Logger.Error($"BI Convert wanted_amount by libUnits exception for {detail["wanted_amount"]} {detail["unit_name"]}");
