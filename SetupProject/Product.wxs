@@ -115,7 +115,7 @@
 			<File Id="IOTClient.exe" Name="IOTClient.exe" Source="$(var.IOTClient_TargetDir)IOTClient.exe">
 				<Shortcut Id="DesktopShortcut"
                   Directory="DesktopFolder"
-                  Name="TOA IOT Setting V1.2"
+                  Name="TOA IOT Setting V1.3"
                   Description="Desktop application"
                   WorkingDirectory="INSTALLFOLDER"
                   Icon="IOTClient.exe"
