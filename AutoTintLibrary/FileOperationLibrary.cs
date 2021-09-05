@@ -600,7 +600,7 @@ namespace AutoTintLibrary
             return exportRecordBI;
         }
 
-        public List<DispenseHistoryBI> convertToBIDataAPP(string json_history_path, string auto_tint_id = "")
+        public List<DispenseHistoryBI> convertToBIDataAPP(string json_history_path, string auto_tint_id = "", List<AutoTintWithIdV2> dispenser_data_list = null)
         {
             string file_path = json_history_path;//@"E:\Tutorial\json_dispense_log\full_dispense_log_21_10_2015_p2_test.json";
             string streamFile = File.ReadAllText(file_path);
@@ -629,12 +629,29 @@ namespace AutoTintLibrary
 
             foreach (dynamic detail in details)
             {
+                var export_bi = new DispenseHistoryBI();
                 if (!String.IsNullOrEmpty(auto_tint_id)) detail["company_code"] = auto_tint_id;
                 //Console.WriteLine(detail);
+                //dispenser_data_list
+                foreach(AutoTintWithIdV2 data in dispenser_data_list)
+                {
+                    //String.Equals(data.auto_tint_id,detail["company_code"].ToString())
+                    if (data.auto_tint_id.Contains(detail["company_code"].ToString()))
+                    {
+                        export_bi.com_code = data.com_code;
+                        export_bi.sales_org = data.sales_org;
+                        break;
+                    }
+                    else
+                    {
+                        export_bi.com_code = null;
+                        export_bi.sales_org = null;
+                    }
+                }
                 //Do a formatted date
                 String[] dispense_date = detail["dispensed_date"].ToString().Split(' ');
                 string formattedDate = "";
-                var export_bi = new DispenseHistoryBI();
+                
                 try
                 {
                     //Append the day and month to 2 length string
@@ -724,10 +741,21 @@ namespace AutoTintLibrary
                     if (libUnits.IndexOf("liter") >= 0) libUnits = "Liter";
                     if (libUnits.IndexOf("kg") >= 0) libUnits = "Liter";
                     if (libUnits.IndexOf("ml") >= 0) libUnits = "Milliliter";
-                    string sales_out_qty_gl = UnitConverter.ConvertByName(amount, "Volume", libUnits, "UsGallon").ToString();
-                    string sales_out_qty_l = UnitConverter.ConvertByName(amount, "Volume", libUnits, "Liter").ToString();
-                    export_bi.sale_out_quantity_gl = sales_out_qty_gl;
-                    export_bi.sale_out_quantity_l = sales_out_qty_l;
+                    if (libUnits.IndexOf("shots") >= 0)
+                    {
+                        double amount_to_lites = amount * 0.0443603;
+                        string sales_out_qty_gl = UnitConverter.ConvertByName(amount_to_lites, "Volume", "Liter", "UsGallon").ToString();
+                        string sales_out_qty_l = UnitConverter.ConvertByName(amount_to_lites, "Volume", "Liter", "Liter").ToString();
+                        export_bi.sale_out_quantity_gl = sales_out_qty_gl;
+                        export_bi.sale_out_quantity_l = sales_out_qty_l;
+                    }
+                    else
+                    {
+                        string sales_out_qty_gl = UnitConverter.ConvertByName(amount, "Volume", libUnits, "UsGallon").ToString();
+                        string sales_out_qty_l = UnitConverter.ConvertByName(amount, "Volume", libUnits, "Liter").ToString();
+                        export_bi.sale_out_quantity_gl = sales_out_qty_gl;
+                        export_bi.sale_out_quantity_l = sales_out_qty_l;
+                    }
                 }
                 catch (Exception ex)
                 {

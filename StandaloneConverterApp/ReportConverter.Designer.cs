@@ -39,6 +39,7 @@ namespace StandaloneConverterApp
             this.fileNameTbx = new System.Windows.Forms.TextBox();
             this.idTbx = new System.Windows.Forms.TextBox();
             this.idLbl = new System.Windows.Forms.Label();
+            this.lblStatus = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // OpenFileDialog
@@ -67,7 +68,7 @@ namespace StandaloneConverterApp
             // statusLbl
             // 
             this.statusLbl.AutoSize = true;
-            this.statusLbl.Location = new System.Drawing.Point(483, 315);
+            this.statusLbl.Location = new System.Drawing.Point(270, 289);
             this.statusLbl.Name = "statusLbl";
             this.statusLbl.Size = new System.Drawing.Size(50, 13);
             this.statusLbl.TabIndex = 6;
@@ -106,12 +107,22 @@ namespace StandaloneConverterApp
             this.idLbl.TabIndex = 9;
             this.idLbl.Text = "Dispenser ID :";
             // 
+            // lblStatus
+            // 
+            this.lblStatus.AutoSize = true;
+            this.lblStatus.Location = new System.Drawing.Point(227, 289);
+            this.lblStatus.Name = "lblStatus";
+            this.lblStatus.Size = new System.Drawing.Size(37, 13);
+            this.lblStatus.TabIndex = 11;
+            this.lblStatus.Text = "Status";
+            // 
             // ReportConverter
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(564, 348);
+            this.Controls.Add(this.lblStatus);
             this.Controls.Add(this.idTbx);
             this.Controls.Add(this.idLbl);
             this.Controls.Add(this.fileNameTbx);
@@ -139,6 +150,7 @@ namespace StandaloneConverterApp
         private System.Windows.Forms.TextBox fileNameTbx;
         private System.Windows.Forms.TextBox idTbx;
         private System.Windows.Forms.Label idLbl;
+        private System.Windows.Forms.Label lblStatus;
     }
 }
 

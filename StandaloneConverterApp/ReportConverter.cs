@@ -22,6 +22,7 @@ namespace StandaloneConverterApp
 {
     public partial class ReportConverter : Form
     {
+        private dynamic client = APIHelper.init();
         public ReportConverter()
         {
             InitializeComponent();
@@ -120,10 +121,13 @@ namespace StandaloneConverterApp
             }
             try
             {
-
                 FileOperationLibrary fo = new FileOperationLibrary();
                 if (!File.Exists(@"C:\ProgramData\TOA_Autotint\Logs\basedb.json"))
                 {
+                    statusLbl.Invoke((MethodInvoker)(() =>
+                    {
+                        statusLbl.Text = $"Downloading the database ...";
+                    }));
                     var dbDownloadResult = await fo.downloadBaseDB();
                     if (!dbDownloadResult)
                     {
@@ -141,21 +145,78 @@ namespace StandaloneConverterApp
                     //If file older than 24 Hours should update db file.
                     if (filesLife >= 24)
                     {
+                        statusLbl.Invoke((MethodInvoker)(() =>
+                        {
+                            statusLbl.Text = $"Downloading the database ...";
+                        }));
                         var dbDownloadResult = await fo.downloadBaseDB();
                         if (!dbDownloadResult)
                         {
-                            MessageBox.Show($"Download database error please check internet or server  ... program will exit", "Error", MessageBoxButtons.OK);
+                            MessageBox.Show($"Download database error please check internet or server", "Error", MessageBoxButtons.OK);
                             return;
                         }
                     }
                 }
-                
+
                 DirectoryInfo jsonTempPath = new DirectoryInfo($"{temp_path}");
                 List<DispenseHistoryBI> allRecord = new List<DispenseHistoryBI>();
+                int count = 0;
+                int all_file_count = jsonTempPath.GetFiles("*.json").Length;
+
+                string[] auto_tint_id_list = (String.IsNullOrEmpty(idTbx.Text)) ? res.message.Split(',') : new[] { idTbx.Text };
+                //Get the dispenser data from server by using company_code
+                List<AutoTintWithIdV2> dispenser_data_list = new List<AutoTintWithIdV2>();
+                foreach (string id in auto_tint_id_list)
+                {
+                    //string debug_id = "99999999AT01";
+                    string id_for_api = "";
+                    if (!id.Contains("AT"))
+                    {
+                        id_for_api = $"{id}AT01";
+                    }
+                    else
+                    {
+                        id_for_api = id;
+                    }
+                    statusLbl.Invoke((MethodInvoker)(() =>
+                    {
+                        statusLbl.Text = $"Getting dispenser info {id} ...";
+                    }));
+
+                    string auto_tint_id_from_config = "";
+                    if (File.Exists(@"C:\ProgramData\TOA_Autotint\config.json"))
+                    {
+                        string data = ManageConfig.ReadGlobalConfig("auto_tint_id");
+                        auto_tint_id_from_config = data;
+                    }
+                    else
+                    {
+                        auto_tint_id_from_config = "";
+                    }
+                    var dispense_data_result = await APIHelper.RequestGet(client, $"/auto_tint/{id_for_api}", auto_tint_id_from_config);
+                    //string result = "{ statusCode : 201, message : \"\" }";
+                    APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(dispense_data_result);
+                    if(response.statusCode != 200)
+                    {
+                        throw new Exception($"Dispenser data of {id} not found");
+                    }
+                    else
+                    {
+                        AutoTintWithIdV2 data = JsonConvert.DeserializeObject<AutoTintWithIdV2>(response.message, JsonSetting);
+                        dispenser_data_list.Add(data);
+                    }
+                }
+               
                 foreach (var jsonFile in jsonTempPath.GetFiles("*.json"))
                 {
-                    List<DispenseHistoryBI> onefileRecord = fo.convertToBIDataAPP(jsonFile.FullName,idTbx.Text);
+                    List<DispenseHistoryBI> onefileRecord = fo.convertToBIDataAPP(jsonFile.FullName,idTbx.Text, dispenser_data_list);
                     allRecord.AddRange(onefileRecord);
+                    count++;
+                    int percent = (count * 100 / all_file_count);
+                    statusLbl.Invoke((MethodInvoker)(() =>
+                    {
+                        statusLbl.Text = $"Converting {percent}%";
+                    }));
                 }
 
                 using (var writer = new StreamWriter($"{save_location}", false, System.Text.Encoding.UTF8))
@@ -182,7 +243,10 @@ namespace StandaloneConverterApp
                     statusLbl.Text = $"{ex.Message}";
                 }));
                 Console.WriteLine("Exception " + ex.ToString());
-                Logger.Error("Exception on create json _bi : " + ex.ToString());
+                Logger.Error("Exception" + ex.ToString());
+                //Delete all converted files
+                DirectoryInfo jsonTempPath = new DirectoryInfo($"{temp_path}");
+                Directory.Delete(jsonTempPath.FullName, true);
             }
         }
 
@@ -190,7 +254,7 @@ namespace StandaloneConverterApp
         {
             statusLbl.Invoke((MethodInvoker)(() =>
             {
-                statusLbl.Text = "Converting ...";
+                statusLbl.Text = "Checking ...";
             }));
             int statusCode = 200;
             string responseMessage = string.Empty;
@@ -201,6 +265,7 @@ namespace StandaloneConverterApp
                 var records = csv.GetRecords<DispenseHistory>().ToList();
                 records.RemoveAll(x => string.IsNullOrWhiteSpace(x.dispensed_formula_id));
                 var dateList = new List<string>();
+                var auto_tint_id_list = new List<string>();
                 for (int i = 0; i < records.Count(); i++)
                 {
                     string[] date = records[i].dispensed_date.Split(' ');
@@ -212,8 +277,11 @@ namespace StandaloneConverterApp
                         records[i].dispensed_date = $"{date[0]} {date[1]}"; 
                     }
                     dateList.Add(date[0]);
+
+                    auto_tint_id_list.Add(records[i].company_code);
                 }
                 string[] cleanDate = RemoveDuplicates(dateList);
+                string[] cleanAutoTintId = RemoveDuplicates(auto_tint_id_list);
                 //save the dispenselog to file.json following date
                 for (int i = 0; i < cleanDate.Count(); i++)
                 {
@@ -238,11 +306,16 @@ namespace StandaloneConverterApp
                     {
                         Logger.Info($"Doesn't have match dispense date in csv with cleanDate ({cleanDate[i].Replace("/", "_")})");
                     }
+                    int percent = (i * 100) / cleanDate.Count();
+                    statusLbl.Invoke((MethodInvoker)(() =>
+                    {
+                        statusLbl.Text = $"Checking {percent}%";
+                    }));
                 }
                 
                 reader.Close();
-
-                return JsonConvert.SerializeObject(new { statusCode = 200, message = responseMessage });
+                string response = string.Join(",", cleanAutoTintId);
+                return JsonConvert.SerializeObject(new { statusCode = 200, message = response });
             }catch(Exception ex)
             {
                 return JsonConvert.SerializeObject(new { statusCode = 500, message = ex.Message });
@@ -265,6 +338,18 @@ namespace StandaloneConverterApp
         }
 
 
+    }
+    public class DispenserInfo
+    {
+        public string Id;
+        public string Sales_org;
+        public string Com_code;
+        public DispenserInfo(string id, string sales_org, string com_code)
+        {
+            Id = id;
+            Sales_org = sales_org;
+            Com_code = com_code;
+        }
     }
 }
 
