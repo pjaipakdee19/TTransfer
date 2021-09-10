@@ -62,7 +62,7 @@ namespace ConsoleAppDotNetFW
                         else
                         {
                             Console.WriteLine($"Done retry round {i} {DateTime.Now}");
-                            Logger.Error($"Network not ready retring round .... {i} of {small_loop_retry_round}");
+                            Logger.Error($"Network not ready retrying round .... {i} of {small_loop_retry_round}");
                         }
                     }
                     isSmallLoopDone = true;
@@ -77,7 +77,7 @@ namespace ConsoleAppDotNetFW
                     else
                     {
                         Console.WriteLine($"Done retry infinity round {infinite_loop_round} {DateTime.Now}");
-                        Logger.Error($"Network not ready retring round .... {infinite_loop_round} in 5 minutes");
+                        Logger.Error($"Network not ready retrying round .... {infinite_loop_round} in 5 minutes");
                         infinite_loop_round++;
                     }
                 }

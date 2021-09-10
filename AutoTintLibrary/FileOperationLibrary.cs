@@ -326,7 +326,7 @@ namespace AutoTintLibrary
                         if (response.statusCode != 201)
                         {
                             retry_bi++;
-                            Logger.Error($"Error when upload file retring round {retry_bi} filename {export_bi_file}");
+                            Logger.Error($"Error when upload file retrying round {retry_bi} filename {export_bi_file}");
                             Logger.Error($"Service response statusCode : {response.statusCode}");
                             Logger.Error($"Service response message :  {response.message}");
                         }

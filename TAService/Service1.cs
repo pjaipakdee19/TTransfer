@@ -58,7 +58,7 @@ namespace TAService
                         }
                         else
                         {
-                            Logger.Error($"Network not ready retring round .... {i+1} of {small_loop_retry_round} in 30 secs");
+                            Logger.Error($"Network not ready retrying round .... {i+1} of {small_loop_retry_round} in 30 secs");
                         }
                     }
                     isSmallLoopDone = true;
@@ -71,7 +71,7 @@ namespace TAService
                     }
                     else
                     {
-                        Logger.Error($"Network not ready retring round .... {infinite_loop_round} in 5 minutes");
+                        Logger.Error($"Network not ready retrying round .... {infinite_loop_round} in 5 minutes");
                         infinite_loop_round++;
                     }
                 }
@@ -207,7 +207,7 @@ namespace TAService
                 }
                 else
                 {
-                    Logger.Error($"Network not ready retring next 1 minute");
+                    Logger.Error($"Network not ready retrying next 1 minute");
                     return;
                 }
             }
