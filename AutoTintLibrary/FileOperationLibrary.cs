@@ -218,7 +218,17 @@ namespace AutoTintLibrary
             {
                 Logger.Error($"Exception in csv convert method {ex.Message}");
             }
-            string[] cleanAutoTintId = RemoveDuplicates(all_auto_tint_id_list);
+            string[] cleanAutoTintId = RemoveDuplicates(all_auto_tint_id_list); //string[]
+            if (!String.IsNullOrEmpty(auto_tint_id))
+            {
+                List<string> tmpList = new List<string>();
+                foreach (string id in cleanAutoTintId)
+                {
+                    tmpList.Add(id);
+                }
+                tmpList.Add(auto_tint_id);
+                cleanAutoTintId = tmpList.ToArray();
+            }
             List<AutoTintWithIdV2> dispenser_data_list = new List<AutoTintWithIdV2>();
             foreach (string id in cleanAutoTintId)
             {
@@ -232,6 +242,7 @@ namespace AutoTintLibrary
                 {
                     id_for_api = id;
                 }
+                //if (!String.IsNullOrEmpty(auto_tint_id)) id_for_api = auto_tint_id;
                 var dispense_data_result = await APIHelper.RequestGet(client, $"/auto_tint/{id_for_api}", auto_tint_id);
                 //string result = "{ statusCode : 201, message : \"\" }";
                 APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(dispense_data_result);
@@ -406,6 +417,7 @@ namespace AutoTintLibrary
             //dynamic stuff = JsonConvert.DeserializeObject<ListDispenseHistory>(details);
             var exportRecordBI = new List<DispenseHistoryBI>();
             string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
             List<BaseData> baseData = new List<BaseData>();
             if (File.Exists($"{programdata_path}\\basedb.json"))
             {
@@ -479,6 +491,7 @@ namespace AutoTintLibrary
 
                     foreach (AutoTintWithIdV2 data in dispenser_data_list)
                     {
+                        if (!String.IsNullOrEmpty(auto_tint_id)) detail["company_code"] = auto_tint_id;
                         if (data.auto_tint_id.Contains(detail["company_code"].ToString()))
                         {
                             export_bi.com_code = data.com_code;
