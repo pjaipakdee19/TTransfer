@@ -207,10 +207,12 @@ namespace StandaloneConverterApp
                     }
                 }
                
+                //Slow on this step !!!!
                 foreach (var jsonFile in jsonTempPath.GetFiles("*.json"))
                 {
-                    List<DispenseHistoryBI> onefileRecord = fo.convertToBIDataAPP(jsonFile.FullName,idTbx.Text, dispenser_data_list);
-                    allRecord.AddRange(onefileRecord);
+                    //List<DispenseHistoryBI> onefileRecord =
+                    fo.convertToBIDataAPP(jsonFile.FullName,idTbx.Text, dispenser_data_list);
+                    //allRecord.AddRange(onefileRecord);
                     count++;
                     int percent = (count * 100 / all_file_count);
                     statusLbl.Invoke((MethodInvoker)(() =>
