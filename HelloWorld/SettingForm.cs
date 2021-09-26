@@ -453,16 +453,10 @@ namespace IOTClient
                         webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
                         //webClient.DownloadStringCompleted += new DownloadStringCompletedEventHandler(DownloadStringCompletedHandler);
                         webClient.QueryString.Add("fileName", $"{URIArray[URIArray.Length - 1]}");
+                        webClient.QueryString.Add("newVersion", $"{checkVersion.id}");
                         webClient.DownloadFileAsync(new Uri(downloadURI), $"{tmp_path}\\{URIArray[URIArray.Length - 1]}");//$"{database_path}\\{URIArray[URIArray.Length-1]}");
                                                                                                                           //Update to API about new version of database
-                        string data = @"
-                    {
-                    ""pos_setting_version_id"": " + checkVersion.id + @"
-                    }
-                    ";
-                        dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
-                        //Update version after complete
-                        lblDatabaseVersionText.Text = $"{checkVersion.number}";
+                       
                     }
                     else
                     {
@@ -689,7 +683,7 @@ namespace IOTClient
             File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(jsonData), Encoding.UTF8);
         }
         private int _retryCount = 0;
-        private void downloadCompletedHandler(object sender, AsyncCompletedEventArgs e)
+        private async void downloadCompletedHandler(object sender, AsyncCompletedEventArgs e)
         {
             //temp folder
             string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
@@ -709,7 +703,17 @@ namespace IOTClient
 
             File.Delete($"{path}\\tmp\\lib_running_log.json");
             File.Create($"{path}\\tmp\\dbupdate_client_checked.tmp").Dispose();
-            
+            string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
+            //Update to API about new version of database
+            string downLoadFileVersion = ((System.Net.WebClient)(sender)).QueryString["newVersion"];
+            string data = @"
+            {
+            ""pos_setting_version_id"": " + downLoadFileVersion + @"
+            }
+            ";
+            dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
+            //Update version after complete
+            lblDatabaseVersionText.Text = $"{downLoadFileVersion}";
         }
 
         #region Windows_Controller

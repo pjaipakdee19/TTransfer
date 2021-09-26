@@ -37,7 +37,7 @@ namespace AutoTintLibrary
         {
             //Init configuration variable
             int statusCode = 200;
-            string responseMessage = "Succesful Tranfer";
+            string responseMessage = "Successful Tranfer";
             string csv_history_path = ManageConfig.ReadGlobalConfig("csv_history_path");
             string jsonDispenseLogPath = ManageConfig.ReadGlobalConfig("json_dispense_log_path");
             string csv_history_achive_path = ManageConfig.ReadGlobalConfig("csv_history_achive_path");
@@ -755,14 +755,15 @@ namespace AutoTintLibrary
                     webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadCompleted);
                     webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
                     webClient.QueryString.Add("fileName", $"{URIArray[URIArray.Length - 1]}");
+                    webClient.QueryString.Add("newVersion", $"{checkVersion.id}");
                     webClient.DownloadFileAsync(new Uri(downloadURI), $"{tmp_path}\\{URIArray[URIArray.Length - 1]}");
-                    //Update to API about new version of database
-                    string data = @"
-                    {
-                    ""pos_setting_version_id"": " + checkVersion.id + @"
-                    }
-                    ";
-                    dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
+                    ////Update to API about new version of database
+                    //string data = @"
+                    //{
+                    //""pos_setting_version_id"": " + checkVersion.id + @"
+                    //}
+                    //";
+                    //dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
                 }
                 else
                 {
@@ -790,7 +791,7 @@ namespace AutoTintLibrary
             }
         }
 
-        private void DownloadCompleted(object sender, AsyncCompletedEventArgs e)
+        private async void DownloadCompleted(object sender, AsyncCompletedEventArgs e)
         {
             //Logger.Error($"Exception on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
             //temp folder
@@ -804,11 +805,20 @@ namespace AutoTintLibrary
                 File.Delete($"{database_path}\\{downLoadFileName}");
             }
             File.Move($"{tmp_path}\\{downLoadFileName}", $"{database_path}\\{downLoadFileName}");
-            Logger.Info($"Download new update succesful");
+            Logger.Info($"Download new update successful");
             string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             File.Delete($"{programdata_path}\\tmp\\dbupdate_running.tmp");
             File.Delete($"{programdata_path}\\tmp\\lib_running_log.json");
             File.Create($"{programdata_path}\\tmp\\dbupdate_version_check.tmp").Dispose();
+            string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
+            //Update to API about new version of database
+            string downLoadFileVersion = ((System.Net.WebClient)(sender)).QueryString["newVersion"];
+            string data = @"
+            {
+            ""pos_setting_version_id"": " + downLoadFileVersion + @"
+            }
+            ";
+            dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
         }
 
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
