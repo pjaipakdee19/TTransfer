@@ -793,45 +793,59 @@ namespace AutoTintLibrary
 
         private async void DownloadCompleted(object sender, AsyncCompletedEventArgs e)
         {
-            //Logger.Error($"Exception on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
-            //temp folder
-            string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
-            string tmp_path = $"{path}\\tmp";
-            //Move file to database path
-            string downLoadFileName = ((System.Net.WebClient)(sender)).QueryString["fileName"];
-            string database_path = ManageConfig.ReadGlobalConfig("database_path");
-            if (File.Exists($"{database_path}\\{downLoadFileName}"))
+            try
             {
-                File.Delete($"{database_path}\\{downLoadFileName}");
+                //Logger.Error($"Exception on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
+                //temp folder
+                string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+                string tmp_path = $"{path}\\tmp";
+                //Move file to database path
+                string downLoadFileName = ((System.Net.WebClient)(sender)).QueryString["fileName"];
+                string database_path = ManageConfig.ReadGlobalConfig("database_path");
+                if (File.Exists($"{database_path}\\{downLoadFileName}"))
+                {
+                    File.Delete($"{database_path}\\{downLoadFileName}");
+                }
+                File.Move($"{tmp_path}\\{downLoadFileName}", $"{database_path}\\{downLoadFileName}");
+                Logger.Info($"Download new update successful");
+                string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+                File.Delete($"{programdata_path}\\tmp\\dbupdate_running.tmp");
+                File.Delete($"{programdata_path}\\tmp\\lib_running_log.json");
+                File.Create($"{programdata_path}\\tmp\\dbupdate_version_check.tmp").Dispose();
+                string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
+                //Update to API about new version of database
+                string downLoadFileVersion = ((System.Net.WebClient)(sender)).QueryString["newVersion"];
+                string data = @"
+                {
+                ""pos_setting_version_id"": " + downLoadFileVersion + @"
+                }
+                ";
+                dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
             }
-            File.Move($"{tmp_path}\\{downLoadFileName}", $"{database_path}\\{downLoadFileName}");
-            Logger.Info($"Download new update successful");
-            string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
-            File.Delete($"{programdata_path}\\tmp\\dbupdate_running.tmp");
-            File.Delete($"{programdata_path}\\tmp\\lib_running_log.json");
-            File.Create($"{programdata_path}\\tmp\\dbupdate_version_check.tmp").Dispose();
-            string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
-            //Update to API about new version of database
-            string downLoadFileVersion = ((System.Net.WebClient)(sender)).QueryString["newVersion"];
-            string data = @"
+            catch (Exception ex)
             {
-            ""pos_setting_version_id"": " + downLoadFileVersion + @"
+                Logger.Error($"Exception on DownloadCompleted : Exception {ex.Message}");
             }
-            ";
-            dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
+
         }
 
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-            string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
-            if (File.Exists($"{programdata_path}\\tmp\\lib_running_log.json"))
+            try
             {
-                if (e.ProgressPercentage % 5 == 0)
+                string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+                if (File.Exists($"{programdata_path}\\tmp\\lib_running_log.json"))
                 {
-                    string file_total_log_path = $"{programdata_path}\\tmp\\lib_running_log.json";
-                    var jsonData = new ProgressCounter() { total_file = 0, complete_counter = e.ProgressPercentage, status = "Download DB File" };
-                    File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(jsonData), Encoding.UTF8);
+                    if (e.ProgressPercentage % 5 == 0)
+                    {
+                        string file_total_log_path = $"{programdata_path}\\tmp\\lib_running_log.json";
+                        var jsonData = new ProgressCounter() { total_file = 0, complete_counter = e.ProgressPercentage, status = "Download DB File" };
+                        File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(jsonData), Encoding.UTF8);
+                    }
                 }
+            }catch(Exception ex)
+            {
+                Logger.Error($"Exception on ProgressChanged : Exception {ex.Message}");
             }
         }
 

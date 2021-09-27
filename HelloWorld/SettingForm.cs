@@ -221,26 +221,34 @@ namespace IOTClient
             string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             while (true)
             {
-                var delayTask = Task.Delay(1000);
-                //if (File.Exists($"{path}\\tmp\\lib_running_log.json")) 
-                if ((File.Exists($"{path}\\tmp\\dbupdate_running.tmp"))|| File.Exists($"{path}\\tmp\\running.tmp"))
+                try
                 {
-                    //button1.Invoke(new UpdateDownloadDBBtn(disblebtnDBHandler));
-                    ServiceStatusLbl.Invoke(new UpdateProgressLbl(updateLabelHandler));
-                    //updateLabelHandler();
-                    //MethodInvoker mi1 = new MethodInvoker(updateLabelHandler);
-                    //mi1.BeginInvoke();
-                }else if (File.Exists($"{path}\\tmp\\network_require.tmp"))
-                {
-                    ServiceStatusLbl.Invoke(new UpdateProgressLbl(noInternetLabelHandler));
-                }
-                else
-                {
-                    ServiceStatusLbl.Invoke(new UpdateProgressLbl(clearLabelHandler));
-                    //clearLabelHandler();
+                    var delayTask = Task.Delay(1000);
+                    //if (File.Exists($"{path}\\tmp\\lib_running_log.json")) 
+                    if ((File.Exists($"{path}\\tmp\\dbupdate_running.tmp")) || File.Exists($"{path}\\tmp\\running.tmp"))
+                    {
+                        //button1.Invoke(new UpdateDownloadDBBtn(disblebtnDBHandler));
+                        ServiceStatusLbl.Invoke(new UpdateProgressLbl(updateLabelHandler));
+                        //updateLabelHandler();
+                        //MethodInvoker mi1 = new MethodInvoker(updateLabelHandler);
+                        //mi1.BeginInvoke();
+                    }
+                    else if (File.Exists($"{path}\\tmp\\network_require.tmp"))
+                    {
+                        ServiceStatusLbl.Invoke(new UpdateProgressLbl(noInternetLabelHandler));
+                    }
+                    else
+                    {
+                        ServiceStatusLbl.Invoke(new UpdateProgressLbl(clearLabelHandler));
+                        //clearLabelHandler();
 
+                    }
+                    await delayTask;
+                }catch(Exception ex)
+                {
+                    //Logger.Error($"Exception on checkServiceLable : Exception {ex.Message}");
                 }
-                await delayTask;
+                
             }
         }
 
@@ -453,10 +461,12 @@ namespace IOTClient
                         webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
                         //webClient.DownloadStringCompleted += new DownloadStringCompletedEventHandler(DownloadStringCompletedHandler);
                         webClient.QueryString.Add("fileName", $"{URIArray[URIArray.Length - 1]}");
-                        webClient.QueryString.Add("newVersion", $"{checkVersion.id}");
+                        webClient.QueryString.Add("newVersion", $"{checkVersion.number}");
+                        webClient.QueryString.Add("pos_setting_version_id", $"{checkVersion.id}");
                         webClient.DownloadFileAsync(new Uri(downloadURI), $"{tmp_path}\\{URIArray[URIArray.Length - 1]}");//$"{database_path}\\{URIArray[URIArray.Length-1]}");
-                                                                                                                          //Update to API about new version of database
-                       
+                                                                                                                //Update to API about new version of database
+
+
                     }
                     else
                     {
@@ -705,15 +715,16 @@ namespace IOTClient
             File.Create($"{path}\\tmp\\dbupdate_client_checked.tmp").Dispose();
             string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
             //Update to API about new version of database
-            string downLoadFileVersion = ((System.Net.WebClient)(sender)).QueryString["newVersion"];
+            string pos_setting_version_id = ((System.Net.WebClient)(sender)).QueryString["pos_setting_version_id"];
             string data = @"
             {
-            ""pos_setting_version_id"": " + downLoadFileVersion + @"
+            ""pos_setting_version_id"": " + pos_setting_version_id + @"
             }
             ";
             dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
             //Update version after complete
-            lblDatabaseVersionText.Text = $"{downLoadFileVersion}";
+            string newVersion = ((System.Net.WebClient)(sender)).QueryString["newVersion"];
+            lblDatabaseVersionText.Text = $"{newVersion}";
         }
 
         #region Windows_Controller
