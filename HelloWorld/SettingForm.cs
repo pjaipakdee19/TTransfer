@@ -98,16 +98,23 @@ namespace IOTClient
             string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             while (true)
             {
-                var delayTask = Task.Delay(1000);
-                if (File.Exists($"{path}\\tmp\\running.tmp"))
+                try
                 {
-                    btnExport1.Invoke(new UpdateTransferBtn(disblebtnExportHandler));
+                    var delayTask = Task.Delay(1000);
+                    if (File.Exists($"{path}\\tmp\\running.tmp"))
+                    {
+                        btnExport1.Invoke(new UpdateTransferBtn(disblebtnExportHandler));
+                    }
+                    else
+                    {
+                        btnExport1.Invoke(new UpdateTransferBtn(enablebtnExportHandler));
+                    }
+                    await delayTask;
                 }
-                else
+                catch (Exception ex)
                 {
-                    btnExport1.Invoke(new UpdateTransferBtn(enablebtnExportHandler));
+                    //Logger.Error($"Exception on checkTransferButton : Exception {ex.Message}");
                 }
-                await delayTask;
             }
         }
         #endregion
@@ -127,18 +134,25 @@ namespace IOTClient
             string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             while (true)
             {
-                var delayTask = Task.Delay(1000);
-                if (File.Exists($"{path}\\tmp\\dbupdate_running.tmp"))
+                try
                 {
+                    var delayTask = Task.Delay(1000);
+                    if (File.Exists($"{path}\\tmp\\dbupdate_running.tmp"))
+                    {
 
-                    button1.Invoke(new UpdateDownloadDBBtn(disblebtnDBHandler));
+                        button1.Invoke(new UpdateDownloadDBBtn(disblebtnDBHandler));
+                    }
+                    else
+                    {
+                        button1.Invoke(new UpdateDownloadDBBtn(enablebtnDBHandler));
+
+                    }
+                    await delayTask;
                 }
-                else
+                catch (Exception ex)
                 {
-                    button1.Invoke(new UpdateDownloadDBBtn(enablebtnDBHandler));
-
+                    //Logger.Error($"Exception on checkTransferButton : Exception {ex.Message}");
                 }
-                await delayTask;
             }
         }
         #endregion
@@ -271,9 +285,16 @@ namespace IOTClient
         {
             while (true)
             {
-                var delayTask = Task.Delay(1000);
-                HistoryExportDateTimeLbl.Invoke(new LastestTransferLbl(CheckLastestUploadDateTime));
-                await delayTask;
+                try
+                {
+                    var delayTask = Task.Delay(1000);
+                    HistoryExportDateTimeLbl.Invoke(new LastestTransferLbl(CheckLastestUploadDateTime));
+                    await delayTask;
+                }
+                catch (Exception ex)
+                {
+                    //Logger.Error($"Exception on checkTransferButton : Exception {ex.Message}");
+                }
             }
         }
         #endregion
@@ -281,9 +302,16 @@ namespace IOTClient
         {
             while (true)
             {
-                var delayTask = Task.Delay(1000);
-                lblDatabaseVersionText.Invoke(new LastestDBinfoLbl(IsCheckDBversionFlagFileExist));
-                await delayTask;
+                try
+                {
+                    var delayTask = Task.Delay(1000);
+                    lblDatabaseVersionText.Invoke(new LastestDBinfoLbl(IsCheckDBversionFlagFileExist));
+                    await delayTask;
+                }
+                catch (Exception ex)
+                {
+                    //Logger.Error($"Exception on checkTransferButton : Exception {ex.Message}");
+                }
             }
         }
         public async void IsCheckDBversionFlagFileExist()
@@ -695,36 +723,84 @@ namespace IOTClient
         private int _retryCount = 0;
         private async void downloadCompletedHandler(object sender, AsyncCompletedEventArgs e)
         {
+           
+            Boolean isSuccess = false;
+            while(isSuccess == false)
+            {
+                isSuccess = await DownloadCompleteActionAsync(sender, e);
+            }
+            System.Windows.MessageBox.Show("Download completed! \nDatabase is up to date");
+            Logger.Info($"Download new update succesful");
+        }
+
+        private async Task<bool> DownloadCompleteActionAsync(object sender, AsyncCompletedEventArgs e)
+        {
             //temp folder
             string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             string tmp_path = $"{path}\\tmp";
-            File.Delete($"{path}\\tmp\\dbupdate_running.tmp");
+            try
+            {
+                if (File.Exists($"{path}\\tmp\\dbupdate_running.tmp"))
+                {
+                    File.Delete($"{path}\\tmp\\dbupdate_running.tmp");
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+
             //Move file to database path
             string downLoadFileName = ((System.Net.WebClient)(sender)).QueryString["fileName"];
             string database_path = ManageConfig.ReadGlobalConfig("database_path");
-            if (File.Exists($"{database_path}\\{downLoadFileName}"))
+            try
             {
-                File.Delete($"{database_path}\\{downLoadFileName}");
+                
+                if (File.Exists($"{database_path}\\{downLoadFileName}"))
+                {
+                    File.Delete($"{database_path}\\{downLoadFileName}");
+                }
             }
-            File.Move($"{tmp_path}\\{downLoadFileName}", $"{database_path}\\{downLoadFileName}");
+            catch (Exception ex)
+            {
+                return false;
+            }
+            try
+            {
+                File.Move($"{tmp_path}\\{downLoadFileName}", $"{database_path}\\{downLoadFileName}");
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
             progressBar1.Visible = false;
-            System.Windows.MessageBox.Show("Download completed! \nDatabase is up to date");
-            Logger.Info($"Download new update succesful");
 
-            File.Delete($"{path}\\tmp\\lib_running_log.json");
+            try
+            {
+                if (File.Exists($"{path}\\tmp\\lib_running_log.json"))
+                {
+                    File.Delete($"{path}\\tmp\\lib_running_log.json");
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+
             File.Create($"{path}\\tmp\\dbupdate_client_checked.tmp").Dispose();
             string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
             //Update to API about new version of database
             string pos_setting_version_id = ((System.Net.WebClient)(sender)).QueryString["pos_setting_version_id"];
             string data = @"
-            {
-            ""pos_setting_version_id"": " + pos_setting_version_id + @"
-            }
-            ";
+                {
+                ""pos_setting_version_id"": " + pos_setting_version_id + @"
+                }
+                ";
             dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
             //Update version after complete
             string newVersion = ((System.Net.WebClient)(sender)).QueryString["newVersion"];
             lblDatabaseVersionText.Text = $"{newVersion}";
+            return true;
         }
 
         #region Windows_Controller
