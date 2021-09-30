@@ -468,8 +468,8 @@ namespace IOTClient
                     Logger.Info($"Successful on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
 
                     var shouldDownloadNewDB = (result.pos_setting_version == null) ? true : (result.pos_setting_version.id < checkVersion.id);
-                    //if (shouldDownloadNewDB)
-                    if (true)
+                    if (shouldDownloadNewDB)
+                    //if (true)
                     {
                         //    //Goto download
                         System.Windows.Forms.MessageBox.Show($"The Database is not the latest version \n Current : {result.pos_setting_version?.number} \n Lastest : {checkVersion.number} \n System will continue Download update automatically","Update database version", MessageBoxButtons.OK);
