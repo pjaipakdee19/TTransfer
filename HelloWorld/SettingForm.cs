@@ -454,7 +454,7 @@ namespace IOTClient
                     AutoTintWithId result = JsonConvert.DeserializeObject<AutoTintWithId>(response.message, Jsonettings);
                     if (result.pos_setting == null)
                     {
-                        MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Message : Pos_Setting doesn't have data please check with admin", "Error", MessageBoxButton.OK);
+                        System.Windows.Forms.MessageBox.Show($"Message : Pos_Setting doesn't have data please check with admin", "Error", MessageBoxButtons.OK);
                         File.Delete($"{program_data_path}\\tmp\\dbupdate_running.tmp");;
                         return;
                     }
@@ -468,12 +468,12 @@ namespace IOTClient
                     Logger.Info($"Successful on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
 
                     var shouldDownloadNewDB = (result.pos_setting_version == null) ? true : (result.pos_setting_version.id < checkVersion.id);
-                    if (shouldDownloadNewDB)
-                    //if (true)
+                    //if (shouldDownloadNewDB)
+                    if (true)
                     {
                         //    //Goto download
-                        MessageBoxResult msgDownloadbox = System.Windows.MessageBox.Show($"The Database is not the latest version \n Current : {result.pos_setting_version?.number} \n Lastest : {checkVersion.number} \n System will continue Download update automatically", "", MessageBoxButton.OK);
-
+                        System.Windows.Forms.MessageBox.Show($"The Database is not the latest version \n Current : {result.pos_setting_version?.number} \n Lastest : {checkVersion.number} \n System will continue Download update automatically","Update database version", MessageBoxButtons.OK);
+                        
 
                         string downloadURI = $"{checkVersion.file}";
                         string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
@@ -500,7 +500,7 @@ namespace IOTClient
                     {
                         //Set version label
                         lblDatabaseVersionText.Text = (result.pos_setting_version == null) ? "No data" : $"{result.pos_setting_version?.number}";
-                        MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Database is up to date", "Message", MessageBoxButton.OK);
+                        System.Windows.Forms.MessageBox.Show($"Database is up to date", "Message", MessageBoxButtons.OK);
                         File.Delete($"{program_data_path}\\tmp\\dbupdate_running.tmp");
                     }
 
@@ -512,13 +512,13 @@ namespace IOTClient
                     lblDatabaseVersionText.Text = "Not Found";
                     lblDatabaseCheckVal.Text = ICTDateTimeText;
                     Logger.Error($"Error on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
-                    MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Database Version Check\nStatus Code : {response.statusCode} \nMessage : {response.message}", "Error", MessageBoxButton.OK);
+                    System.Windows.Forms.MessageBox.Show($"Database Version Check\nStatus Code : {response.statusCode} \nMessage : {response.message}", "Error", MessageBoxButtons.OK);
                 }
                 button1.Enabled = true;
                 button1.Text = "Check for updates";
             }catch(Exception ex)
             {
-                MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Message : {ex.Message}", "Error", MessageBoxButton.OK);
+                System.Windows.Forms.MessageBox.Show($"Message : {ex.Message}", "Error", MessageBoxButtons.OK);
                 Logger.Error($"Exception on update Autotint Database  Message :  {ex.Message}");
                 File.Delete($"{program_data_path}\\tmp\\dbupdate_running.tmp");
             }
@@ -590,11 +590,11 @@ namespace IOTClient
                     ManageConfig.WriteGlobalConfig("base_url", base_url_tmp);
                 }
                 disableEdit();
-                MessageBoxResult confirmResult = System.Windows.MessageBox.Show("Configuration saved", "Success", MessageBoxButton.OK);
+                System.Windows.Forms.MessageBox.Show("Configuration saved", "Success", MessageBoxButtons.OK);
             }
             else
             {
-                MessageBoxResult confirmResult = System.Windows.MessageBox.Show("Please fill all the form before save", "Error", MessageBoxButton.OK);
+                System.Windows.Forms.MessageBox.Show("Please fill all the form before save", "Error", MessageBoxButtons.OK);
             }
 
         }
@@ -643,7 +643,7 @@ namespace IOTClient
             //Check the status is running ?
             if (File.Exists($"{path}\\tmp\\running.tmp"))
             {
-                MessageBoxResult AlertMessageBox2 = System.Windows.MessageBox.Show($"Another Tranfer process is running please wait for a while and try again", "Message", MessageBoxButton.OK);
+                System.Windows.Forms.MessageBox.Show($"Another Tranfer process is running please wait for a while and try again", "Message", MessageBoxButtons.OK);
                 btnExport1.Text = "Upload POS history";
                 return;
             }
@@ -661,11 +661,11 @@ namespace IOTClient
 
                 //progressThread.Abort();
                 //CheckLastestUploadDateTime();
-                MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Manual Upload Finish\n{res.message}", "Message", MessageBoxButton.OK);
+                System.Windows.Forms.MessageBox.Show($"Manual Upload Finish\n{res.message}", "Message", MessageBoxButtons.OK);
             }catch(Exception ex)
             {
                 Logger.Error(ex, "Exception on " + ex.ToString());
-                MessageBoxResult AlertMessageBox = System.Windows.MessageBox.Show($"Internal Error {ex.Message}", "Exception", MessageBoxButton.OK);
+                System.Windows.Forms.MessageBox.Show($"Internal Error {ex.Message}", "Exception", MessageBoxButtons.OK);
                 File.Delete($"{path}\\tmp\\running.tmp");
             }
             
@@ -729,7 +729,7 @@ namespace IOTClient
             {
                 isSuccess = await DownloadCompleteActionAsync(sender, e);
             }
-            System.Windows.MessageBox.Show("Download completed! \nDatabase is up to date");
+            System.Windows.Forms.MessageBox.Show("Download completed! \nDatabase is up to date");
             Logger.Info($"Download new update succesful");
         }
 
