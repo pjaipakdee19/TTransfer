@@ -579,7 +579,7 @@ namespace AutoTintLibrary
                 export_bi.color_name = detail["color_name"];
                 export_bi.collection_name = detail["collection_name"];
                 export_bi.base_name = detail["base_name"];
-                export_bi.base_value = ((export_bi.base_name.Length > 0)&&(export_bi.base_name != " "))? detail["base_name"].ToString().Substring(detail["base_name"].ToString().Length - (detail["base_name"].ToString().IndexOf("Base") + 3)):"";
+                export_bi.base_value = ((export_bi.base_name.Length > 0) && (export_bi.base_name != " ")) ? detail["base_name"].ToString().Substring(detail["base_name"].ToString().IndexOf("Base")) : "";
                 export_bi.price = detail["price"];
                 export_bi.base_price = detail["base_price"];
                 export_bi.colorant_price = detail["colorant_price"];
@@ -1015,16 +1015,28 @@ namespace AutoTintLibrary
 
         public async Task<bool> downloadBaseDB()
         {
-            string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
+            string auto_tint_id, pgdata_path = "";
+            if (File.Exists(@"C:\ProgramData\TOA_Autotint\config.json"))
+            {
+                auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
+                pgdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            }
+            else
+            {
+                auto_tint_id = "999999999AT01";
+                pgdata_path = @"C:\ProgramData\TOA_Autotint\Log";
+                CreateDirectoryIfNotExist(@"C:\ProgramData\TOA_Autotint\Log");
+            }
             try
             {
                 string basedata = await APIHelper.RequestGet(client, $"/base/?page=1&page_size=1", auto_tint_id);
                 APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(basedata);
-                if (response.statusCode == 200) {
+                if (response.statusCode == 200)
+                {
                     var responseData = JsonConvert.DeserializeObject<AutoTintBase>(response.message);
                     decimal totaldata = responseData.count;
                     List<BaseData> jsonData = new List<BaseData>();
-                    
+
                     if (totaldata > 0)
                     {
                         var page = (int)Math.Ceiling(totaldata / 100);
@@ -1036,10 +1048,9 @@ namespace AutoTintLibrary
                             {
                                 responseData = JsonConvert.DeserializeObject<AutoTintBase>(response.message);
                                 jsonData.AddRange(responseData.results);
-                            }                                
+                            }
                         }
                         //Create file from data
-                        string pgdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
                         string file_total_log_path = $"{pgdata_path}\\basedb.json";
                         if (File.Exists($"{pgdata_path}\\basedb.json"))
                         {
@@ -1057,7 +1068,7 @@ namespace AutoTintLibrary
                     return true;
                 };
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logger.Error($"Exception on downloadBaseDB : Exception {ex.Message}");
                 return false;
