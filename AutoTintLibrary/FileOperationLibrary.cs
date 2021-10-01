@@ -650,7 +650,7 @@ namespace AutoTintLibrary
                 export_bi.color_name = detail["color_name"];
                 export_bi.collection_name = detail["collection_name"];
                 export_bi.base_name = detail["base_name"];
-                export_bi.base_value = ((export_bi.base_name.Length > 0)&&(export_bi.base_name != " "))? detail["base_name"].ToString().Substring(detail["base_name"].ToString().Length - (detail["base_name"].ToString().IndexOf("Base") + 3)):"";
+                export_bi.base_value = ((export_bi.base_name.Length > 0)&&(export_bi.base_name != " "))? detail["base_name"].ToString().Substring(detail["base_name"].ToString().IndexOf("Base")):"";
                 export_bi.price = detail["price"];
                 export_bi.base_price = detail["base_price"];
                 export_bi.colorant_price = detail["colorant_price"];
