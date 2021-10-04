@@ -607,7 +607,7 @@ namespace AutoTintLibrary
             dynamic details = JArray.Parse(streamFile);
             //dynamic stuff = JsonConvert.DeserializeObject<ListDispenseHistory>(details);
             var exportRecordBI = new List<DispenseHistoryBI>();
-            string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            string programdata_path = @"C:\ProgramData\TOA_Autotint\Logs";// ManageConfig.ReadGlobalConfig("programdata_log_path");
             List<BaseData> baseData = new List<BaseData>();
             if (File.Exists($"{programdata_path}\\basedb.json"))
             {
@@ -632,6 +632,7 @@ namespace AutoTintLibrary
                 var export_bi = new DispenseHistoryBI();
                 if (!String.IsNullOrEmpty(auto_tint_id)) detail["company_code"] = auto_tint_id;
                 //Console.WriteLine(detail);
+                if (!detail["base_name"].ToString().ToLower().Contains("base")) continue;
                 //dispenser_data_list
                 foreach(AutoTintWithIdV2 data in dispenser_data_list)
                 {
@@ -843,7 +844,7 @@ namespace AutoTintLibrary
                 export_bi.color_name = detail["color_name"];
                 export_bi.collection_name = detail["collection_name"];
                 export_bi.base_name = detail["base_name"];
-                export_bi.base_value = ((export_bi.base_name.Length > 0) && (export_bi.base_name != " ")) ? detail["base_name"].ToString().Substring(detail["base_name"].ToString().Length - (detail["base_name"].ToString().IndexOf("Base") + 3)) : "";
+                export_bi.base_value = ((export_bi.base_name.Length > 0) && (export_bi.base_name != " ")) ? detail["base_name"].ToString().Substring(detail["base_name"].ToString().ToLower().IndexOf("base")) : "";
                 export_bi.price = detail["price"];
                 export_bi.base_price = detail["base_price"];
                 export_bi.colorant_price = detail["colorant_price"];
@@ -859,6 +860,7 @@ namespace AutoTintLibrary
                 export_bi.branch_name = "";
                 export_bi.type = saleType;
                 export_bi.status_shade = status_shade;
+
                 exportRecordBI.Add(export_bi);
             }
             return exportRecordBI;
