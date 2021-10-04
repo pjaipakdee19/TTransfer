@@ -289,8 +289,8 @@ namespace StandaloneConverterApp
                     var exportRecord = new List<DispenseHistory>();
                     for (int j = 0; j < records.Count(); j++)
                     {
-
-                        if (records[j].dispensed_date.Contains(cleanDate[i]))
+                        string[] date = records[j].dispensed_date.Split(' ');
+                        if (String.Equals(date[0],cleanDate[i]))
                         {
                             exportRecord.Add(records[j]);
                         }

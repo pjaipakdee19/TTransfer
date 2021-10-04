@@ -626,12 +626,11 @@ namespace AutoTintLibrary
             {
                 Logger.Error("basedb.json doesn't exist convertToBI data can't validate status shade");
             }
-
             foreach (dynamic detail in details)
             {
                 var export_bi = new DispenseHistoryBI();
                 if (!String.IsNullOrEmpty(auto_tint_id)) detail["company_code"] = auto_tint_id;
-                //Console.WriteLine(detail);
+
                 if (!detail["base_name"].ToString().ToLower().Contains("base")) continue;
                 //dispenser_data_list
                 foreach(AutoTintWithIdV2 data in dispenser_data_list)
@@ -807,9 +806,6 @@ namespace AutoTintLibrary
                     bool matchBaseComponentCondition = false;
                     for (int j = 0; j < baseData.Count; j++)
                     {
-                        var kkkk = detail[$"component_name{i}"].ToString().ToLower();
-                        var eeee = baseData[j].base_name.ToString().ToLower();
-                        var vavva = detail[$"lines_dispensed_amount{i}"];
                         if ((detail[$"component_name{i}"].ToString().ToLower() == baseData[j].base_name.ToString().ToLower())
                             && (detail[$"lines_dispensed_amount{i}"] == 0))
                         {
