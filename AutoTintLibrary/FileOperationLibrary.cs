@@ -174,7 +174,8 @@ namespace AutoTintLibrary
                                 for (int j = 0; j < records.Count(); j++)
                                 {
 
-                                    if (records[j].dispensed_date.Contains(cleanDate[i]))
+                                    string[] date = records[j].dispensed_date.Split(' ');
+                                    if (String.Equals(date[0], cleanDate[i]))
                                     {
                                         exportRecord.Add(records[j]);
                                     }
@@ -439,10 +440,10 @@ namespace AutoTintLibrary
 
             foreach (dynamic detail in details)
             {
+                if (!detail["base_name"].ToString().ToLower().Contains("base")) continue;
                 //Console.WriteLine(detail);
                 //Do a formatted date
                 String[] dispense_date = detail["dispensed_date"].ToString().Split(' ');
-
                 string formattedDate = "";
                 var export_bi = new DispenseHistoryBI();
                 try
@@ -650,7 +651,7 @@ namespace AutoTintLibrary
                 export_bi.color_name = detail["color_name"];
                 export_bi.collection_name = detail["collection_name"];
                 export_bi.base_name = detail["base_name"];
-                export_bi.base_value = ((export_bi.base_name.Length > 0)&&(export_bi.base_name != " "))? detail["base_name"].ToString().Substring(detail["base_name"].ToString().IndexOf("Base")):"";
+                export_bi.base_value = ((export_bi.base_name.Length > 0) && (export_bi.base_name != " ")) ? detail["base_name"].ToString().Substring(detail["base_name"].ToString().ToLower().IndexOf("base")) : "";
                 export_bi.price = detail["price"];
                 export_bi.base_price = detail["base_price"];
                 export_bi.colorant_price = detail["colorant_price"];

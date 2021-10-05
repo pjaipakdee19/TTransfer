@@ -16,11 +16,12 @@ namespace AutoTintLibrary
 {
     public class APIHelper
     {
-        public static string baseURL = ManageConfig.ReadGlobalConfig("base_url");
+        public static string baseURL = (File.Exists(@"C:\ProgramData\TOA_Autotint\config.json")) ? (ManageConfig.ReadGlobalConfig("base_url") != null) ? ManageConfig.ReadGlobalConfig("base_url") : "http://49.229.21.7" : "http://49.229.21.7";
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public static RestClient init()
         {
+            clearInvalidConfigFile();
             var client = new RestClient();
             client.Encoding = Encoding.UTF8;
             //client.AddDefaultHeader("Content-Type", "text/html;charset=gb2312");
@@ -29,7 +30,18 @@ namespace AutoTintLibrary
         //Creating the extern function...  
         [DllImport("wininet.dll")]
         private extern static bool InternetGetConnectedState(out int Description, int ReservedValue);
-
+        public static void clearInvalidConfigFile()
+        {
+            if (File.Exists(@"C:\ProgramData\TOA_Autotint\config.json"))
+            {
+                String base_url = ManageConfig.ReadGlobalConfig("base_url");
+                String path = ManageConfig.ReadGlobalConfig("base_url");
+                if (base_url == null && path == null)
+                {
+                    File.Delete(@"C:\ProgramData\TOA_Autotint\config.json");
+                }
+            }
+        }
 
         public static bool APIConnectionCheck(int retry_round,int interval)
         {
