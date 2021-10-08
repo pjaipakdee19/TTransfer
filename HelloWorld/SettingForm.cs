@@ -471,6 +471,18 @@ namespace IOTClient
                     if (shouldDownloadNewDB)
                     //if (true)
                     {
+                        //(Oct 07 2021 Requirement) - Display the client with confirm to update dialog if it's minimize and close (if not require to update not open ??)
+                        if (minimizedToTray)
+                        {
+                            //notifyIcon.Visible = true;
+                            this.Show();
+                            this.WindowState = FormWindowState.Normal;
+                            minimizedToTray = false;
+                        }
+                        else
+                        {
+                            WinApi.ShowToFront(this.Handle);
+                        }
                         //    //Goto download
                         System.Windows.Forms.MessageBox.Show($"The Database is not the latest version \n Current : {result.pos_setting_version?.number} \n Lastest : {checkVersion.number} \n System will continue Download update automatically","Update database version", MessageBoxButtons.OK);
                         

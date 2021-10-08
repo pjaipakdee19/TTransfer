@@ -123,25 +123,25 @@ namespace TAService
                     gotException = true;
                 }
 
-                Logger.Info($"[AutoStart] Transfer operation when PC turn on Finish on {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
-                Logger.Info($"[AutoStart] Start checking and update database at {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
-                try
-                {
-                    var isUpdateOkay = await instance.UpdateAutotintVersion();
-                    if (isUpdateOkay)
-                    {
-                        Logger.Info($"[AutoStart] Update the database done at {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
-                    }
-                    else
-                    {
-                        Logger.Error($"[AutoStart] Update the database got error at {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)}, Please check the lib log");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error($"[AutoStart] Update the database got Exception {ex.Message}");
-                    gotException = true;
-                }
+                //Logger.Info($"[AutoStart] Transfer operation when PC turn on Finish on {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
+                //Logger.Info($"[AutoStart] Start checking and update database at {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
+                //try
+                //{
+                //    var isUpdateOkay = await instance.UpdateAutotintVersion();
+                //    if (isUpdateOkay)
+                //    {
+                //        Logger.Info($"[AutoStart] Update the database done at {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
+                //    }
+                //    else
+                //    {
+                //        Logger.Error($"[AutoStart] Update the database got error at {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)}, Please check the lib log");
+                //    }
+                //}
+                //catch (Exception ex)
+                //{
+                //    Logger.Error($"[AutoStart] Update the database got Exception {ex.Message}");
+                //    gotException = true;
+                //}
 
                 if (gotException)
                 {
@@ -270,7 +270,7 @@ namespace TAService
                             var instance = new FileOperationLibrary();
                             await instance.StartOperation();
                             //Start check for update and download if needed
-                            await instance.UpdateAutotintVersion();
+                            //await instance.UpdateAutotintVersion();
                         }
                         catch (Exception ex)
                         {
