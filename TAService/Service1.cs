@@ -123,7 +123,7 @@ namespace TAService
                     gotException = true;
                 }
 
-                //Logger.Info($"[AutoStart] Transfer operation when PC turn on Finish on {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
+                Logger.Info($"[AutoStart] Transfer operation when PC turn on Finish on {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
                 //Logger.Info($"[AutoStart] Start checking and update database at {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ictZone)} !!!");
                 //try
                 //{
@@ -142,6 +142,9 @@ namespace TAService
                 //    Logger.Error($"[AutoStart] Update the database got Exception {ex.Message}");
                 //    gotException = true;
                 //}
+                File.Delete($"{programdata_path}\\tmp\\dbupdate_running.tmp");
+                File.Delete($"{programdata_path}\\tmp\\lib_running_log.json");
+                File.Create($"{programdata_path}\\tmp\\dbupdate_version_check.tmp").Dispose();
 
                 if (gotException)
                 {
