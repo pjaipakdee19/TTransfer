@@ -632,8 +632,20 @@ namespace AutoTintLibrary
                 if (!String.IsNullOrEmpty(auto_tint_id)) detail["company_code"] = auto_tint_id;
 
                 if (!detail["base_name"].ToString().ToLower().Contains("base")) continue;
+                //Skip if no base_name in baseData
+                Boolean isBaseDataContainBaseName = false;
+                for (int j = 0; j < baseData.Count; j++)
+                {
+                    if (detail["base_name"].ToString().ToLower() == baseData[j].base_name.ToString().ToLower())
+                    {
+                        isBaseDataContainBaseName = true;
+                        break;
+                    }
+                   
+                }
+                if (!isBaseDataContainBaseName) continue;
                 //dispenser_data_list
-                foreach(AutoTintWithIdV2 data in dispenser_data_list)
+                foreach (AutoTintWithIdV2 data in dispenser_data_list)
                 {
                     //String.Equals(data.auto_tint_id,detail["company_code"].ToString())
                     if (data.auto_tint_id.Contains(detail["company_code"].ToString()))
