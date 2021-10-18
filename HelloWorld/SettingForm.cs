@@ -741,8 +741,34 @@ namespace IOTClient
             {
                 isSuccess = await DownloadCompleteActionAsync(sender, e);
             }
-            System.Windows.Forms.MessageBox.Show("Download completed! \nDatabase is up to date");
-            Logger.Info($"Download new update succesful");
+            //Confirm after move file
+            string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            string downLoadFileName = ((System.Net.WebClient)(sender)).QueryString["fileName"];
+            string database_path = ManageConfig.ReadGlobalConfig("database_path");
+            Boolean isComplete = File.Exists($"{database_path}\\{downLoadFileName}");
+            if (!isComplete)
+            {
+                System.Windows.Forms.MessageBox.Show("Downloaded file is corrupt !!!!! \nPlease confirm the dialog to download again","Error");
+                Logger.Error($"Download Fail on update Autotint Database filename {downLoadFileName}");
+                File.Delete($"{path}\\tmp\\dbupdate_client_checked.tmp");
+            }
+            else
+            {
+                //Update to API about new version of database
+                string pos_setting_version_id = ((System.Net.WebClient)(sender)).QueryString["pos_setting_version_id"];
+                string data = @"
+                {
+                ""pos_setting_version_id"": " + pos_setting_version_id + @"
+                }
+                ";
+                dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
+                //Update version after complete
+                string newVersion = ((System.Net.WebClient)(sender)).QueryString["newVersion"];
+                lblDatabaseVersionText.Text = $"{newVersion}";
+                System.Windows.Forms.MessageBox.Show("Download completed! \nDatabase is up to date");
+                Logger.Info($"Download {downLoadFileName} update succesful at {database_path}\\{downLoadFileName}");
+            }
+            
         }
 
         private async Task<bool> DownloadCompleteActionAsync(object sender, AsyncCompletedEventArgs e)
@@ -786,7 +812,6 @@ namespace IOTClient
                 return false;
             }
             progressBar1.Visible = false;
-
             try
             {
                 if (File.Exists($"{path}\\tmp\\lib_running_log.json"))
@@ -801,17 +826,6 @@ namespace IOTClient
 
             File.Create($"{path}\\tmp\\dbupdate_client_checked.tmp").Dispose();
             string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
-            //Update to API about new version of database
-            string pos_setting_version_id = ((System.Net.WebClient)(sender)).QueryString["pos_setting_version_id"];
-            string data = @"
-                {
-                ""pos_setting_version_id"": " + pos_setting_version_id + @"
-                }
-                ";
-            dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
-            //Update version after complete
-            string newVersion = ((System.Net.WebClient)(sender)).QueryString["newVersion"];
-            lblDatabaseVersionText.Text = $"{newVersion}";
             return true;
         }
 

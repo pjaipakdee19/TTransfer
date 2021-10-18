@@ -64,7 +64,7 @@ namespace AutoTintLibrary
                     IsServerReply = false;
                 }
                 
-                Logger.Info($"Internet status isConnected: {isConnected} Connection Flag : {status_code}");
+                //Logger.Info($"Internet status isConnected: {isConnected} Connection Flag : {status_code}");
                 connection_retry++;
                 if (!isConnected || !IsServerReply)
                 {
