@@ -201,11 +201,18 @@ namespace TAService
         {
             //Add the network connection loop here
             string programdata_path = ManageConfig.ReadConfig("programdata_log_path");
+            Boolean shouldLogReturnState = false;
+            if (File.Exists($"{programdata_path}\\tmp\\network_require.tmp"))
+            {
+                shouldLogReturnState = true;
+            }
+
             File.Create($"{programdata_path}\\tmp\\network_require.tmp").Dispose();
             if (File.Exists($"{programdata_path}\\tmp\\network_require.tmp"))
             {
                 if (APIHelper.APIConnectionCheck(1, 0))
                 {
+                    if(shouldLogReturnState) Logger.Info($"Network is back up timer process continue checking ...");
                     File.Delete($"{programdata_path}\\tmp\\network_require.tmp");
                 }
                 else
