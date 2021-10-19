@@ -324,7 +324,13 @@ namespace IOTClient
                 //lblDatabaseVersionText.Text = "Check";
                 //lblDatabaseCheckVal.Text = "DMMMM";
             }
-            
+            if((!File.Exists($"{path}\\tmp\\dbupdate_running.tmp")) && (File.Exists($"{path}\\tmp\\dbupdate_version_check.tmp")) && (File.Exists($"{path}\\tmp\\dbupdate_client_checked.tmp")))
+            {
+                if((lblDatabaseVersionText.Text == "No Information") && (lblDatabaseCheckVal.Text == "No Information"))
+                {
+                    UpdateAutotintVersion();
+                }
+            }
         }
         private async Task checkversion()
         {
@@ -419,6 +425,7 @@ namespace IOTClient
             string program_data_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             if (File.Exists($"{program_data_path}\\tmp\\network_require.tmp"))
             {
+                Logger.Info("Exit UpdateAutotintVersion because of file network_require.tmp isExist");
                 return;
             }
             try
@@ -710,16 +717,19 @@ namespace IOTClient
             //instance.UpdateAutotintVersion();
             try
             {
-                string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
-                string tmp_path = $"{path}\\tmp";
-                DownloadHelper downloadHelper = new DownloadHelper("http://49.229.21.7/files/settings/Tint_On_Shop_TuwDkNh.SDF",
-                    @"E:\Tutorial\db_location",
-                    @"C:\TOA\Temp");
-                //$"{path}\\tmp");
-                downloadHelper.StartDownload();
-            }catch(Exception ex)
+                //string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+                //string tmp_path = $"{path}\\tmp";
+                //DownloadHelper downloadHelper = new DownloadHelper("http://49.229.21.7/files/settings/Tint_On_Shop_TuwDkNh.SDF",
+                //    @"E:\Tutorial\db_location",
+                //    @"C:\TOA\Temp");
+                ////$"{path}\\tmp");
+                //downloadHelper.StartDownload();
+                lblDatabaseVersionText.Text = "No Information";
+                lblDatabaseCheckVal.Text = "No Information";
+            }
+            catch(Exception ex)
             {
-                Console.WriteLine(ex);
+                Logger.Error($"Exception on update Autotint Database  Message :  {ex.Message}");
             }
             
         }
@@ -727,52 +737,66 @@ namespace IOTClient
         {
             //progressBar1.Visible = true;
             //progressBar1.Value = e.ProgressPercentage;
-            string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
-            string file_total_log_path = $"{programdata_path}\\tmp\\lib_running_log.json";
-            var jsonData = new ProgressCounter() { total_file = 0, complete_counter = e.ProgressPercentage, status = "Download DB File" };
-            File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(jsonData), Encoding.UTF8);
+            try
+            {
+                string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+                string file_total_log_path = $"{programdata_path}\\tmp\\lib_running_log.json";
+                var jsonData = new ProgressCounter() { total_file = 0, complete_counter = e.ProgressPercentage, status = "Download DB File" };
+                File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(jsonData), Encoding.UTF8);
+            }catch(Exception ex)
+            {
+                Logger.Error($"Exception on update Autotint Database ProgressChanged Message :  {ex.Message}");
+            }
+           
         }
         private int _retryCount = 0;
         private async void downloadCompletedHandler(object sender, AsyncCompletedEventArgs e)
         {
-           
-            Boolean isSuccess = false;
-            while(isSuccess == false)
+            try
             {
-                isSuccess = await DownloadCompleteActionAsync(sender, e);
-            }
-            //Confirm after move file
-            string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
-            string downLoadFileName = ((System.Net.WebClient)(sender)).QueryString["fileName"];
-            string database_path = ManageConfig.ReadGlobalConfig("database_path");
-            Boolean isComplete = File.Exists($"{database_path}\\{downLoadFileName}");
-            if (!isComplete)
-            {
-                System.Windows.Forms.MessageBox.Show("Downloaded file is corrupt !!!!! \nPlease confirm the dialog to download again","Error");
-                Logger.Error($"Download Fail on update Autotint Database filename {downLoadFileName}");
-                File.Delete($"{path}\\tmp\\dbupdate_client_checked.tmp");
-            }
-            else
-            {
-                //Update to API about new version of database
-                string pos_setting_version_id = ((System.Net.WebClient)(sender)).QueryString["pos_setting_version_id"];
-                string data = @"
+                Boolean isSuccess = false;
+                while (isSuccess == false)
+                {
+                    isSuccess = await DownloadCompleteActionAsync(sender, e);
+                }
+                //Confirm after move file
+                string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+                string downLoadFileName = ((System.Net.WebClient)(sender)).QueryString["fileName"];
+                string database_path = ManageConfig.ReadGlobalConfig("database_path");
+                Boolean isComplete = File.Exists($"{database_path}\\{downLoadFileName}");
+                if (!isComplete)
+                {
+                    System.Windows.Forms.MessageBox.Show("Downloaded file is corrupt !!!!! \nPlease confirm the dialog to download again", "Error");
+                    Logger.Error($"Download Fail on update Autotint Database filename {downLoadFileName}");
+                    File.Delete($"{path}\\tmp\\dbupdate_client_checked.tmp");
+                }
+                else
+                {
+                    //Update to API about new version of database
+                    string pos_setting_version_id = ((System.Net.WebClient)(sender)).QueryString["pos_setting_version_id"];
+                    string data = @"
                 {
                 ""pos_setting_version_id"": " + pos_setting_version_id + @"
                 }
                 ";
-                dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
-                //Update version after complete
-                string newVersion = ((System.Net.WebClient)(sender)).QueryString["newVersion"];
-                lblDatabaseVersionText.Text = $"{newVersion}";
-                System.Windows.Forms.MessageBox.Show("Download completed! \nDatabase is up to date");
-                Logger.Info($"Download {downLoadFileName} update succesful at {database_path}\\{downLoadFileName}");
+                    dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
+                    //Update version after complete
+                    string newVersion = ((System.Net.WebClient)(sender)).QueryString["newVersion"];
+                    lblDatabaseVersionText.Text = $"{newVersion}";
+                    System.Windows.Forms.MessageBox.Show("Download completed! \nDatabase is up to date");
+                    Logger.Info($"Download {downLoadFileName} update succesful at {database_path}\\{downLoadFileName}");
+                }
             }
-            
+            catch (Exception ex)
+            {
+                Logger.Error($"Exception on update Autotint Database downloadCompletedHandler Message :  {ex.Message}");
+            }
+
         }
 
         private async Task<bool> DownloadCompleteActionAsync(object sender, AsyncCompletedEventArgs e)
         {
+            Logger.Info("DownloadCompleteActionAsync start because of file download process is complete");
             //temp folder
             string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             string tmp_path = $"{path}\\tmp";
@@ -785,6 +809,7 @@ namespace IOTClient
             }
             catch (Exception ex)
             {
+                Logger.Error($"Exception on DownloadCompleteActionAsync del dbupdate_running.tmp Message :  {ex.Message}");
                 return false;
             }
 
@@ -801,6 +826,7 @@ namespace IOTClient
             }
             catch (Exception ex)
             {
+                Logger.Error($"Exception on DownloadCompleteActionAsync del {database_path}\\{downLoadFileName} Message :  {ex.Message}");
                 return false;
             }
             try
@@ -809,6 +835,7 @@ namespace IOTClient
             }
             catch (Exception ex)
             {
+                Logger.Error($"Exception on DownloadCompleteActionAsync Move file Message :  {ex.Message}");
                 return false;
             }
             progressBar1.Visible = false;
@@ -821,11 +848,12 @@ namespace IOTClient
             }
             catch (Exception ex)
             {
+                Logger.Error($"Exception on DownloadCompleteActionAsync Delete lib_running_log.json Message :  {ex.Message}");
                 return false;
             }
 
             File.Create($"{path}\\tmp\\dbupdate_client_checked.tmp").Dispose();
-            string auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
+            Logger.Info($"dbupdate_client_checked.tmp created because of download and move file is successful");
             return true;
         }
 

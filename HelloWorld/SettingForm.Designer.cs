@@ -250,7 +250,6 @@ namespace IOTClient
             this.btnDownloadUpdate.TabIndex = 20;
             this.btnDownloadUpdate.Text = "TestDownload";
             this.btnDownloadUpdate.UseVisualStyleBackColor = true;
-            this.btnDownloadUpdate.Visible = false;
             this.btnDownloadUpdate.Click += new System.EventHandler(this.btnDownloadUpdate_Click);
             // 
             // progressBar1
