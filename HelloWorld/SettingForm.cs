@@ -478,9 +478,11 @@ namespace IOTClient
                     if (shouldDownloadNewDB)
                     //if (true)
                     {
+                        Logger.Info($"The pos setting version is different : {result.pos_setting_version.id} < {checkVersion.id}");
                         //(Oct 07 2021 Requirement) - Display the client with confirm to update dialog if it's minimize and close (if not require to update not open ??)
                         if (minimizedToTray)
                         {
+                            Logger.Info($"Client is in minimized state bring it up");
                             //notifyIcon.Visible = true;
                             this.Show();
                             this.WindowState = FormWindowState.Normal;
@@ -488,11 +490,12 @@ namespace IOTClient
                         }
                         else
                         {
+                            Logger.Info($"Client is not in minimized state bring it to front");
                             WinApi.ShowToFront(this.Handle);
                         }
                         //    //Goto download
                         System.Windows.Forms.MessageBox.Show($"The Database is not the latest version \n Current : {result.pos_setting_version?.number} \n Lastest : {checkVersion.number} \n System will continue Download update automatically","Update database version", MessageBoxButtons.OK);
-                        
+                        Logger.Info($"User's confirmed version download dialog box");
 
                         string downloadURI = $"{checkVersion.file}";
                         string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
@@ -503,6 +506,7 @@ namespace IOTClient
                         }
                         String[] URIArray = downloadURI.Split('/');
                         if (!APIHelper.APIConnectionCheck(3, 30)) throw new Exception("Internet Connection Error");
+                        Logger.Info($"Internet connection OK the download will be continue.");
                         WebClient webClient = new WebClient();
                         webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(downloadCompletedHandler);
                         webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
@@ -729,7 +733,7 @@ namespace IOTClient
             }
             catch(Exception ex)
             {
-                Logger.Error($"Exception on update Autotint Database  Message :  {ex.Message}");
+                Logger.Error($"Exception on btnDownloadUpdate_Click  Message :  {ex.Message}");
             }
             
         }
@@ -775,13 +779,14 @@ namespace IOTClient
                     //Update to API about new version of database
                     string pos_setting_version_id = ((System.Net.WebClient)(sender)).QueryString["pos_setting_version_id"];
                     string data = @"
-                {
-                ""pos_setting_version_id"": " + pos_setting_version_id + @"
-                }
-                ";
+                    {
+                    ""pos_setting_version_id"": " + pos_setting_version_id + @"
+                    }
+                    ";
+                    string newVersion = ((System.Net.WebClient)(sender)).QueryString["newVersion"];
+                    Logger.Info($"Download Successful continue update version {newVersion} to /auto_tint/{auto_tint_id}/pos_update");
                     dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
                     //Update version after complete
-                    string newVersion = ((System.Net.WebClient)(sender)).QueryString["newVersion"];
                     lblDatabaseVersionText.Text = $"{newVersion}";
                     System.Windows.Forms.MessageBox.Show("Download completed! \nDatabase is up to date");
                     Logger.Info($"Download {downLoadFileName} update succesful at {database_path}\\{downLoadFileName}");
@@ -796,7 +801,7 @@ namespace IOTClient
 
         private async Task<bool> DownloadCompleteActionAsync(object sender, AsyncCompletedEventArgs e)
         {
-            Logger.Info("DownloadCompleteActionAsync start because of file download process is complete");
+            Logger.Info("DownloadCompleteActionAsync execute because of file download process is complete");
             //temp folder
             string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             string tmp_path = $"{path}\\tmp";
