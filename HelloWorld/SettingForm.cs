@@ -35,6 +35,7 @@ namespace IOTClient
         public delegate void UpdateProgressLbl();
         public delegate void LastestTransferLbl();
         public delegate void LastestDBinfoLbl();
+        public bool waitingUpdateAutotintVersion = false;
         bool minimizedToTray;
         NotifyIcon notifyIcon;
         dynamic Jsonettings = new JsonSerializerSettings
@@ -324,12 +325,17 @@ namespace IOTClient
                 //lblDatabaseVersionText.Text = "Check";
                 //lblDatabaseCheckVal.Text = "DMMMM";
             }
-            if((!File.Exists($"{path}\\tmp\\dbupdate_running.tmp")) && (File.Exists($"{path}\\tmp\\dbupdate_version_check.tmp")) && (File.Exists($"{path}\\tmp\\dbupdate_client_checked.tmp")))
+            //if((!File.Exists($"{path}\\tmp\\dbupdate_running.tmp")) && (File.Exists($"{path}\\tmp\\dbupdate_version_check.tmp")) && (File.Exists($"{path}\\tmp\\dbupdate_client_checked.tmp")))
+            //{
+            //    if((lblDatabaseVersionText.Text == "No Information") && (lblDatabaseCheckVal.Text == "No Information"))
+            //    {
+            //        UpdateAutotintVersion();
+            //    }
+            //}
+            Console.WriteLine($"waitingUpdateAutotintVersion flage value {waitingUpdateAutotintVersion}");
+            if (waitingUpdateAutotintVersion)
             {
-                if((lblDatabaseVersionText.Text == "No Information") && (lblDatabaseCheckVal.Text == "No Information"))
-                {
-                    UpdateAutotintVersion();
-                }
+                UpdateAutotintVersion();
             }
         }
         private async Task checkversion()
@@ -423,9 +429,13 @@ namespace IOTClient
         private async Task UpdateAutotintVersion()
         {
             string program_data_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            Logger.Info($"waitingUpdateAutotintVersion flage value {waitingUpdateAutotintVersion}");
             if (File.Exists($"{program_data_path}\\tmp\\network_require.tmp"))
             {
                 Logger.Info("Exit UpdateAutotintVersion because of file network_require.tmp isExist");
+                waitingUpdateAutotintVersion = true;
+                lblDatabaseCheckVal.Text = "Waiting ...";
+                lblDatabaseVersionText.Text = "Waiting ...";
                 return;
             }
             try
@@ -434,7 +444,7 @@ namespace IOTClient
                 button1.Text = "Checking ...";
 
                 //Check the status is running ?
-                
+                waitingUpdateAutotintVersion = false;
                 File.Create($"{program_data_path}\\tmp\\dbupdate_client_checked.tmp").Dispose();
                 if (File.Exists($"{program_data_path}\\tmp\\dbupdate_running.tmp"))
                 {
@@ -728,8 +738,13 @@ namespace IOTClient
                 //    @"C:\TOA\Temp");
                 ////$"{path}\\tmp");
                 //downloadHelper.StartDownload();
-                lblDatabaseVersionText.Text = "No Information";
-                lblDatabaseCheckVal.Text = "No Information";
+                //lblDatabaseVersionText.Text = "No Information";
+                //lblDatabaseCheckVal.Text = "No Information";
+                string program_data_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+                File.Delete($"{program_data_path}\\tmp\\dbupdate_running.tmp");
+                File.Delete($"{program_data_path}\\tmp\\dbupdate_client_checked.tmp"); 
+                Console.WriteLine("btnDownloadUpdate_Click clicked");
+                UpdateAutotintVersion();
             }
             catch(Exception ex)
             {
