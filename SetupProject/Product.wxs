@@ -113,15 +113,8 @@
 	    </Component>
 	    <Component Id="IOTClient.exe" Guid="8c846565-53a0-473b-b9fc-f9f24b7b7366">
 			<File Id="IOTClient.exe" Name="IOTClient.exe" Source="$(var.IOTClient_TargetDir)IOTClient.exe">
-				<Shortcut Id="DesktopShortcut"
-                  Directory="DesktopFolder"
-                  Name="TOA IOT Setting V1.5"
-                  Description="Desktop application"
-                  WorkingDirectory="INSTALLFOLDER"
-                  Icon="IOTClient.exe"
-                  IconIndex="0"
-                  Advertise="yes" >
-					<Icon Id="IOTClient.exe" SourceFile="$(var.IOTClient_TargetDir)LOGO.ico" />
+				<Shortcut Id="DesktopShortcut" Directory="DesktopFolder" Name="TOA IOT Setting V1.5" Description="Desktop application" WorkingDirectory="INSTALLFOLDER" Icon="IOTClient.exe" IconIndex="0" Advertise="yes">
+					<Icon Id="IOTClient.exe" SourceFile="$(var.IOTClient_TargetDir)IOTClient.exe" />
 				</Shortcut>
 			</File>
 	    </Component>
@@ -169,6 +162,9 @@
 	    </Component>
 	    <Component Id="UnitsNet.dll" Guid="a86a3460-1348-401f-adb1-7303cc926173">
 	      <File Id="UnitsNet.dll" Name="UnitsNet.dll" Source="$(var.AutoTintLibrary_TargetDir)UnitsNet.dll" />
+	    </Component>
+	    <Component Id="LOGO.ico" Guid="65d59bc0-ff30-429f-a8a5-8166743a2092">
+	      <File Id="LOGO.ico" Name="LOGO.ico" Source="$(var.IOTClient_TargetDir)Images\LOGO.ico" />
 	    </Component>
 	  </ComponentGroup>
 	</Fragment>
