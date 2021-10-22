@@ -248,9 +248,8 @@ namespace IOTClient
             this.btnDownloadUpdate.Name = "btnDownloadUpdate";
             this.btnDownloadUpdate.Size = new System.Drawing.Size(94, 23);
             this.btnDownloadUpdate.TabIndex = 20;
-            this.btnDownloadUpdate.Text = "TestDownload";
+            this.btnDownloadUpdate.Text = "ForceReset";
             this.btnDownloadUpdate.UseVisualStyleBackColor = true;
-            this.btnDownloadUpdate.Visible = false;
             this.btnDownloadUpdate.Click += new System.EventHandler(this.btnDownloadUpdate_Click);
             // 
             // progressBar1
