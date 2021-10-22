@@ -121,7 +121,7 @@
                   Icon="IOTClient.exe"
                   IconIndex="0"
                   Advertise="yes" >
-					<Icon Id="IOTClient.exe" SourceFile="$(var.IOTClient_TargetDir)IOTClient.exe" />
+					<Icon Id="IOTClient.exe" SourceFile="$(var.IOTClient_TargetDir)LOGO.ico" />
 				</Shortcut>
 			</File>
 	    </Component>
