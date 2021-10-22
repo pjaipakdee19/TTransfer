@@ -429,10 +429,9 @@ namespace IOTClient
         private async Task UpdateAutotintVersion()
         {
             string program_data_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
-            Logger.Info($"waitingUpdateAutotintVersion flage value {waitingUpdateAutotintVersion}");
             if (File.Exists($"{program_data_path}\\tmp\\network_require.tmp"))
             {
-                Logger.Info("Exit UpdateAutotintVersion because of file network_require.tmp isExist");
+                Logger.Info("Retrying UpdateAutotintVersion because of file network is require");
                 waitingUpdateAutotintVersion = true;
                 lblDatabaseCheckVal.Text = "Waiting ...";
                 lblDatabaseVersionText.Text = "Waiting ...";
@@ -816,7 +815,6 @@ namespace IOTClient
 
         private async Task<bool> DownloadCompleteActionAsync(object sender, AsyncCompletedEventArgs e)
         {
-            Logger.Info("DownloadCompleteActionAsync execute because of file download process is complete");
             //temp folder
             string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             string tmp_path = $"{path}\\tmp";
@@ -829,7 +827,6 @@ namespace IOTClient
             }
             catch (Exception ex)
             {
-                Logger.Error($"Exception on DownloadCompleteActionAsync del dbupdate_running.tmp Message :  {ex.Message}");
                 return false;
             }
 
@@ -846,7 +843,6 @@ namespace IOTClient
             }
             catch (Exception ex)
             {
-                Logger.Error($"Exception on DownloadCompleteActionAsync del {database_path}\\{downLoadFileName} Message :  {ex.Message}");
                 return false;
             }
             try
@@ -855,7 +851,6 @@ namespace IOTClient
             }
             catch (Exception ex)
             {
-                Logger.Error($"Exception on DownloadCompleteActionAsync Move file Message :  {ex.Message}");
                 return false;
             }
             progressBar1.Visible = false;
@@ -868,7 +863,6 @@ namespace IOTClient
             }
             catch (Exception ex)
             {
-                Logger.Error($"Exception on DownloadCompleteActionAsync Delete lib_running_log.json Message :  {ex.Message}");
                 return false;
             }
 
