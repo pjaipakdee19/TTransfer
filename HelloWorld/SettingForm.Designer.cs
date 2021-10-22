@@ -30,6 +30,7 @@ namespace IOTClient
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingForm));
             this.btnExport1 = new System.Windows.Forms.Button();
             this.lblHelloWorld = new System.Windows.Forms.Label();
             this.databaseFolderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
@@ -311,6 +312,7 @@ namespace IOTClient
             this.Controls.Add(this.btnDatabaseSelect);
             this.Controls.Add(this.lblHelloWorld);
             this.Controls.Add(this.btnExport1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "SettingForm";
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
