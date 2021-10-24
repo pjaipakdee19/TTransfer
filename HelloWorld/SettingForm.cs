@@ -671,6 +671,18 @@ namespace IOTClient
             {
                 return;
             }
+            //Manual Network check
+            if (APIHelper.APIConnectionCheck(1, 0))
+            {
+                File.Delete($"{path}\\tmp\\network_require.tmp");
+            }
+            else
+            {
+                File.Create($"{path}\\tmp\\network_require.tmp").Dispose();
+                Logger.Error($"[btnExport1_ClickAsync] Network not ready");
+                System.Windows.Forms.MessageBox.Show($"Network not ready, Please try again after network is ready", "Message", MessageBoxButtons.OK);
+                return;
+            }
             var instance = new FileOperationLibrary();
 
             //Thread progressThread = new Thread(delegate ()
