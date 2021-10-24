@@ -325,14 +325,6 @@ namespace IOTClient
                 //lblDatabaseVersionText.Text = "Check";
                 //lblDatabaseCheckVal.Text = "DMMMM";
             }
-            //if((!File.Exists($"{path}\\tmp\\dbupdate_running.tmp")) && (File.Exists($"{path}\\tmp\\dbupdate_version_check.tmp")) && (File.Exists($"{path}\\tmp\\dbupdate_client_checked.tmp")))
-            //{
-            //    if((lblDatabaseVersionText.Text == "No Information") && (lblDatabaseCheckVal.Text == "No Information"))
-            //    {
-            //        UpdateAutotintVersion();
-            //    }
-            //}
-            Console.WriteLine($"waitingUpdateAutotintVersion flage value {waitingUpdateAutotintVersion}");
             if (waitingUpdateAutotintVersion)
             {
                 UpdateAutotintVersion();
@@ -410,11 +402,27 @@ namespace IOTClient
             posHistoryLocationTextBox.Text = csv_history_path;
             databaseLocationTextbox.Text = database_path;
         }
-
         private async void button1_Click_1(object sender, EventArgs e)
         {
+            string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
             database_path = ManageConfig.ReadGlobalConfig("database_path");
+            //Network check
+            lblDatabaseCheckVal.Text = "Network Check ...";
+            lblDatabaseVersionText.Text = "Network Check ...";
+            if (APIHelper.APIConnectionCheck(1, 0))
+            {
+                File.Delete($"{programdata_path}\\tmp\\network_require.tmp");
+            }
+            else
+            {
+                File.Create($"{programdata_path}\\tmp\\network_require.tmp").Dispose();
+                Logger.Error($"[Manual Download] Network not ready service will retry every 1 minute");
+                lblDatabaseCheckVal.Text = "Network not ready ...";
+                lblDatabaseVersionText.Text = "Network not ready ...";
+                System.Windows.Forms.MessageBox.Show($"Network not ready service will retry every 1 minute", "Message", MessageBoxButtons.OK);
+                return;
+            }
             try
             {
                 UpdateAutotintVersion();
@@ -912,6 +920,23 @@ namespace IOTClient
                 this.Show();
                 this.WindowState = FormWindowState.Normal;
                 minimizedToTray = false;
+                string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+                //Network check
+                lblDatabaseCheckVal.Text = "Network Check ...";
+                lblDatabaseVersionText.Text = "Network Check ...";
+                if (APIHelper.APIConnectionCheck(1, 0))
+                {
+                    File.Delete($"{programdata_path}\\tmp\\network_require.tmp");
+                }
+                else
+                {
+                    File.Create($"{programdata_path}\\tmp\\network_require.tmp").Dispose();
+                    Logger.Error($"[ShowWindow] Network not ready service will retry every 1 minute");
+                    lblDatabaseCheckVal.Text = "Network not ready ...";
+                    lblDatabaseVersionText.Text = "Network not ready ...";
+                    System.Windows.Forms.MessageBox.Show($"Network not ready service will retry every 1 minute", "Message", MessageBoxButtons.OK);
+                    return;
+                }
                 UpdateAutotintVersion();
             }
             else
