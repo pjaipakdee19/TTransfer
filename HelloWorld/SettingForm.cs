@@ -420,7 +420,8 @@ namespace IOTClient
                 Logger.Error($"[Manual Download] Network not ready service will retry every 1 minute");
                 lblDatabaseCheckVal.Text = "Network not ready ...";
                 lblDatabaseVersionText.Text = "Network not ready ...";
-                System.Windows.Forms.MessageBox.Show($"Network not ready service will retry every 1 minute", "Message", MessageBoxButtons.OK);
+                //System.Windows.Forms.MessageBox.Show($"Network not ready service will retry every 1 minute", "Message", MessageBoxButtons.OK);
+                System.Windows.Forms.MessageBox.Show($"Can’t connect to server, check internet connection", "Message", MessageBoxButtons.OK);
                 waitingUpdateAutotintVersion = true;
                 return;
             }
@@ -680,7 +681,8 @@ namespace IOTClient
             {
                 File.Create($"{path}\\tmp\\network_require.tmp").Dispose();
                 Logger.Error($"[btnExport1_ClickAsync] Network not ready");
-                System.Windows.Forms.MessageBox.Show($"Network not ready, Please try again after network is ready", "Message", MessageBoxButtons.OK);
+                //System.Windows.Forms.MessageBox.Show($"Network not ready, Please try again after network is ready", "Message", MessageBoxButtons.OK);
+                System.Windows.Forms.MessageBox.Show($"Can’t connect to server, check internet connection", "Message", MessageBoxButtons.OK);
                 return;
             }
             var instance = new FileOperationLibrary();
@@ -947,7 +949,8 @@ namespace IOTClient
                     Logger.Error($"[ShowWindow] Network not ready service will retry every 1 minute");
                     lblDatabaseCheckVal.Text = "Network not ready ...";
                     lblDatabaseVersionText.Text = "Network not ready ...";
-                    System.Windows.Forms.MessageBox.Show($"Network not ready service will retry every 1 minute", "Message", MessageBoxButtons.OK);
+                    //System.Windows.Forms.MessageBox.Show($"Network not ready service will retry every 1 minute", "Message", MessageBoxButtons.OK);
+                    System.Windows.Forms.MessageBox.Show($"Can’t connect to server, check internet connection", "Message", MessageBoxButtons.OK);
                     waitingUpdateAutotintVersion = true;
                     return;
                 }
