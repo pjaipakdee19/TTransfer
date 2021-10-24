@@ -407,7 +407,7 @@ namespace IOTClient
             string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
             database_path = ManageConfig.ReadGlobalConfig("database_path");
-            //Network check
+            //Manual Network check
             lblDatabaseCheckVal.Text = "Network Check ...";
             lblDatabaseVersionText.Text = "Network Check ...";
             if (APIHelper.APIConnectionCheck(1, 0))
@@ -421,6 +421,7 @@ namespace IOTClient
                 lblDatabaseCheckVal.Text = "Network not ready ...";
                 lblDatabaseVersionText.Text = "Network not ready ...";
                 System.Windows.Forms.MessageBox.Show($"Network not ready service will retry every 1 minute", "Message", MessageBoxButtons.OK);
+                waitingUpdateAutotintVersion = true;
                 return;
             }
             try
@@ -921,7 +922,7 @@ namespace IOTClient
                 this.WindowState = FormWindowState.Normal;
                 minimizedToTray = false;
                 string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
-                //Network check
+                //Manual Network check
                 lblDatabaseCheckVal.Text = "Network Check ...";
                 lblDatabaseVersionText.Text = "Network Check ...";
                 if (APIHelper.APIConnectionCheck(1, 0))
@@ -935,6 +936,7 @@ namespace IOTClient
                     lblDatabaseCheckVal.Text = "Network not ready ...";
                     lblDatabaseVersionText.Text = "Network not ready ...";
                     System.Windows.Forms.MessageBox.Show($"Network not ready service will retry every 1 minute", "Message", MessageBoxButtons.OK);
+                    waitingUpdateAutotintVersion = true;
                     return;
                 }
                 UpdateAutotintVersion();
