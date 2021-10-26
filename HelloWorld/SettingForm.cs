@@ -101,7 +101,7 @@ namespace IOTClient
             {
                 try
                 {
-                    var delayTask = Task.Delay(1000);
+                    //var delayTask = Task.Delay(1000);
                     if (File.Exists($"{path}\\tmp\\running.tmp"))
                     {
                         btnExport1.Invoke(new UpdateTransferBtn(disblebtnExportHandler));
@@ -110,7 +110,7 @@ namespace IOTClient
                     {
                         btnExport1.Invoke(new UpdateTransferBtn(enablebtnExportHandler));
                     }
-                    await delayTask;
+                    //await delayTask;
                 }
                 catch (Exception ex)
                 {
@@ -137,7 +137,7 @@ namespace IOTClient
             {
                 try
                 {
-                    var delayTask = Task.Delay(1000);
+                    //var delayTask = Task.Delay(1000);
                     if (File.Exists($"{path}\\tmp\\dbupdate_running.tmp"))
                     {
 
@@ -148,7 +148,7 @@ namespace IOTClient
                         button1.Invoke(new UpdateDownloadDBBtn(enablebtnDBHandler));
 
                     }
-                    await delayTask;
+                    //await delayTask;
                 }
                 catch (Exception ex)
                 {
@@ -238,7 +238,7 @@ namespace IOTClient
             {
                 try
                 {
-                    var delayTask = Task.Delay(1000);
+                    var delayTask = Task.Delay(100);
                     //if (File.Exists($"{path}\\tmp\\lib_running_log.json")) 
                     if ((File.Exists($"{path}\\tmp\\dbupdate_running.tmp")) || File.Exists($"{path}\\tmp\\running.tmp"))
                     {
@@ -305,9 +305,9 @@ namespace IOTClient
             {
                 try
                 {
-                    var delayTask = Task.Delay(1000);
+                    //var delayTask = Task.Delay(1000);
                     lblDatabaseVersionText.Invoke(new LastestDBinfoLbl(IsCheckDBversionFlagFileExist));
-                    await delayTask;
+                    //await delayTask;
                 }
                 catch (Exception ex)
                 {
