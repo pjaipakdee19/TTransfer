@@ -58,6 +58,7 @@ namespace IOTClient
             this.staticServiceStatusLbl = new System.Windows.Forms.Label();
             this.ServiceStatusLbl = new System.Windows.Forms.Label();
             this.fileSystemWatcher1 = new System.IO.FileSystemWatcher();
+            this.downloadPercentLbl = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -154,6 +155,7 @@ namespace IOTClient
             // 
             // button1
             // 
+            this.button1.Enabled = false;
             this.button1.Location = new System.Drawing.Point(74, 381);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(159, 23);
@@ -285,11 +287,21 @@ namespace IOTClient
             this.fileSystemWatcher1.EnableRaisingEvents = true;
             this.fileSystemWatcher1.SynchronizingObject = this;
             // 
+            // downloadPercentLbl
+            // 
+            this.downloadPercentLbl.AutoSize = true;
+            this.downloadPercentLbl.Location = new System.Drawing.Point(655, 22);
+            this.downloadPercentLbl.Name = "downloadPercentLbl";
+            this.downloadPercentLbl.Size = new System.Drawing.Size(0, 13);
+            this.downloadPercentLbl.TabIndex = 24;
+            this.downloadPercentLbl.Visible = false;
+            // 
             // SettingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.downloadPercentLbl);
             this.Controls.Add(this.ServiceStatusLbl);
             this.Controls.Add(this.staticServiceStatusLbl);
             this.Controls.Add(this.progressBar1);
@@ -355,6 +367,7 @@ namespace IOTClient
         private System.Windows.Forms.Label staticServiceStatusLbl;
         private System.Windows.Forms.Label ServiceStatusLbl;
         private System.IO.FileSystemWatcher fileSystemWatcher1;
+        private System.Windows.Forms.Label downloadPercentLbl;
     }
 }
 

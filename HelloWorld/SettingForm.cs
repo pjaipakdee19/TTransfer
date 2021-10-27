@@ -64,8 +64,8 @@ namespace IOTClient
             base.OnHandleCreated(e);
             var transferButtonThread = new Thread(new ThreadStart(checkTransferButton));
             transferButtonThread.Start();
-            var checkDBbuttonThread = new Thread(new ThreadStart(checkDBButton));
-            checkDBbuttonThread.Start();
+            //var checkDBbuttonThread = new Thread(new ThreadStart(checkDBButton));
+            //checkDBbuttonThread.Start();
             var serviceStatusLabelThread = new Thread(new ThreadStart(checkServiceLable));
             serviceStatusLabelThread.Start();
             var lastestUploadLabelThread = new Thread(new ThreadStart(checkUploadDTLable));
@@ -90,6 +90,8 @@ namespace IOTClient
         }
         public void enablebtnExportHandler()
         {
+            string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            if ((File.Exists($"{path}\\tmp\\network_require.tmp"))) return;
             btnExport1.Enabled = true;
             btnExport1.Text = "Upload POS history";
         }
@@ -101,7 +103,7 @@ namespace IOTClient
             {
                 try
                 {
-                    //var delayTask = Task.Delay(1000);
+                    var delayTask = Task.Delay(100);
                     if (File.Exists($"{path}\\tmp\\running.tmp"))
                     {
                         btnExport1.Invoke(new UpdateTransferBtn(disblebtnExportHandler));
@@ -110,7 +112,7 @@ namespace IOTClient
                     {
                         btnExport1.Invoke(new UpdateTransferBtn(enablebtnExportHandler));
                     }
-                    //await delayTask;
+                    await delayTask;
                 }
                 catch (Exception ex)
                 {
@@ -130,32 +132,32 @@ namespace IOTClient
             button1.Enabled = true;
             button1.Text = "Check for Update";
         }
-        public async void checkDBButton()
-        {
-            string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
-            while (true)
-            {
-                try
-                {
-                    //var delayTask = Task.Delay(1000);
-                    if (File.Exists($"{path}\\tmp\\dbupdate_running.tmp"))
-                    {
+        //public async void checkDBButton()
+        //{
+        //    string path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+        //    while (true)
+        //    {
+        //        try
+        //        {
+        //            var delayTask = Task.Delay(100);
+        //            if (File.Exists($"{path}\\tmp\\dbupdate_running.tmp"))
+        //            {
 
-                        button1.Invoke(new UpdateDownloadDBBtn(disblebtnDBHandler));
-                    }
-                    else
-                    {
-                        button1.Invoke(new UpdateDownloadDBBtn(enablebtnDBHandler));
+        //                button1.Invoke(new UpdateDownloadDBBtn(disblebtnDBHandler));
+        //            }
+        //            else
+        //            {
+        //                button1.Invoke(new UpdateDownloadDBBtn(enablebtnDBHandler));
 
-                    }
-                    //await delayTask;
-                }
-                catch (Exception ex)
-                {
-                    //Logger.Error($"Exception on checkTransferButton : Exception {ex.Message}");
-                }
-            }
-        }
+        //            }
+        //            await delayTask;
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            //Logger.Error($"Exception on checkTransferButton : Exception {ex.Message}");
+        //        }
+        //    }
+        //}
         #endregion
         #region Thread_of_service_label_handler
         public void updateLabelHandler()
@@ -213,6 +215,8 @@ namespace IOTClient
             else
             {
                 ServiceStatusLbl.Text = "Stand by";
+                button1.Enabled = true;
+                btnExport1.Enabled = true;
             }
         }
         public void noInternetLabelHandler()
@@ -305,9 +309,9 @@ namespace IOTClient
             {
                 try
                 {
-                    //var delayTask = Task.Delay(1000);
+                    var delayTask = Task.Delay(100);
                     lblDatabaseVersionText.Invoke(new LastestDBinfoLbl(IsCheckDBversionFlagFileExist));
-                    //await delayTask;
+                    await delayTask;
                 }
                 catch (Exception ex)
                 {
@@ -527,6 +531,7 @@ namespace IOTClient
                         if (!APIHelper.APIConnectionCheck(3, 30)) throw new Exception("Internet Connection Error");
                         Logger.Info($"Internet connection OK the download will be continue.");
                         WebClient webClient = new WebClient();
+                        disblebtnDBHandler();
                         webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(downloadCompletedHandler);
                         webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
                         //webClient.DownloadStringCompleted += new DownloadStringCompletedEventHandler(DownloadStringCompletedHandler);
@@ -534,9 +539,6 @@ namespace IOTClient
                         webClient.QueryString.Add("newVersion", $"{checkVersion.number}");
                         webClient.QueryString.Add("pos_setting_version_id", $"{checkVersion.id}");
                         webClient.DownloadFileAsync(new Uri(downloadURI), $"{tmp_path}\\{URIArray[URIArray.Length - 1]}");//$"{database_path}\\{URIArray[URIArray.Length-1]}");
-                                                                                                                //Update to API about new version of database
-
-
                     }
                     else
                     {
@@ -776,8 +778,16 @@ namespace IOTClient
         }
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-            //progressBar1.Visible = true;
-            //progressBar1.Value = e.ProgressPercentage;
+            ServiceStatusLbl.Visible = false;
+            lblDatabaseVersionText.Text = "Downloading ...";
+            button1.Enabled = false;
+            button1.Text = "In progress ...";
+            downloadPercentLbl.Visible = true;
+            downloadPercentLbl.BringToFront();
+            downloadPercentLbl.Invoke((MethodInvoker)(() =>
+            {
+                downloadPercentLbl.Text = $"Downloading {e.ProgressPercentage.ToString()} %" ;
+            }));
             try
             {
                 string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
@@ -824,10 +834,14 @@ namespace IOTClient
                     Logger.Info($"Download Successful continue update version {newVersion} to /auto_tint/{auto_tint_id}/pos_update");
                     dynamic prima_pro_version_response = await APIHelper.RequestPut(client, $"/auto_tint/{auto_tint_id}/pos_update", data, auto_tint_id);
                     //Update version after complete
+                    ServiceStatusLbl.BringToFront();
+                    ServiceStatusLbl.Visible = true;
+                    downloadPercentLbl.Visible = false;
                     lblDatabaseVersionText.Text = $"{newVersion}";
                     System.Windows.Forms.MessageBox.Show("Download completed! \nDatabase is up to date");
                     Logger.Info($"Download {downLoadFileName} update succesful at {database_path}\\{downLoadFileName}");
                 }
+                enablebtnDBHandler();
             }
             catch (Exception ex)
             {
