@@ -551,6 +551,7 @@ namespace IOTClient
                 }
                 else
                 {
+                    waitingUpdateAutotintVersion = false;
                     File.Delete($"{program_data_path}\\tmp\\dbupdate_running.tmp");
                     //Set version label
                     lblDatabaseVersionText.Text = "Not Found";
@@ -562,9 +563,10 @@ namespace IOTClient
                 button1.Text = "Check for updates";
             }catch(Exception ex)
             {
+                waitingUpdateAutotintVersion = false;
+                File.Delete($"{program_data_path}\\tmp\\dbupdate_running.tmp");
                 System.Windows.Forms.MessageBox.Show($"Message : {ex.Message}", "Error", MessageBoxButtons.OK);
                 Logger.Error($"Exception on update Autotint Database  Message :  {ex.Message}");
-                File.Delete($"{program_data_path}\\tmp\\dbupdate_running.tmp");
             }
             
         }
@@ -778,6 +780,7 @@ namespace IOTClient
         }
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
+            string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
             ServiceStatusLbl.Visible = false;
             lblDatabaseVersionText.Text = "Downloading ...";
             button1.Enabled = false;
@@ -788,9 +791,9 @@ namespace IOTClient
             {
                 downloadPercentLbl.Text = $"Downloading {e.ProgressPercentage.ToString()} %" ;
             }));
+            File.Create($"{programdata_path}\\tmp\\dbupdate_running.tmp").Dispose();
             try
             {
-                string programdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
                 string file_total_log_path = $"{programdata_path}\\tmp\\lib_running_log.json";
                 var jsonData = new ProgressCounter() { total_file = 0, complete_counter = e.ProgressPercentage, status = "Download DB File" };
                 File.WriteAllText(file_total_log_path, JsonConvert.SerializeObject(jsonData), Encoding.UTF8);

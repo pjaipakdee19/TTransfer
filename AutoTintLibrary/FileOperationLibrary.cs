@@ -782,7 +782,7 @@ namespace AutoTintLibrary
                 File.Delete($"{programdata_path}\\tmp\\dbupdate_running.tmp");
                 File.Delete($"{programdata_path}\\tmp\\lib_running_log.json");
                 File.Create($"{programdata_path}\\tmp\\dbupdate_version_check.tmp").Dispose();
-                    return false;
+                return false;
             }
             return true;
             }catch(Exception ex)
