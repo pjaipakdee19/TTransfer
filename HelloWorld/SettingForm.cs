@@ -557,16 +557,17 @@ namespace IOTClient
                     lblDatabaseVersionText.Text = "Not Found";
                     lblDatabaseCheckVal.Text = ICTDateTimeText;
                     Logger.Error($"Error on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
-                    System.Windows.Forms.MessageBox.Show($"Database Version Check\nStatus Code : {response.statusCode} \nMessage : {response.message}", "Error", MessageBoxButtons.OK);
+                    System.Windows.Forms.MessageBox.Show($"Database Version Check\nStatus Code : {response.statusCode} \nMessage : {response.message}\n Please Check the Dispenser ID", "Error", MessageBoxButtons.OK);
                 }
                 button1.Enabled = true;
                 button1.Text = "Check for updates";
             }catch(Exception ex)
             {
-                waitingUpdateAutotintVersion = false;
+                //waitingUpdateAutotintVersion = false;
                 File.Delete($"{program_data_path}\\tmp\\dbupdate_running.tmp");
-                System.Windows.Forms.MessageBox.Show($"Message : {ex.Message}", "Error", MessageBoxButtons.OK);
+                //System.Windows.Forms.MessageBox.Show($"Message : {ex.Message}", "Error", MessageBoxButtons.OK);
                 Logger.Error($"Exception on update Autotint Database  Message :  {ex.Message}");
+                if(File.Exists($"{program_data_path}\\tmp\\dbupdate_version_check.tmp")) Logger.Info("Retrying ...");
             }
             
         }
@@ -820,8 +821,12 @@ namespace IOTClient
                 Boolean isComplete = File.Exists($"{database_path}\\{downLoadFileName}");
                 if (!isComplete)
                 {
-                    System.Windows.Forms.MessageBox.Show("Downloaded file is corrupt !!!!! \nPlease confirm the dialog to download again", "Error");
-                    Logger.Error($"Download Fail on update Autotint Database filename {downLoadFileName}");
+                    //System.Windows.Forms.MessageBox.Show("Downloaded file is corrupt !!!!! \nPlease confirm the dialog to download again", "Error");
+                    ServiceStatusLbl.Invoke((MethodInvoker)(() =>
+                    {
+                        ServiceStatusLbl.Text = $"Downloading is Fail retrying ...";
+                    }));
+                    Logger.Error($"Download Fail on update Autotint Database filename {downLoadFileName} file is not exist after download");
                     File.Delete($"{path}\\tmp\\dbupdate_client_checked.tmp");
                 }
                 else
