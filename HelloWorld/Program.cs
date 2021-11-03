@@ -153,7 +153,7 @@ namespace IOTClient
                     AssemblyTitleAttribute titleAttribute = (AssemblyTitleAttribute)attributes[0];
                     if (titleAttribute.Title != "")
                     {
-                        return $"{titleAttribute.Title} V1.5";
+                        return $"{titleAttribute.Title} V1.6";
                     }
                 }
                 return System.IO.Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().CodeBase);
