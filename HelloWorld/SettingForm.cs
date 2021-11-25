@@ -49,7 +49,7 @@ namespace IOTClient
 
             InitializeComponent();
             Version version = Assembly.GetExecutingAssembly().GetName().Version;
-            Text = Text + " " + version.Major + "." + version.Minor;// + " (build " + version.Build + ")"; //change form title
+            Text = Text + " " + version.Major + "." + version.Minor + "_Debug";// + " (build " + version.Build + ")"; //change form title
             //Text = $"{Text} Beta 2";
             //this.Load = SettingForm_Load;
             //MinimizeToTray();
@@ -481,6 +481,7 @@ namespace IOTClient
 
                 if (response.statusCode == 200)
                 {
+                    Logger.Info($"Successful on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
                     AutoTintWithId result = JsonConvert.DeserializeObject<AutoTintWithId>(response.message, Jsonettings);
                     if (result.pos_setting == null)
                     {
@@ -493,15 +494,28 @@ namespace IOTClient
                     PrismaProLatestVersion checkVersion = new PrismaProLatestVersion();
                     //Check the server for newer version.
                     checkVersion = await APIHelper.GetDBLatestVersion(client, result.pos_setting.id, auto_tint_id);
-
-
-                    Logger.Info($"Successful on get Autotint Version Status Code : {response.statusCode}  Message : {response.message}");
-
-                    var shouldDownloadNewDB = (result.pos_setting_version == null) ? true : (result.pos_setting_version.id < checkVersion.id);
+                    
+                    if(checkVersion == null)
+                    {
+                        //Set version label
+                        lblDatabaseVersionText.Text = "Error can't get DB lastest version";
+                        System.Windows.Forms.MessageBox.Show($"checkVersion data not exist", "Error", MessageBoxButtons.OK);
+                        File.Delete($"{program_data_path}\\tmp\\dbupdate_running.tmp");
+                    }
+                    
+                    var shouldDownloadNewDB = (result.pos_setting_version == null) ? true : (result.pos_setting_version.id != checkVersion.id);
                     if (shouldDownloadNewDB)
                     //if (true)
                     {
-                        Logger.Info($"The pos setting version is different : {result.pos_setting_version.id} < {checkVersion.id}");
+                        if (result.pos_setting_version == null)
+                        {
+                            Logger.Info($"The POS setting version is not registered");
+                        }
+                        else
+                        {
+                            Logger.Info($"The POS setting version is different between Current  {result.pos_setting_version.id} and Server {checkVersion.id}");
+                        }
+                           
                         //(Oct 07 2021 Requirement) - Display the client with confirm to update dialog if it's minimize and close (if not require to update not open ??)
                         if (minimizedToTray)
                         {
