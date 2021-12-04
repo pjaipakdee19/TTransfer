@@ -58,12 +58,14 @@ namespace AutoTintLibrary
                 if (csvHistoryPathInfo.GetFiles("*.csv").Length > 0)
                 {
                     var baseDBDLresult = await downloadBaseDB();
-                    if (!baseDBDLresult) Logger.Error("downloadBaseDB error");
+                    if (!baseDBDLresult) Logger.Error("downloadBaseDB error"); 
+                    var baseMMResult = await downloadMaterialMapper();
+                    if (!baseMMResult) Logger.Error("]downloadMaterialMapper error");
                 }
                 
                 foreach (var csvFile in csvHistoryPathInfo.GetFiles("*.csv"))
                 {
-                        var reader = new StreamReader(csvFile.FullName);
+                        var reader = new StreamReader(csvFile.FullName, Encoding.GetEncoding("windows-874"));
                         var csv = new CsvReader(reader, csvConfig);
                         try
                         {
@@ -438,6 +440,26 @@ namespace AutoTintLibrary
                 Logger.Error("basedb.json doesn't exist convertToBI data can't validate status shade");
             }
 
+            JObject material_mapper = new JObject();
+            if (File.Exists($"{programdata_path}\\material_mapper.json"))
+            {
+                try
+                {
+                    string tmpMaterialData = File.ReadAllText($"{programdata_path}\\material_mapper.json");
+                    material_mapper = JObject.Parse(tmpMaterialData);
+
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"Exception occurs when parse material_mapper.json  {ex.Message}");
+                    throw ex;
+                }
+            }
+            else
+            {
+                Logger.Error("basedb.json doesn't exist convertToBI data can't validate status shade");
+            }
+
             foreach (dynamic detail in details)
             {
                 if (!detail["base_name"].ToString().ToLower().Contains("base")) continue;
@@ -639,6 +661,30 @@ namespace AutoTintLibrary
                 if (errorFlag) status_shade = "Error";
                 if (viewFlag) status_shade = "View";
 
+                //material_pf_code
+                Boolean isDataMetSearchCriteria = false;
+                if (detail["material_pf_code"] == "NA" || detail["material_pf_code"] == "\"NA\"")
+                {
+                    export_bi.material_pf_code = "";
+                    isDataMetSearchCriteria = true;
+                }
+                else
+                {
+                    foreach (KeyValuePair<string, JToken> keyValuePair in material_mapper)
+                    {
+                        if (detail["material_pf_code"] == keyValuePair.Key)
+                        {
+                            export_bi.material_pf_code = keyValuePair.Value.ToString();
+                            isDataMetSearchCriteria = true;
+                        }
+                    }
+                }
+
+                if (!isDataMetSearchCriteria)
+                {
+                    export_bi.material_pf_code = detail["material_pf_code"];
+                }
+
                 export_bi.dispensed_date = detail["dispensed_date"]; //convert to CE.
                 export_bi.date = formattedDate;
                 export_bi.record_key = detail["dispensed_formula_id"] + formattedDate + detail["company_code"];
@@ -658,7 +704,7 @@ namespace AutoTintLibrary
                 export_bi.company_name = detail["company_name"];
                 export_bi.company_code = detail["company_code"];
 
-                export_bi.material_pf_code = detail["material_pf_code"];
+                //export_bi.material_pf_code = detail["material_pf_code"];
                 export_bi.component_name = "";
 
                 export_bi.sale_out_quantity_ea = "1";
@@ -911,6 +957,50 @@ namespace AutoTintLibrary
                 return false;
             }
             return false;    
+        }
+
+        public async Task<bool> downloadMaterialMapper()
+        {
+            string auto_tint_id, pgdata_path = "";
+            if (File.Exists(@"C:\ProgramData\TOA_Autotint\material_mapper.json"))
+            {
+                auto_tint_id = ManageConfig.ReadGlobalConfig("auto_tint_id");
+                pgdata_path = ManageConfig.ReadGlobalConfig("programdata_log_path");
+            }
+            else
+            {
+                auto_tint_id = "999999999AT01";
+                pgdata_path = @"C:\ProgramData\TOA_Autotint\Logs";
+                CreateDirectoryIfNotExist(@"C:\ProgramData\TOA_Autotint\Logs");
+            }
+            try
+            {
+                string mapperdata = await APIHelper.RequestGet(client, $"/material/mapper/", auto_tint_id);
+                APIHelperResponse response = JsonConvert.DeserializeObject<APIHelperResponse>(mapperdata);
+                if (response.statusCode == 200)
+                {
+                    JObject jsonData = JObject.Parse(response.message);
+                    //Create file from data
+                    string file_total_log_path = $"{pgdata_path}\\material_mapper.json";
+                    if (File.Exists($"{pgdata_path}\\material_mapper.json"))
+                    {
+                        File.Delete($"{pgdata_path}\\material_mapper.json");
+                    }
+
+                    using (StreamWriter outputFile = new StreamWriter($"{pgdata_path}\\material_mapper.json", false, Encoding.UTF8))
+                    {
+                        await outputFile.WriteAsync(JsonConvert.SerializeObject(jsonData));
+                    }
+                    Logger.Info($"Done on on downloadMaterialMapper");
+                    return true;
+                };
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Exception on downloadMaterialMapper : Exception {ex.Message}");
+                return false;
+            }
+            return false;
         }
     }
 }

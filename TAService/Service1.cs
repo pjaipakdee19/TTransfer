@@ -83,6 +83,8 @@ namespace TAService
             //Download database
             var baseDBDLresult = await instance.downloadBaseDB();
             if (!baseDBDLresult) Logger.Error("[AutoStart]downloadBaseDB error please check the lib log");
+            var baseMMResult = await instance.downloadMaterialMapper();
+            if (!baseMMResult) Logger.Error("[AutoStart]downloadMaterialMapper error please check the lib log");
             bool skipStartProcess = false;
             //Check the time with server time.
             DateTime NetworkTime = GetNetworkTime();
