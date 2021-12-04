@@ -504,6 +504,7 @@ namespace IOTClient
                     }
                     
                     var shouldDownloadNewDB = (result.pos_setting_version == null) ? true : (result.pos_setting_version.id != checkVersion.id);
+                    if (forceUpdateChk.Checked == true) shouldDownloadNewDB = true;
                     if (shouldDownloadNewDB)
                     //if (true)
                     {
@@ -531,7 +532,8 @@ namespace IOTClient
                             WinApi.ShowToFront(this.Handle);
                         }
                         //    //Goto download
-                        System.Windows.Forms.MessageBox.Show($"The Database is not the latest version \n Current : {result.pos_setting_version?.number} \n Lastest : {checkVersion.number} \n System will continue Download update automatically","Update database version", MessageBoxButtons.OK);
+                        String message = (forceUpdateChk.Checked == true)?$"The Database is force to update to the latest version \n Lastest : {checkVersion.number} \n System will continue Download update automatically" : $"The Database is not the latest version \n Current : {result.pos_setting_version?.number} \n Lastest : {checkVersion.number} \n System will continue Download update automatically";
+                        System.Windows.Forms.MessageBox.Show(message, "Update database version", MessageBoxButtons.OK);
                         Logger.Info($"User's confirmed version download dialog box");
 
                         string downloadURI = $"{checkVersion.file}";

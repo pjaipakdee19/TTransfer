@@ -59,6 +59,7 @@ namespace IOTClient
             this.ServiceStatusLbl = new System.Windows.Forms.Label();
             this.fileSystemWatcher1 = new System.IO.FileSystemWatcher();
             this.downloadPercentLbl = new System.Windows.Forms.Label();
+            this.forceUpdateChk = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -258,7 +259,7 @@ namespace IOTClient
             // 
             // progressBar1
             // 
-            this.progressBar1.Location = new System.Drawing.Point(74, 410);
+            this.progressBar1.Location = new System.Drawing.Point(257, 409);
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(159, 23);
             this.progressBar1.TabIndex = 21;
@@ -296,11 +297,22 @@ namespace IOTClient
             this.downloadPercentLbl.TabIndex = 24;
             this.downloadPercentLbl.Visible = false;
             // 
+            // forceUpdateChk
+            // 
+            this.forceUpdateChk.AutoSize = true;
+            this.forceUpdateChk.Location = new System.Drawing.Point(90, 410);
+            this.forceUpdateChk.Name = "forceUpdateChk";
+            this.forceUpdateChk.Size = new System.Drawing.Size(125, 17);
+            this.forceUpdateChk.TabIndex = 25;
+            this.forceUpdateChk.Text = "Enable Re-download";
+            this.forceUpdateChk.UseVisualStyleBackColor = true;
+            // 
             // SettingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.forceUpdateChk);
             this.Controls.Add(this.downloadPercentLbl);
             this.Controls.Add(this.ServiceStatusLbl);
             this.Controls.Add(this.staticServiceStatusLbl);
@@ -368,6 +380,7 @@ namespace IOTClient
         private System.Windows.Forms.Label ServiceStatusLbl;
         private System.IO.FileSystemWatcher fileSystemWatcher1;
         private System.Windows.Forms.Label downloadPercentLbl;
+        private System.Windows.Forms.CheckBox forceUpdateChk;
     }
 }
 
