@@ -53,7 +53,7 @@ namespace IOTClient
             //Text = $"{Text} Beta 2";
             //this.Load = SettingForm_Load;
             //MinimizeToTray();
-            serverNameLbl.Text = "PROD Server";
+            serverNameLbl.Text = "TEST Server";
             notifyIcon = new NotifyIcon();
             notifyIcon.DoubleClick += new EventHandler(NotifyIconClick);
             notifyIcon.Icon = Resources.SystemTrayApp;
@@ -647,7 +647,7 @@ namespace IOTClient
                 string base_url_tmp = ManageConfig.ReadGlobalConfig("base_url");
                 if (base_url_tmp == null)
                 {
-                    ManageConfig.WriteGlobalConfig("base_url", "http://49.229.21.7");
+                    ManageConfig.WriteGlobalConfig("base_url", "http://49.229.21.9/dev");
                 }
                 else
                 {
