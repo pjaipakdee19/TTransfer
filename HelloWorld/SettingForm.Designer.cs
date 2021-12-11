@@ -60,6 +60,7 @@ namespace IOTClient
             this.fileSystemWatcher1 = new System.IO.FileSystemWatcher();
             this.downloadPercentLbl = new System.Windows.Forms.Label();
             this.forceUpdateChk = new System.Windows.Forms.CheckBox();
+            this.serverNameLbl = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -307,11 +308,21 @@ namespace IOTClient
             this.forceUpdateChk.Text = "Enable Re-download";
             this.forceUpdateChk.UseVisualStyleBackColor = true;
             // 
+            // serverNameLbl
+            // 
+            this.serverNameLbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.serverNameLbl.Location = new System.Drawing.Point(708, 418);
+            this.serverNameLbl.Name = "serverNameLbl";
+            this.serverNameLbl.Size = new System.Drawing.Size(100, 23);
+            this.serverNameLbl.TabIndex = 26;
+            this.serverNameLbl.Text = "TEST Server";
+            // 
             // SettingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.serverNameLbl);
             this.Controls.Add(this.forceUpdateChk);
             this.Controls.Add(this.downloadPercentLbl);
             this.Controls.Add(this.ServiceStatusLbl);
@@ -381,6 +392,7 @@ namespace IOTClient
         private System.IO.FileSystemWatcher fileSystemWatcher1;
         private System.Windows.Forms.Label downloadPercentLbl;
         private System.Windows.Forms.CheckBox forceUpdateChk;
+        private System.Windows.Forms.Label serverNameLbl;
     }
 }
 

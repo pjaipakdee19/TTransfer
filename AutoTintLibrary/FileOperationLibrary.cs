@@ -60,7 +60,7 @@ namespace AutoTintLibrary
                     var baseDBDLresult = await downloadBaseDB();
                     if (!baseDBDLresult) Logger.Error("downloadBaseDB error"); 
                     var baseMMResult = await downloadMaterialMapper();
-                    if (!baseMMResult) Logger.Error("]downloadMaterialMapper error");
+                    if (!baseMMResult) Logger.Error("downloadMaterialMapper error");
                 }
                 
                 foreach (var csvFile in csvHistoryPathInfo.GetFiles("*.csv"))
@@ -87,7 +87,22 @@ namespace AutoTintLibrary
                                 File.Move(csvFile.FullName, $"{csv_history_path}\\ignore_files\\{csvFile.Name}");
                                 continue;
                             }
-
+                            foreach (DispenseHistory record in records)
+                            {
+                                var properties = record.GetType().GetProperties();
+                                foreach (var prop in properties)
+                                {
+                                    if (prop.Name.Equals("Item"))
+                                    {
+                                        continue;
+                                    }
+                                    if (record[prop.Name] == null || prop.Name.Equals("material_pf_code")) continue;
+                                    if (record[prop.Name].Equals("NA") || record[prop.Name].Equals("\"NA\""))
+                                    {
+                                        record[prop.Name] = "";
+                                    }
+                                }
+                            }
                             var dateList = new List<string>();
                             var auto_tint_id_list = new List<string>();
                             //does csv file exist?
@@ -127,10 +142,14 @@ namespace AutoTintLibrary
                                     //date[0] = "2015-10-21"
                                     //string dpdate = dd[0].Split('-')[1]+"/"+dd[0].Split('-')[2]+"/"+dd[0].Split('-')[0];
                                     string dpdate = $"{dd[0].Split('-')[1]}/{dd[0].Split('-')[2]}/{dd[0].Split('-')[0]}";
-                                    DateTime econvertedDate = DateTime.Parse(dpdate);
+                                    Console.WriteLine("dpdate " + dpdate);
+                                    //DateTime econvertedDate = DateTime.Parse(dpdate, CultureInfo.GetCultureInfo("en-GB"));
+                                    DateTime econvertedDate = DateTime.ParseExact(dpdate, "MM/dd/yyyy", CultureInfo.GetCultureInfo("en-GB"));
 
-                                    string spdate = $"{date[0].Split('/')[1]}/{date[0].Split('/')[0]}/{date[0].Split('/')[2]}";
-                                    DateTime sconvertedDate = DateTime.Parse(spdate);
+                                    string spdate = $"{date[0].Split('/')[0]}/{date[0].Split('/')[1]}/{date[0].Split('/')[2]}";
+                                    Console.WriteLine("spdate " + spdate);
+                                    //DateTime sconvertedDate = DateTime.Parse(spdate);
+                                    DateTime sconvertedDate = DateTime.ParseExact(spdate, "dd/MM/yyyy", CultureInfo.GetCultureInfo("en-GB"));
 
                                     int result = DateTime.Compare(econvertedDate, sconvertedDate);
                                     //if (result < 0)
@@ -476,11 +495,11 @@ namespace AutoTintLibrary
                     
                     DateTime parsedDateTime;
                     if (DateTime.TryParseExact(dispense_date[0], "dd/mm/yyyy",
-                        CultureInfo.InvariantCulture,
+                        CultureInfo.GetCultureInfo("en-GB"),
                         DateTimeStyles.None,
                         out parsedDateTime))
                     {
-                        formattedDate = parsedDateTime.ToString("yyyymmdd");
+                        formattedDate = parsedDateTime.ToString("yyyymmdd", CultureInfo.GetCultureInfo("en-GB"));
                     }
                     else
                     {
@@ -648,6 +667,10 @@ namespace AutoTintLibrary
                     }
                     if (matchBaseComponentCondition) continue;
                     if (detail[$"lines_wanted_amount{i}"] == null || detail[$"lines_dispensed_amount{i}"] == null)
+                    {
+                        continue;
+                    }
+                    if (detail[$"lines_wanted_amount{i}"].ToString().Equals("") && detail[$"lines_dispensed_amount{i}"].ToString().Equals(""))
                     {
                         continue;
                     }

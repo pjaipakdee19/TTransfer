@@ -49,10 +49,11 @@ namespace IOTClient
 
             InitializeComponent();
             Version version = Assembly.GetExecutingAssembly().GetName().Version;
-            Text = Text + " 1.7.0";// + version.Major + "." + version.Minor;
+            Text = Text + " 1.8.0";// + version.Major + "." + version.Minor;
             //Text = $"{Text} Beta 2";
             //this.Load = SettingForm_Load;
             //MinimizeToTray();
+            serverNameLbl.Text = "TEST Server";
             notifyIcon = new NotifyIcon();
             notifyIcon.DoubleClick += new EventHandler(NotifyIconClick);
             notifyIcon.Icon = Resources.SystemTrayApp;

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -377,5 +378,20 @@ namespace AutoTintLibrary
         public string lines_wanted_amount20 { get; set; }
         [Name("LINES_DISPENSED_AMOUNT20")]
         public string lines_dispensed_amount20 { get; set; }
+
+        public object this[string propertyName]
+        {
+            get
+            {
+                Type myType = typeof(DispenseHistory);
+                PropertyInfo myPropInfo = myType.GetProperty(propertyName);
+                return myPropInfo.GetValue(this, null);
+            }
+            set
+            {
+                Type myType = typeof(DispenseHistoryBI);
+                this.GetType().GetProperty(propertyName).SetValue(this, value, null);
+            }
+        }
     }
 }
