@@ -53,7 +53,7 @@ namespace IOTClient
             //Text = $"{Text} Beta 2";
             //this.Load = SettingForm_Load;
             //MinimizeToTray();
-            serverNameLbl.Text = "TEST Server";
+            serverNameLbl.Text = "PROD Server";
             notifyIcon = new NotifyIcon();
             notifyIcon.DoubleClick += new EventHandler(NotifyIconClick);
             notifyIcon.Icon = Resources.SystemTrayApp;

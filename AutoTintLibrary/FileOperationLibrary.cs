@@ -492,10 +492,16 @@ namespace AutoTintLibrary
                     //Append the day and month to 2 length string
                     if (dispense_date[0].Split('/')[0].Length < 2) dispense_date[0] = $"0{dispense_date[0].Split('/')[0]}/{dispense_date[0].Split('/')[1]}/{dispense_date[0].Split('/')[2]}";
                     if (dispense_date[0].Split('/')[1].Length < 2) dispense_date[0] = $"{dispense_date[0].Split('/')[0]}/0{dispense_date[0].Split('/')[1]}/{dispense_date[0].Split('/')[2]}";
-                    
+                    //Convert year from input as Buddish Era to Christian Era
+                    int year = int.Parse(dispense_date[0].Split('/')[2]);
+                    int now = DateTime.Today.Year;
+                    if (year > now)
+                    {
+                        dispense_date[0] = $"{dispense_date[0].Split('/')[0]}/{dispense_date[0].Split('/')[1]}/{year - 543}";
+                    }
                     DateTime parsedDateTime;
                     if (DateTime.TryParseExact(dispense_date[0], "dd/mm/yyyy",
-                        CultureInfo.GetCultureInfo("en-GB"),
+                        CultureInfo.GetCultureInfo("en-US"),
                         DateTimeStyles.None,
                         out parsedDateTime))
                     {
@@ -708,7 +714,7 @@ namespace AutoTintLibrary
                     export_bi.material_pf_code = detail["material_pf_code"];
                 }
 
-                export_bi.dispensed_date = detail["dispensed_date"]; //convert to CE.
+                export_bi.dispensed_date = dispense_date[0] + " " + dispense_date[1]; //converted to CE.
                 export_bi.date = formattedDate;
                 export_bi.record_key = detail["dispensed_formula_id"] + formattedDate + detail["company_code"];
                 export_bi.wanted_amount = detail["wanted_amount"];
