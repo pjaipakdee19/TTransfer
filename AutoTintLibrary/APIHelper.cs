@@ -16,7 +16,7 @@ namespace AutoTintLibrary
 {
     public class APIHelper
     {
-        public static string baseURL = (File.Exists(@"C:\ProgramData\TOA_Autotint\config.json")) ? (ManageConfig.ReadGlobalConfig("base_url") != null) ? ManageConfig.ReadGlobalConfig("base_url") : "http://49.229.21.7" : "http://49.229.21.7";
+        public static string baseURL = (File.Exists(@"C:\ProgramData\TOA_Autotint\config.json")) ? (ManageConfig.ReadGlobalConfig("base_url") != null) ? ManageConfig.ReadGlobalConfig("base_url") : "http://49.229.21.7/api" : "http://49.229.21.7/api";
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public static RestClient init()

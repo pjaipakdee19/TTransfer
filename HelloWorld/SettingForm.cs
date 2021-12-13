@@ -647,7 +647,7 @@ namespace IOTClient
                 string base_url_tmp = ManageConfig.ReadGlobalConfig("base_url");
                 if (base_url_tmp == null)
                 {
-                    ManageConfig.WriteGlobalConfig("base_url", "http://49.229.21.7");
+                    ManageConfig.WriteGlobalConfig("base_url", "http://49.229.21.7/api");
                 }
                 else
                 {
