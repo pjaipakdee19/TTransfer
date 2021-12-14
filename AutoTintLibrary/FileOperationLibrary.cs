@@ -146,11 +146,9 @@ namespace AutoTintLibrary
                                     //DateTime econvertedDate = DateTime.Parse(dpdate, CultureInfo.GetCultureInfo("en-GB"));
                                     DateTime econvertedDate = DateTime.ParseExact(dpdate, "MM/dd/yyyy", CultureInfo.GetCultureInfo("en-GB"));
 
-                                    Console.WriteLine("date[0] " + date[0]);
                                     if (date[0].Split('/')[0].Length < 2) date[0] = $"0{date[0].Split('/')[0]}/{date[0].Split('/')[1]}/{date[0].Split('/')[2]}";
                                     if (date[0].Split('/')[1].Length < 2) date[0] = $"{date[0].Split('/')[0]}/0{date[0].Split('/')[1]}/{date[0].Split('/')[2]}";
                                     string spdate = $"{date[0].Split('/')[0]}/{date[0].Split('/')[1]}/{date[0].Split('/')[2]}";
-                                    Console.WriteLine("spdate " + spdate);
                                     //DateTime sconvertedDate = DateTime.Parse(spdate);
                                     DateTime sconvertedDate = DateTime.ParseExact(spdate, "dd/MM/yyyy", CultureInfo.GetCultureInfo("en-GB"));
 
