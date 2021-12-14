@@ -128,7 +128,7 @@ namespace AutoTintLibrary
                                 int now = DateTime.Today.Year;
                                 if (year > now)
                                 {
-                                    date[0] = $"{date[0].Split('/')[1]}/{date[0].Split('/')[0]}/{year - 543}";
+                                    date[0] = $"{date[0].Split('/')[0]}/{date[0].Split('/')[1]}/{year - 543}";
                                     records[i].dispensed_date = $"{date[0]} {date[1]}";
                                 }
 
@@ -142,12 +142,10 @@ namespace AutoTintLibrary
                                     //date[0] = "2015-10-21"
                                     //string dpdate = dd[0].Split('-')[1]+"/"+dd[0].Split('-')[2]+"/"+dd[0].Split('-')[0];
                                     string dpdate = $"{dd[0].Split('-')[1]}/{dd[0].Split('-')[2]}/{dd[0].Split('-')[0]}";
-                                    Console.WriteLine("dpdate " + dpdate);
                                     //DateTime econvertedDate = DateTime.Parse(dpdate, CultureInfo.GetCultureInfo("en-GB"));
                                     DateTime econvertedDate = DateTime.ParseExact(dpdate, "MM/dd/yyyy", CultureInfo.GetCultureInfo("en-GB"));
 
                                     string spdate = $"{date[0].Split('/')[0]}/{date[0].Split('/')[1]}/{date[0].Split('/')[2]}";
-                                    Console.WriteLine("spdate " + spdate);
                                     //DateTime sconvertedDate = DateTime.Parse(spdate);
                                     DateTime sconvertedDate = DateTime.ParseExact(spdate, "dd/MM/yyyy", CultureInfo.GetCultureInfo("en-GB"));
 
