@@ -128,7 +128,7 @@ namespace AutoTintLibrary
                                 int now = DateTime.Today.Year;
                                 if (year > now)
                                 {
-                                    date[0] = $"{date[0].Split('/')[1]}/{date[0].Split('/')[0]}/{year - 543}";
+                                    date[0] = $"{date[0].Split('/')[0]}/{date[0].Split('/')[1]}/{year - 543}";
                                     records[i].dispensed_date = $"{date[0]} {date[1]}";
                                 }
 
