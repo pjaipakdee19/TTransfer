@@ -125,7 +125,8 @@ namespace AutoTintLibrary
                                 //DateTime econvertedDate = Convert.ToDateTime();
                                 //Convert Year to C.E. if input is B.E. if compare with today and the year is more than today
                                 int year = int.Parse(date[0].Split('/')[2]);
-                                int now = DateTime.Today.Year;
+                                string uk = DateTime.Now.Date.ToString("yyyy", new CultureInfo("en-GB"));
+                                int now = Convert.ToInt32(uk);
                                 if (year > now)
                                 {
                                     date[0] = $"{date[0].Split('/')[0]}/{date[0].Split('/')[1]}/{year - 543}";
@@ -139,13 +140,17 @@ namespace AutoTintLibrary
                                     DispenseHistory dispenseH = JsonConvert.DeserializeObject<DispenseHistory>(latest_dispense_date_response.message);
 
                                     string[] dd = dispenseH.dispensed_date.Split(' ');
-                                    //date[0] = "2015-10-21"
-                                    //string dpdate = dd[0].Split('-')[1]+"/"+dd[0].Split('-')[2]+"/"+dd[0].Split('-')[0];
+                                    if (dd[0].Split('-')[0].Length < 2) dd[0] = $"0{dd[0].Split('-')[0]}-{dd[0].Split('-')[1]}-{dd[0].Split('-')[2]}";
+                                    if (dd[0].Split('-')[1].Length < 2) dd[0] = $"{dd[0].Split('-')[0]}-0{dd[0].Split('-')[1]}-{dd[0].Split('-')[2]}";
                                     string dpdate = $"{dd[0].Split('-')[1]}/{dd[0].Split('-')[2]}/{dd[0].Split('-')[0]}";
                                     //DateTime econvertedDate = DateTime.Parse(dpdate, CultureInfo.GetCultureInfo("en-GB"));
                                     DateTime econvertedDate = DateTime.ParseExact(dpdate, "MM/dd/yyyy", CultureInfo.GetCultureInfo("en-GB"));
 
+                                    Console.WriteLine("date[0] " + date[0]);
+                                    if (date[0].Split('/')[0].Length < 2) date[0] = $"0{date[0].Split('/')[0]}/{date[0].Split('/')[1]}/{date[0].Split('/')[2]}";
+                                    if (date[0].Split('/')[1].Length < 2) date[0] = $"{date[0].Split('/')[0]}/0{date[0].Split('/')[1]}/{date[0].Split('/')[2]}";
                                     string spdate = $"{date[0].Split('/')[0]}/{date[0].Split('/')[1]}/{date[0].Split('/')[2]}";
+                                    Console.WriteLine("spdate " + spdate);
                                     //DateTime sconvertedDate = DateTime.Parse(spdate);
                                     DateTime sconvertedDate = DateTime.ParseExact(spdate, "dd/MM/yyyy", CultureInfo.GetCultureInfo("en-GB"));
 
