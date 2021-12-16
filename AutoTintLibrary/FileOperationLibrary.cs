@@ -65,7 +65,10 @@ namespace AutoTintLibrary
                 
                 foreach (var csvFile in csvHistoryPathInfo.GetFiles("*.csv"))
                 {
-                        var reader = new StreamReader(csvFile.FullName, Encoding.GetEncoding("windows-874"));
+                        Encoding file_encoding = TextFileEncodingDetector.DetectTextFileEncoding(csvFile.FullName);
+                        //If encoding is utf-8 must read by windows-874, if null must read by utf-8
+                        Encoding read_input_as = (file_encoding == Encoding.GetEncoding("utf-8")) ? Encoding.GetEncoding("windows-874") : Encoding.GetEncoding("utf-8");
+                        var reader = new StreamReader(csvFile.FullName, read_input_as);
                         var csv = new CsvReader(reader, csvConfig);
                         try
                         {
