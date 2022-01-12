@@ -178,11 +178,13 @@ namespace AutoTintLibrary
                                 //latest_dispense_date_response.statusCode = 404;
                                 if ((latest_dispense_date_response.statusCode != 404) && (shouldConvert))
                                 {
-                                    dateList.Add(date[0]);
+                                    //dateList.Add(date[0]);
+                                    dateList.Add(records[i].dispensed_date.Split(' ')[0]);
                                 }
                                 else if (latest_dispense_date_response.statusCode == 404)
                                 {
-                                    dateList.Add(date[0]);
+                                    //dateList.Add(date[0]);
+                                    dateList.Add(records[i].dispensed_date.Split(' ')[0]);
                                 }
                                 all_auto_tint_id_list.Add(records[i].company_code);
 
